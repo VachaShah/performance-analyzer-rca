@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units.temperature;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Resources;
@@ -31,9 +32,11 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.I
 public class CompactNodeTemperatureFlowUnit extends ResourceFlowUnit<CompactNodeSummary> {
     private final CompactNodeSummary compactNodeTemperatureSummary;
 
-    public CompactNodeTemperatureFlowUnit(long timeStamp, ResourceContext context,
-                                          CompactNodeSummary resourceSummary,
-                                          boolean persistSummary) {
+    public CompactNodeTemperatureFlowUnit(
+            long timeStamp,
+            ResourceContext context,
+            CompactNodeSummary resourceSummary,
+            boolean persistSummary) {
         super(timeStamp, context, resourceSummary, persistSummary);
         this.compactNodeTemperatureSummary = resourceSummary;
     }
@@ -55,15 +58,19 @@ public class CompactNodeTemperatureFlowUnit extends ResourceFlowUnit<CompactNode
         return builder.build();
     }
 
-    public static CompactNodeTemperatureFlowUnit buildFlowUnitFromWrapper(final FlowUnitMessage message) {
+    public static CompactNodeTemperatureFlowUnit buildFlowUnitFromWrapper(
+            final FlowUnitMessage message) {
         CompactNodeSummary compactNodeTemperatureSummary =
-                CompactNodeSummary.buildNodeTemperatureProfileFromMessage(message.getNodeTemperatureSummary());
-        return new CompactNodeTemperatureFlowUnit(message.getTimeStamp(), new ResourceContext(Resources.State.UNKNOWN),
-                compactNodeTemperatureSummary, false);
+                CompactNodeSummary.buildNodeTemperatureProfileFromMessage(
+                        message.getNodeTemperatureSummary());
+        return new CompactNodeTemperatureFlowUnit(
+                message.getTimeStamp(),
+                new ResourceContext(Resources.State.UNKNOWN),
+                compactNodeTemperatureSummary,
+                false);
     }
 
     public CompactNodeSummary getCompactNodeTemperatureSummary() {
         return compactNodeTemperatureSummary;
     }
-
 }

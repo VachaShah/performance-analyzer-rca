@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,18 +15,20 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.GenericFlowUnit;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 
 public class EmptyFlowUnit extends GenericFlowUnit {
 
-  public EmptyFlowUnit(long timeStamp) {
-    super(timeStamp);
-  }
+    public EmptyFlowUnit(long timeStamp) {
+        super(timeStamp);
+    }
 
-  @Override
-  public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id esNode) {
-    throw new IllegalStateException(this.getClass().getSimpleName() + " not expected to be passed over wire");
-  }
+    @Override
+    public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id esNode) {
+        throw new IllegalStateException(
+                this.getClass().getSimpleName() + " not expected to be passed over wire");
+    }
 }

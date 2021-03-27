@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.util;
 
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.Callable;
@@ -27,17 +28,20 @@ import java.util.concurrent.TimeoutException;
 public class WaitFor {
     /**
      * Waits at most the specified time for the given task to evaluate to true
+     *
      * @param task The task which we hope evaluates to true before the time limit
      * @param maxWait The max amount of time to wait for the task to evaluate for true
      * @param unit The time unit of the maxWait parameter
      * @throws Exception If the time limit expires before the task evaluates to true
      */
-    public static void waitFor(Callable<Boolean> task, long maxWait, TimeUnit unit) throws Exception {
+    public static void waitFor(Callable<Boolean> task, long maxWait, TimeUnit unit)
+            throws Exception {
         waitFor(task, maxWait, unit, "waitFor timed out before task evaluated to true");
     }
 
     /**
      * Waits at most the specified time for the given task to evaluate to true
+     *
      * @param task The task which we hope evaluates to true before the time limit
      * @param maxWait The max amount of time to wait for the task to evaluate for true
      * @param unit The time unit of the maxWait parameter
@@ -45,7 +49,7 @@ public class WaitFor {
      * @throws Exception If the time limit expires before the task evaluates to true
      */
     public static void waitFor(Callable<Boolean> task, long maxWait, TimeUnit unit, String message)
-        throws Exception {
+            throws Exception {
         long maxWaitMillis = TimeUnit.MILLISECONDS.convert(maxWait, unit);
         do {
             Instant start = Instant.now();

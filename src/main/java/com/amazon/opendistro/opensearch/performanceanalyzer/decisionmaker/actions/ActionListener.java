@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -16,13 +16,11 @@
 package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions;
 
 /**
- * This listener is notified whenever an action suggestion is
- * published by the decision maker Publisher
+ * This listener is notified whenever an action suggestion is published by the decision maker
+ * Publisher
  */
 public interface ActionListener {
 
-  /**
-   * Called when Publisher emits an action
-   */
-  void actionPublished(Action action);
+    /** Called when Publisher emits an action */
+    void actionPublished(Action action);
 }

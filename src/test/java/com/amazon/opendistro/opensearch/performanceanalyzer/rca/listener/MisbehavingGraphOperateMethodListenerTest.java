@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.listener;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
@@ -41,97 +42,97 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executors;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class MisbehavingGraphOperateMethodListenerTest {
-  class FaultyAnalysisGraph extends AnalysisGraph {
-    @Override
-    public void construct() {
-      Metric cpuUtilization = new CPU_Utilization(1);
-      Metric heapUsed = new Sched_Waittime(1);
-      Metric pageMaj = new Paging_MajfltRate(1);
-      Metric heapAlloc = new Heap_AllocRate(1);
+    class FaultyAnalysisGraph extends AnalysisGraph {
+        @Override
+        public void construct() {
+            Metric cpuUtilization = new CPU_Utilization(1);
+            Metric heapUsed = new Sched_Waittime(1);
+            Metric pageMaj = new Paging_MajfltRate(1);
+            Metric heapAlloc = new Heap_AllocRate(1);
 
-      addLeaf(cpuUtilization);
-      addLeaf(heapUsed);
-      addLeaf(pageMaj);
-      addLeaf(heapAlloc);
+            addLeaf(cpuUtilization);
+            addLeaf(heapUsed);
+            addLeaf(pageMaj);
+            addLeaf(heapAlloc);
 
-      Symptom s1 =
-          new MisbehavingGraphOperateMethodListenerTest.FaultyAnalysisGraph.HighCpuSymptom(
-              1, cpuUtilization, heapUsed);
-      s1.addAllUpstreams(Arrays.asList(cpuUtilization, heapUsed));
+            Symptom s1 =
+                    new MisbehavingGraphOperateMethodListenerTest.FaultyAnalysisGraph
+                            .HighCpuSymptom(1, cpuUtilization, heapUsed);
+            s1.addAllUpstreams(Arrays.asList(cpuUtilization, heapUsed));
 
-      System.out.println(this.getClass().getName() + " graph constructed..");
+            System.out.println(this.getClass().getName() + " graph constructed..");
+        }
+
+        class HighCpuSymptom extends Symptom {
+            Metric cpu;
+            Metric heapUsed;
+
+            public HighCpuSymptom(long evaluationIntervalSeconds, Metric cpu, Metric heapUsed) {
+                super(evaluationIntervalSeconds);
+                this.cpu = cpu;
+                this.heapUsed = heapUsed;
+            }
+
+            @Override
+            public SymptomFlowUnit operate() {
+                int x = 5 / 0;
+                return new SymptomFlowUnit(0L);
+            }
+        }
     }
 
-    class HighCpuSymptom extends Symptom {
-      Metric cpu;
-      Metric heapUsed;
+    @Test
+    public void rcaMutedForThrowingExceptions() throws Exception {
+        StatsCollector statsCollector = new StatsCollector("test-stats", 0, new HashMap<>());
+        statsCollector.collectMetrics(0);
+        RcaTestHelper.cleanUpLogs();
 
-      public HighCpuSymptom(long evaluationIntervalSeconds, Metric cpu, Metric heapUsed) {
-        super(evaluationIntervalSeconds);
-        this.cpu = cpu;
-        this.heapUsed = heapUsed;
-      }
+        List<ConnectedComponent> connectedComponents =
+                RcaUtil.getAnalysisGraphComponents(
+                        new MisbehavingGraphOperateMethodListenerTest.FaultyAnalysisGraph());
+        RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
 
-      @Override
-      public SymptomFlowUnit operate() {
-        int x = 5 / 0;
-        return new SymptomFlowUnit(0L);
-      }
-    }
-  }
+        RCASchedulerTask rcaSchedulerTask =
+                new RCASchedulerTask(
+                        1000,
+                        Executors.newFixedThreadPool(2),
+                        connectedComponents,
+                        new MetricsDBProviderTestHelper(true),
+                        null,
+                        rcaConf,
+                        null,
+                        new AppContext());
 
-  @Test
-  public void rcaMutedForThrowingExceptions() throws Exception {
-    StatsCollector statsCollector = new StatsCollector("test-stats", 0, new HashMap<>());
-    statsCollector.collectMetrics(0);
-    RcaTestHelper.cleanUpLogs();
+        for (int i = 0; i <= MisbehavingGraphOperateMethodListener.TOLERANCE_LIMIT; i++) {
+            rcaSchedulerTask.run();
+            Assert.assertTrue(verify(ExceptionsAndErrors.EXCEPTION_IN_OPERATE));
+        }
 
-    List<ConnectedComponent> connectedComponents =
-        RcaUtil.getAnalysisGraphComponents(
-            new MisbehavingGraphOperateMethodListenerTest.FaultyAnalysisGraph());
-    RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
-
-    RCASchedulerTask rcaSchedulerTask =
-        new RCASchedulerTask(
-            1000,
-            Executors.newFixedThreadPool(2),
-            connectedComponents,
-            new MetricsDBProviderTestHelper(true),
-            null,
-            rcaConf,
-            null,
-            new AppContext());
-
-    for (int i = 0; i <= MisbehavingGraphOperateMethodListener.TOLERANCE_LIMIT; i++) {
-      rcaSchedulerTask.run();
-      Assert.assertTrue(verify(ExceptionsAndErrors.EXCEPTION_IN_OPERATE));
+        Assert.assertEquals(1, Stats.getInstance().getMutedGraphNodesCount());
+        Assert.assertTrue(
+                Stats.getInstance()
+                        .isNodeMuted(FaultyAnalysisGraph.HighCpuSymptom.class.getSimpleName()));
     }
 
-    Assert.assertEquals(1, Stats.getInstance().getMutedGraphNodesCount());
-    Assert.assertTrue(
-        Stats.getInstance().isNodeMuted(FaultyAnalysisGraph.HighCpuSymptom.class.getSimpleName()));
-  }
-
-  private boolean verify(MeasurementSet measurementSet) throws InterruptedException {
-    final int MAX_TIME_TO_WAIT_MILLIS = 10_000;
-    int waited_for_millis = 0;
-    while (waited_for_millis++ < MAX_TIME_TO_WAIT_MILLIS) {
-      if (PerformanceAnalyzerApp.RCA_STATS_REPORTER.isMeasurementCollected(measurementSet)) {
-        return true;
-      }
-      Thread.sleep(1);
+    private boolean verify(MeasurementSet measurementSet) throws InterruptedException {
+        final int MAX_TIME_TO_WAIT_MILLIS = 10_000;
+        int waited_for_millis = 0;
+        while (waited_for_millis++ < MAX_TIME_TO_WAIT_MILLIS) {
+            if (PerformanceAnalyzerApp.RCA_STATS_REPORTER.isMeasurementCollected(measurementSet)) {
+                return true;
+            }
+            Thread.sleep(1);
+        }
+        return false;
     }
-    return false;
-  }
 
-  @After
-  public void cleanup() {
-    // RcaTestHelper.cleanUpLogs();
-  }
+    @After
+    public void cleanup() {
+        // RcaTestHelper.cleanUpLogs();
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.configs;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.RcaConf;
 
-/**
- * config object to store rca config settings for ShardRequestCacheRca
- */
+/** config object to store rca config settings for ShardRequestCacheRca */
 public class ShardRequestCacheRcaConfig {
     public static final String CONFIG_NAME = "shard-request-cache-rca-config";
 
@@ -57,7 +56,9 @@ public class ShardRequestCacheRcaConfig {
     }
 
     public static class RCA_CONF_KEY_CONSTANTS {
-        public static final String SHARD_REQUEST_CACHE_SIZE_THRESHOLD = "shard-request-cache-threshold";
-        public static final String SHARD_REQUEST_COLLECTOR_TIME_PERIOD_IN_SEC = "shard-request-collector-time-period-in-sec";
+        public static final String SHARD_REQUEST_CACHE_SIZE_THRESHOLD =
+                "shard-request-cache-threshold";
+        public static final String SHARD_REQUEST_COLLECTOR_TIME_PERIOD_IN_SEC =
+                "shard-request-collector-time-period-in-sec";
     }
 }

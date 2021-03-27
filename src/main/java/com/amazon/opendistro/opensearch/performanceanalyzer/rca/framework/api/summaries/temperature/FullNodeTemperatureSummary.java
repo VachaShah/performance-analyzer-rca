@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.temperature;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.HotNodeSummary;
@@ -32,11 +33,11 @@ import org.jooq.Field;
 import org.jooq.impl.DSL;
 
 /**
- * Full Node Temperature Summary contains the Node Details (ID and Address) and the list of dimensional
- * summaries for a node. This summary is used to construct the compact node level summary which
- *  is passed over the wire to the master which is then used to construct the cluster temperature profile.
-*/
-
+ * Full Node Temperature Summary contains the Node Details (ID and Address) and the list of
+ * dimensional summaries for a node. This summary is used to construct the compact node level
+ * summary which is passed over the wire to the master which is then used to construct the cluster
+ * temperature profile.
+ */
 public class FullNodeTemperatureSummary extends GenericSummary {
     private static final Logger LOG = LogManager.getLogger(FullNodeTemperatureSummary.class);
 
@@ -49,8 +50,8 @@ public class FullNodeTemperatureSummary extends GenericSummary {
     private final TemperatureVector temperatureVector;
 
     /**
-     * A node also has the complete list of shards in each dimension, broken down by the
-     * different temperature zones.
+     * A node also has the complete list of shards in each dimension, broken down by the different
+     * temperature zones.
      */
     private final NodeLevelDimensionalSummary[] nodeDimensionProfiles;
 
@@ -84,7 +85,8 @@ public class FullNodeTemperatureSummary extends GenericSummary {
     public void updateNodeDimensionProfile(NodeLevelDimensionalSummary nodeDimensionProfile) {
         TemperatureDimension dimension = nodeDimensionProfile.getProfileForDimension();
         this.nodeDimensionProfiles[dimension.ordinal()] = nodeDimensionProfile;
-        this.temperatureVector.updateTemperatureForDimension(dimension, nodeDimensionProfile.getMeanTemperature());
+        this.temperatureVector.updateTemperatureForDimension(
+                dimension, nodeDimensionProfile.getMeanTemperature());
     }
 
     public List<GenericSummary> getNestedSummaryList() {
@@ -99,14 +101,14 @@ public class FullNodeTemperatureSummary extends GenericSummary {
 
     @Override
     public <T extends GeneratedMessageV3> T buildSummaryMessage() {
-        throw new IllegalStateException("FullNodeTemperatureSummary should not be transported "
-                + "over the wire.");
+        throw new IllegalStateException(
+                "FullNodeTemperatureSummary should not be transported " + "over the wire.");
     }
 
     @Override
     public void buildSummaryMessageAndAddToFlowUnit(FlowUnitMessage.Builder messageBuilder) {
-        throw new IllegalStateException("FullNodeTemperatureSummary should not be received over "
-                + "the wire.");
+        throw new IllegalStateException(
+                "FullNodeTemperatureSummary should not be received over " + "the wire.");
     }
 
     @Override
@@ -118,8 +120,14 @@ public class FullNodeTemperatureSummary extends GenericSummary {
     public List<Field<?>> getSqlSchema() {
         List<Field<?>> schema = new ArrayList<>();
 
-        schema.add(DSL.field(DSL.name(HotNodeSummary.SQL_SCHEMA_CONSTANTS.NODE_ID_COL_NAME), String.class));
-        schema.add(DSL.field(DSL.name(HotNodeSummary.SQL_SCHEMA_CONSTANTS.HOST_IP_ADDRESS_COL_NAME), String.class));
+        schema.add(
+                DSL.field(
+                        DSL.name(HotNodeSummary.SQL_SCHEMA_CONSTANTS.NODE_ID_COL_NAME),
+                        String.class));
+        schema.add(
+                DSL.field(
+                        DSL.name(HotNodeSummary.SQL_SCHEMA_CONSTANTS.HOST_IP_ADDRESS_COL_NAME),
+                        String.class));
 
         for (TemperatureDimension dimension : TemperatureDimension.values()) {
             schema.add(DSL.field(DSL.name(dimension.NAME), Short.class));
@@ -146,14 +154,13 @@ public class FullNodeTemperatureSummary extends GenericSummary {
         for (TemperatureDimension dimension : TemperatureDimension.values()) {
             TemperatureVector.NormalizedValue value =
                     temperatureVector.getTemperatureFor(dimension);
-            summaryObj.addProperty(dimension.NAME,
-                    value != null ? value.getPOINTS() : null);
+            summaryObj.addProperty(dimension.NAME, value != null ? value.getPOINTS() : null);
         }
-        getNestedSummaryList().forEach(
-                summary -> {
-                    summaryObj.add(summary.getTableName(), summary.toJson());
-                }
-        );
+        getNestedSummaryList()
+                .forEach(
+                        summary -> {
+                            summaryObj.add(summary.getTableName(), summary.toJson());
+                        });
         return summaryObj;
     }
 }

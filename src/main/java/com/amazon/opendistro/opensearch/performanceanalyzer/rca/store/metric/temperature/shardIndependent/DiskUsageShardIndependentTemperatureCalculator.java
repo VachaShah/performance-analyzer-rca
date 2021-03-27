@@ -15,11 +15,12 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.shardIndependent;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature.TemperatureDimension;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.shardIndependent.calculators.ShardIndependentTemperatureCalculator;
 
-public class DiskUsageShardIndependentTemperatureCalculator extends
-        ShardIndependentTemperatureCalculator {
+public class DiskUsageShardIndependentTemperatureCalculator
+        extends ShardIndependentTemperatureCalculator {
     public DiskUsageShardIndependentTemperatureCalculator() {
         super(TemperatureDimension.Shard_Size_In_Bytes);
     }

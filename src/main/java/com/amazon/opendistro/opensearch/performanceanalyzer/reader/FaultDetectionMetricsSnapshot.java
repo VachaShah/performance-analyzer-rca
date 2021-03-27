@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.DBUtils;
-import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
+import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.BatchBindStep;
@@ -63,7 +63,6 @@ public class FaultDetectionMetricsSnapshot implements Removable {
         public String toString() {
             return fieldValue;
         }
-
     }
 
     public FaultDetectionMetricsSnapshot(Connection conn, Long windowStartTime) {
@@ -75,9 +74,22 @@ public class FaultDetectionMetricsSnapshot implements Removable {
                 new ArrayList<Field<?>>() {
                     {
                         this.add(DSL.field(DSL.name(Fields.RID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(Fields.FAULT_DETECTION_TYPE.toString()), String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.TARGET_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(Fields.FAULT_DETECTION_TYPE.toString()),
+                                        String.class));
                         this.add(DSL.field(DSL.name(Fields.ST.toString()), Long.class));
                         this.add(DSL.field(DSL.name(Fields.ET.toString()), Long.class));
                         this.add(DSL.field(DSL.name(Fields.FAULT.toString()), Integer.class));
@@ -99,10 +111,10 @@ public class FaultDetectionMetricsSnapshot implements Removable {
     public void putStartMetric(Long startTime, Map<String, String> dimensions) {
         Map<Field<?>, String> dimensionMap = new HashMap<>();
         for (Map.Entry<String, String> dimension : dimensions.entrySet()) {
-            dimensionMap.put(DSL.field(DSL.name(dimension.getKey()), String.class), dimension.getValue());
+            dimensionMap.put(
+                    DSL.field(DSL.name(dimension.getKey()), String.class), dimension.getValue());
         }
-        create
-                .insertInto(DSL.table(this.tableName))
+        create.insertInto(DSL.table(this.tableName))
                 .set(DSL.field(DSL.name(Fields.ST.toString()), Long.class), startTime)
                 .set(dimensionMap)
                 .execute();
@@ -112,10 +124,10 @@ public class FaultDetectionMetricsSnapshot implements Removable {
     public void putEndMetric(Long endTime, int error, Map<String, String> dimensions) {
         Map<Field<?>, String> dimensionMap = new HashMap<>();
         for (Map.Entry<String, String> dimension : dimensions.entrySet()) {
-            dimensionMap.put(DSL.field(DSL.name(dimension.getKey()), String.class), dimension.getValue());
+            dimensionMap.put(
+                    DSL.field(DSL.name(dimension.getKey()), String.class), dimension.getValue());
         }
-        create
-                .insertInto(DSL.table(this.tableName))
+        create.insertInto(DSL.table(this.tableName))
                 .set(DSL.field(DSL.name(Fields.ET.toString()), Long.class), endTime)
                 .set(DSL.field(DSL.name(Fields.FAULT.toString()), Integer.class), error)
                 .set(dimensionMap)
@@ -133,8 +145,7 @@ public class FaultDetectionMetricsSnapshot implements Removable {
 
     public void rolloverInFlightRequests(FaultDetectionMetricsSnapshot prevSnap) {
         // Fetch all entries that have not ended and write to current table.
-        create
-                .insertInto(DSL.table(this.tableName))
+        create.insertInto(DSL.table(this.tableName))
                 .select(create.select().from(prevSnap.fetchInFlightRequests()))
                 .execute();
     }
@@ -144,23 +155,37 @@ public class FaultDetectionMetricsSnapshot implements Removable {
                 new ArrayList<SelectField<?>>() {
                     {
                         this.add(DSL.field(DSL.name(Fields.RID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(Fields.FAULT_DETECTION_TYPE.toString()), String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.TARGET_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(Fields.FAULT_DETECTION_TYPE.toString()),
+                                        String.class));
                         this.add(DSL.field(DSL.name(Fields.FAULT.toString()), String.class));
                         this.add(DSL.field(Fields.ST.toString(), Long.class));
                         this.add(DSL.field(Fields.ET.toString(), Long.class));
                     }
                 };
 
-        return create
-                .select(fields)
+        return create.select(fields)
                 .from(groupByRidAndTypeSelect())
                 .where(
                         DSL.field(Fields.ST.toString())
                                 .isNotNull()
                                 .and(DSL.field(Fields.ET.toString()).isNull())
-                                .and(DSL.field(Fields.ST.toString()).gt(this.windowStartTime - EXPIRE_AFTER)));
+                                .and(
+                                        DSL.field(Fields.ST.toString())
+                                                .gt(this.windowStartTime - EXPIRE_AFTER)));
     }
 
     public SelectHavingStep<Record> groupByRidAndTypeSelect() {
@@ -168,21 +193,38 @@ public class FaultDetectionMetricsSnapshot implements Removable {
                 new ArrayList<SelectField<?>>() {
                     {
                         this.add(DSL.field(DSL.name(Fields.RID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(Fields.FAULT_DETECTION_TYPE.toString()), String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.TARGET_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(Fields.FAULT_DETECTION_TYPE.toString()),
+                                        String.class));
                     }
                 };
         fields.add(
-                DSL.max(DSL.field(Fields.ST.toString(), Long.class)).as(DSL.name(Fields.ST.toString())));
+                DSL.max(DSL.field(Fields.ST.toString(), Long.class))
+                        .as(DSL.name(Fields.ST.toString())));
         fields.add(
-                DSL.max(DSL.field(Fields.ET.toString(), Long.class)).as(DSL.name(Fields.ET.toString())));
+                DSL.max(DSL.field(Fields.ET.toString(), Long.class))
+                        .as(DSL.name(Fields.ET.toString())));
         fields.add(
-                DSL.max(DSL.field(Fields.FAULT.toString(), Integer.class)).as(DSL.name(Fields.FAULT.toString())));
-        return create
-                .select(fields)
+                DSL.max(DSL.field(Fields.FAULT.toString(), Integer.class))
+                        .as(DSL.name(Fields.FAULT.toString())));
+        return create.select(fields)
                 .from(DSL.table(this.tableName))
-                .groupBy(DSL.field(Fields.RID.toString()), DSL.field(Fields.FAULT_DETECTION_TYPE.toString()));
+                .groupBy(
+                        DSL.field(Fields.RID.toString()),
+                        DSL.field(Fields.FAULT_DETECTION_TYPE.toString()));
     }
 
     public SelectHavingStep<Record> fetchLatencyTable() {
@@ -190,9 +232,22 @@ public class FaultDetectionMetricsSnapshot implements Removable {
                 new ArrayList<SelectField<?>>() {
                     {
                         this.add(DSL.field(DSL.name(Fields.RID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString()), Long.class));
-                        this.add(DSL.field(DSL.name(Fields.FAULT_DETECTION_TYPE.toString()), String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.TARGET_NODE_ID
+                                                        .toString()),
+                                        Long.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(Fields.FAULT_DETECTION_TYPE.toString()),
+                                        String.class));
                         this.add(DSL.field(Fields.ST.toString(), Long.class));
                         this.add(DSL.field(Fields.ET.toString(), Long.class));
                         this.add(DSL.field(Fields.FAULT.toString(), Integer.class));
@@ -202,8 +257,7 @@ public class FaultDetectionMetricsSnapshot implements Removable {
                 DSL.field(Fields.ET.toString())
                         .minus(DSL.field(Fields.ST.toString()))
                         .as(DSL.name(Fields.LAT.toString())));
-        return create
-                .select(fields)
+        return create.select(fields)
                 .from(groupByRidAndTypeSelect())
                 .where(
                         DSL.field(Fields.ET.toString())
@@ -215,43 +269,85 @@ public class FaultDetectionMetricsSnapshot implements Removable {
         ArrayList<SelectField<?>> fields =
                 new ArrayList<SelectField<?>>() {
                     {
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(Fields.FAULT_DETECTION_TYPE.toString()), String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.TARGET_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(Fields.FAULT_DETECTION_TYPE.toString()),
+                                        String.class));
 
                         this.add(
                                 DSL.sum(DSL.field(DSL.name(Fields.LAT.toString()), Double.class))
-                                        .as(DBUtils.getAggFieldName(Fields.LAT.toString(), MetricsDB.SUM)));
+                                        .as(
+                                                DBUtils.getAggFieldName(
+                                                        Fields.LAT.toString(), MetricsDB.SUM)));
                         this.add(
                                 DSL.avg(DSL.field(DSL.name(Fields.LAT.toString()), Double.class))
-                                        .as(DBUtils.getAggFieldName(Fields.LAT.toString(), MetricsDB.AVG)));
+                                        .as(
+                                                DBUtils.getAggFieldName(
+                                                        Fields.LAT.toString(), MetricsDB.AVG)));
                         this.add(
                                 DSL.min(DSL.field(DSL.name(Fields.LAT.toString()), Double.class))
-                                        .as(DBUtils.getAggFieldName(Fields.LAT.toString(), MetricsDB.MIN)));
+                                        .as(
+                                                DBUtils.getAggFieldName(
+                                                        Fields.LAT.toString(), MetricsDB.MIN)));
                         this.add(
                                 DSL.max(DSL.field(DSL.name(Fields.LAT.toString()), Double.class))
-                                        .as(DBUtils.getAggFieldName(Fields.LAT.toString(), MetricsDB.MAX)));
+                                        .as(
+                                                DBUtils.getAggFieldName(
+                                                        Fields.LAT.toString(), MetricsDB.MAX)));
 
                         this.add(
                                 DSL.sum(DSL.field(DSL.name(Fields.FAULT.toString()), Double.class))
-                                        .as(DBUtils.getAggFieldName(Fields.FAULT.toString(), MetricsDB.SUM)));
+                                        .as(
+                                                DBUtils.getAggFieldName(
+                                                        Fields.FAULT.toString(), MetricsDB.SUM)));
                         this.add(
                                 DSL.avg(DSL.field(DSL.name(Fields.FAULT.toString()), Double.class))
-                                        .as(DBUtils.getAggFieldName(Fields.FAULT.toString(), MetricsDB.AVG)));
+                                        .as(
+                                                DBUtils.getAggFieldName(
+                                                        Fields.FAULT.toString(), MetricsDB.AVG)));
                         this.add(
                                 DSL.min(DSL.field(DSL.name(Fields.FAULT.toString()), Double.class))
-                                        .as(DBUtils.getAggFieldName(Fields.FAULT.toString(), MetricsDB.MIN)));
+                                        .as(
+                                                DBUtils.getAggFieldName(
+                                                        Fields.FAULT.toString(), MetricsDB.MIN)));
                         this.add(
                                 DSL.max(DSL.field(DSL.name(Fields.FAULT.toString()), Double.class))
-                                        .as(DBUtils.getAggFieldName(Fields.FAULT.toString(), MetricsDB.MAX)));
+                                        .as(
+                                                DBUtils.getAggFieldName(
+                                                        Fields.FAULT.toString(), MetricsDB.MAX)));
                     }
                 };
         ArrayList<Field<?>> groupByFields =
                 new ArrayList<Field<?>>() {
                     {
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString()), String.class));
-                        this.add(DSL.field(DSL.name(Fields.FAULT_DETECTION_TYPE.toString()), String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(
+                                                AllMetrics.FaultDetectionDimension.TARGET_NODE_ID
+                                                        .toString()),
+                                        String.class));
+                        this.add(
+                                DSL.field(
+                                        DSL.name(Fields.FAULT_DETECTION_TYPE.toString()),
+                                        String.class));
                     }
                 };
 

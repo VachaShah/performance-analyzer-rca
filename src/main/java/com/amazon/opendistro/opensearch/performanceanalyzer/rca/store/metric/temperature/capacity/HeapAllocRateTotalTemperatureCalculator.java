@@ -15,12 +15,13 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.capacity;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature.TemperatureDimension;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.capacity.calculators.TotalNodeTemperatureCalculator;
 
 public class HeapAllocRateTotalTemperatureCalculator extends TotalNodeTemperatureCalculator {
 
-  public HeapAllocRateTotalTemperatureCalculator() {
-    super(TemperatureDimension.Heap_AllocRate);
-  }
+    public HeapAllocRateTotalTemperatureCalculator() {
+        super(TemperatureDimension.Heap_AllocRate);
+    }
 }

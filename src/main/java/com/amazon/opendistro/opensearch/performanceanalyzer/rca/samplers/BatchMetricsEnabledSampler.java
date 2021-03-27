@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,34 +15,34 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.samplers;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.metrics.ReaderMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.collectors.SampleAggregator;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.emitters.ISampler;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.ReaderMetricsProcessor;
-
 import java.util.Objects;
 
 public class BatchMetricsEnabledSampler implements ISampler {
-  private final AppContext appContext;
+    private final AppContext appContext;
 
-  public BatchMetricsEnabledSampler(final AppContext appContext) {
-    Objects.requireNonNull(appContext);
-    this.appContext = appContext;
-  }
-
-  @Override
-  public void sample(SampleAggregator sampleCollector) {
-    sampleCollector.updateStat(ReaderMetrics.BATCH_METRICS_ENABLED, "",
-        isBatchMetricsEnabled() ? 1 : 0);
-  }
-
-  boolean isBatchMetricsEnabled() {
-    InstanceDetails currentNode = appContext.getMyInstanceDetails();
-    if (currentNode != null && currentNode.getIsMaster()) {
-      return ReaderMetricsProcessor.getInstance().getBatchMetricsEnabled();
+    public BatchMetricsEnabledSampler(final AppContext appContext) {
+        Objects.requireNonNull(appContext);
+        this.appContext = appContext;
     }
-    return false;
-  }
+
+    @Override
+    public void sample(SampleAggregator sampleCollector) {
+        sampleCollector.updateStat(
+                ReaderMetrics.BATCH_METRICS_ENABLED, "", isBatchMetricsEnabled() ? 1 : 0);
+    }
+
+    boolean isBatchMetricsEnabled() {
+        InstanceDetails currentNode = appContext.getMyInstanceDetails();
+        if (currentNode != null && currentNode.getIsMaster()) {
+            return ReaderMetricsProcessor.getInstance().getBatchMetricsEnabled();
+        }
+        return false;
+    }
 }

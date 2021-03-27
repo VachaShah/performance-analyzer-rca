@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,29 +15,30 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.tests.jvmsizing.validator;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.api.IValidator;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.actions.PersistedAction;
 
 public abstract class HeapSizeIncreaseValidator implements IValidator {
 
-  AppContext appContext;
-  long startTime;
+    AppContext appContext;
+    long startTime;
 
-  public HeapSizeIncreaseValidator() {
-    appContext = new AppContext();
-    startTime = System.currentTimeMillis();
-  }
-
-  @Override
-  public boolean checkDbObj(Object object) {
-    if (object == null) {
-      return false;
+    public HeapSizeIncreaseValidator() {
+        appContext = new AppContext();
+        startTime = System.currentTimeMillis();
     }
 
-    PersistedAction persistedAction = (PersistedAction) object;
-    return checkPersistedAction(persistedAction);
-  }
+    @Override
+    public boolean checkDbObj(Object object) {
+        if (object == null) {
+            return false;
+        }
 
-  public abstract boolean checkPersistedAction(final PersistedAction persistedAction);
+        PersistedAction persistedAction = (PersistedAction) object;
+        return checkPersistedAction(persistedAction);
+    }
+
+    public abstract boolean checkPersistedAction(final PersistedAction persistedAction);
 }

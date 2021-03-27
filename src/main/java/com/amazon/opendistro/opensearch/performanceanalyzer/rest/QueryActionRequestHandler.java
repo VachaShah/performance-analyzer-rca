@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rest;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatExceptionCode;
@@ -30,7 +31,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.security.InvalidParameterException;
 import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ParameterizedMessage;
@@ -39,9 +39,8 @@ import org.apache.logging.log4j.util.Supplier;
 /**
  * Request Handler that supports querying the latest action set
  *
- * <p>To get the response for the latest action set suggested via DM Framework
- * curl --url "localhost:9600/_opendistro/_performanceanalyzer/actions" -XGET
- * @<code>
+ * <p>To get the response for the latest action set suggested via DM Framework curl --url
+ * "localhost:9600/_opendistro/_performanceanalyzer/actions" -XGET @<code>
  *     {
  *     "LastSuggestedActionSet": [
  *         {
@@ -66,9 +65,9 @@ import org.apache.logging.log4j.util.Supplier;
  * }
  *
  * </code>
- *     <p/>
+ *
+ * <p>
  */
-
 public class QueryActionRequestHandler extends MetricsHandler implements HttpHandler {
     public static final String ACTION_SET_JSON_NAME = "LastSuggestedActionSet";
     private static final Logger LOG = LogManager.getLogger(QueryActionRequestHandler.class);
@@ -78,7 +77,7 @@ public class QueryActionRequestHandler extends MetricsHandler implements HttpHan
 
     public QueryActionRequestHandler(final AppContext appContext) {
         this.appContext = appContext;
-         jsonParser = new JsonParser();
+        jsonParser = new JsonParser();
     }
 
     @Override
@@ -123,14 +122,12 @@ public class QueryActionRequestHandler extends MetricsHandler implements HttpHan
         exchange.close();
     }
 
-    private void handleActionRequest(HttpExchange exchange)
-            throws IOException {
-        //check if we are querying from elected master
+    private void handleActionRequest(HttpExchange exchange) throws IOException {
+        // check if we are querying from elected master
         if (!validNodeRole()) {
             JsonObject errResponse = new JsonObject();
             errResponse.addProperty("error", "Node being queried is not elected master.");
-            sendResponse(exchange, errResponse.toString(),
-                    HttpURLConnection.HTTP_BAD_REQUEST);
+            sendResponse(exchange, errResponse.toString(), HttpURLConnection.HTTP_BAD_REQUEST);
             return;
         }
 
@@ -143,8 +140,11 @@ public class QueryActionRequestHandler extends MetricsHandler implements HttpHan
         JsonObject result = new JsonObject();
         if (persistable != null) {
             try {
-                List<PersistedAction> actionSet = persistable.readAllForMaxField(PersistedAction.class,
-                        PersistedAction.SQL_SCHEMA_CONSTANTS.TIMESTAMP_COL_NAME, Long.class);
+                List<PersistedAction> actionSet =
+                        persistable.readAllForMaxField(
+                                PersistedAction.class,
+                                PersistedAction.SQL_SCHEMA_CONSTANTS.TIMESTAMP_COL_NAME,
+                                Long.class);
                 JsonArray response = new JsonArray();
                 if (actionSet != null) {
                     for (PersistedAction action : actionSet) {
@@ -162,7 +162,8 @@ public class QueryActionRequestHandler extends MetricsHandler implements HttpHan
         return result;
     }
 
-    public void sendResponse(HttpExchange exchange, String response, int status) throws IOException {
+    public void sendResponse(HttpExchange exchange, String response, int status)
+            throws IOException {
         try {
             OutputStream os = exchange.getResponseBody();
             exchange.sendResponseHeaders(status, response.length());

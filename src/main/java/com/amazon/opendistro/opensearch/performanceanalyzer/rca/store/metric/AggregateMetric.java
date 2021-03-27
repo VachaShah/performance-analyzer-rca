@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Metric;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units.MetricFlowUnit;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.DSLContext;
@@ -32,15 +32,12 @@ import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.impl.DSL;
 
-
 /**
- * AggregateMetric can be used to group the sqlite to one or more columns
- * and perform sum aggregation and sorting function on the result
- * For example, we can get the sum of cpu usage for each operation and sort them in descending
- * order by constructing this Metric as follows:
- * <p>
- * new AggregateMetric(5, CPU_Utilization.NAME, CommonDimension.OPERATION.toString());
- * </p>
+ * AggregateMetric can be used to group the sqlite to one or more columns and perform sum
+ * aggregation and sorting function on the result For example, we can get the sum of cpu usage for
+ * each operation and sort them in descending order by constructing this Metric as follows:
+ *
+ * <p>new AggregateMetric(5, CPU_Utilization.NAME, CommonDimension.OPERATION.toString());
  */
 public class AggregateMetric extends Metric {
 
@@ -50,9 +47,12 @@ public class AggregateMetric extends Metric {
     private final AggregateFunction aggregateFunction;
     private final String metricsDBAggrColumn;
 
-    public AggregateMetric(final long evaluationIntervalSeconds, final String tableName,
-                           final AggregateFunction aggregateFunction,
-                           String metricsDBCol, final String... groupByFieldsName) {
+    public AggregateMetric(
+            final long evaluationIntervalSeconds,
+            final String tableName,
+            final AggregateFunction aggregateFunction,
+            String metricsDBCol,
+            final String... groupByFieldsName) {
         super("", evaluationIntervalSeconds);
         this.tableName = tableName;
         this.groupByFieldsName = new ArrayList<>(Arrays.asList(groupByFieldsName));
@@ -70,13 +70,13 @@ public class AggregateMetric extends Metric {
         }
     }
 
-    protected Result<Record> createDslAndFetch(final DSLContext context,
-                                               final String tableName,
-                                               final Field<?> aggDimension,
-                                               final List<Field<?>> groupByFieldsList,
-                                               final List<Field<?>> selectFieldsList) {
-        return context
-                .select(selectFieldsList)
+    protected Result<Record> createDslAndFetch(
+            final DSLContext context,
+            final String tableName,
+            final Field<?> aggDimension,
+            final List<Field<?>> groupByFieldsList,
+            final List<Field<?>> selectFieldsList) {
+        return context.select(selectFieldsList)
                 .from(tableName)
                 .groupBy(groupByFieldsList)
                 .orderBy(aggDimension.desc())
@@ -92,8 +92,8 @@ public class AggregateMetric extends Metric {
         return groupByFieldsList;
     }
 
-    protected List<Field<?>> getSelectFieldsList(final List<Field<?>> groupByFields,
-                                                 Field<?> aggrDimension) {
+    protected List<Field<?>> getSelectFieldsList(
+            final List<Field<?>> groupByFields, Field<?> aggrDimension) {
         List<Field<?>> fieldsList = new ArrayList<>(groupByFields);
         fieldsList.add(aggrDimension);
         return fieldsList;
@@ -120,18 +120,19 @@ public class AggregateMetric extends Metric {
             final List<Field<?>> groupByFieldsList = getGroupByFieldsList();
             selectFieldsList = getSelectFieldsList(groupByFieldsList, aggDimension);
 
-            result = createDslAndFetch(context, tableName, aggDimension, groupByFieldsList,
-                    selectFieldsList);
+            result =
+                    createDslAndFetch(
+                            context, tableName, aggDimension, groupByFieldsList, selectFieldsList);
         } catch (Exception e) {
-            //TODO: Emit log/stats that gathering failed.
+            // TODO: Emit log/stats that gathering failed.
             LOG.error("RCA: Caught an exception while getting the DB {}", e.getMessage());
             return MetricFlowUnit.generic();
         }
         return new MetricFlowUnit(0, result);
     }
 
-    protected static Field<?> getAggDimension(final Field<Double> numDimension,
-                                              AggregateFunction aggregateFunction) {
+    protected static Field<?> getAggDimension(
+            final Field<Double> numDimension, AggregateFunction aggregateFunction) {
         if (aggregateFunction == AggregateFunction.MAX) {
             return DSL.max(numDimension);
         } else if (aggregateFunction == AggregateFunction.MIN) {

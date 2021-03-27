@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,36 +15,36 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions;
 
-import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster.NodeKey;
 
+import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster.NodeKey;
 import java.util.List;
 import java.util.Map;
 
 public interface Action {
 
-  /**
-   * Returns true if the configured action is actionable, false otherwise.
-   *
-   * <p>Examples of non-actionable actions are resource configurations where limits have been
-   * reached.
-   */
-  boolean isActionable();
+    /**
+     * Returns true if the configured action is actionable, false otherwise.
+     *
+     * <p>Examples of non-actionable actions are resource configurations where limits have been
+     * reached.
+     */
+    boolean isActionable();
 
-  /** Time to wait since last recommendation, before suggesting this action again */
-  long coolOffPeriodInMillis();
+    /** Time to wait since last recommendation, before suggesting this action again */
+    long coolOffPeriodInMillis();
 
-  /** Returns a list of Elasticsearch nodes impacted by this action. */
-  List<NodeKey> impactedNodes();
+    /** Returns a list of Elasticsearch nodes impacted by this action. */
+    List<NodeKey> impactedNodes();
 
-  /** Returns a map of Elasticsearch nodes to ImpactVector of this action on that node */
-  Map<NodeKey, ImpactVector> impact();
+    /** Returns a map of Elasticsearch nodes to ImpactVector of this action on that node */
+    Map<NodeKey, ImpactVector> impact();
 
-  /** Returns action name */
-  String name();
+    /** Returns action name */
+    String name();
 
-  /** Returns a summary for the configured action */
-  String summary();
+    /** Returns a summary for the configured action */
+    String summary();
 
-  /** Returns if this action is explicitly muted through configuration */
-  boolean isMuted();
+    /** Returns if this action is explicitly muted through configuration */
+    boolean isMuted();
 }

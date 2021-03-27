@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,18 +15,19 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared.Event;
 
 public interface EventProcessor {
-  int BATCH_LIMIT = 500;
+    int BATCH_LIMIT = 500;
 
-  void initializeProcessing(long startTime, long endTime);
+    void initializeProcessing(long startTime, long endTime);
 
-  void finalizeProcessing();
+    void finalizeProcessing();
 
-  void processEvent(Event event);
+    void processEvent(Event event);
 
-  boolean shouldProcessEvent(Event event);
+    boolean shouldProcessEvent(Event event);
 
-  void commitBatchIfRequired();
+    void commitBatchIfRequired();
 }

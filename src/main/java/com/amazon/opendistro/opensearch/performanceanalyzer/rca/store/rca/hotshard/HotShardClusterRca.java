@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.hotshard;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.Resource;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.configs.HotShardClusterRcaConfig;
@@ -42,10 +43,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This RCA is used to find hot shards per index in a cluster using the HotShardSummary
- * sent from each node via 'HotShardRca'. If the resource utilization is (threshold)%
- * higher than the mean resource utilization for the index, we declare the shard hot.
- *
+ * This RCA is used to find hot shards per index in a cluster using the HotShardSummary sent from
+ * each node via 'HotShardRca'. If the resource utilization is (threshold)% higher than the mean
+ * resource utilization for the index, we declare the shard hot.
  */
 public class HotShardClusterRca extends Rca<ResourceFlowUnit<HotClusterSummary>> {
 
@@ -67,7 +67,8 @@ public class HotShardClusterRca extends Rca<ResourceFlowUnit<HotClusterSummary>>
     private Table<String, NodeShardKey, Double> IOThroughputInfoTable;
     private Table<String, NodeShardKey, Double> IOSysCallRateInfoTable;
 
-    public <R extends Rca<ResourceFlowUnit<HotNodeSummary>>> HotShardClusterRca(final int rcaPeriod, final R hotShardRca) {
+    public <R extends Rca<ResourceFlowUnit<HotNodeSummary>>> HotShardClusterRca(
+            final int rcaPeriod, final R hotShardRca) {
         super(5);
         this.hotShardRca = hotShardRca;
         this.rcaPeriod = rcaPeriod;
@@ -76,13 +77,19 @@ public class HotShardClusterRca extends Rca<ResourceFlowUnit<HotClusterSummary>>
         this.cpuUtilizationInfoTable = HashBasedTable.create();
         this.IOThroughputInfoTable = HashBasedTable.create();
         this.IOSysCallRateInfoTable = HashBasedTable.create();
-        this.cpuUtilizationClusterThreshold = HotShardClusterRcaConfig.DEFAULT_CPU_UTILIZATION_CLUSTER_THRESHOLD;
-        this.ioTotThroughputClusterThreshold = HotShardClusterRcaConfig.DEFAULT_IO_TOTAL_THROUGHPUT_CLUSTER_THRESHOLD;
-        this.ioTotSysCallRateClusterThreshold = HotShardClusterRcaConfig.DEFAULT_IO_TOTAL_SYSCALL_RATE_CLUSTER_THRESHOLD;
+        this.cpuUtilizationClusterThreshold =
+                HotShardClusterRcaConfig.DEFAULT_CPU_UTILIZATION_CLUSTER_THRESHOLD;
+        this.ioTotThroughputClusterThreshold =
+                HotShardClusterRcaConfig.DEFAULT_IO_TOTAL_THROUGHPUT_CLUSTER_THRESHOLD;
+        this.ioTotSysCallRateClusterThreshold =
+                HotShardClusterRcaConfig.DEFAULT_IO_TOTAL_SYSCALL_RATE_CLUSTER_THRESHOLD;
     }
 
-    private void populateResourceInfoTable(String indexName, NodeShardKey nodeShardKey,
-                                           double metricValue, Table<String, NodeShardKey, Double> metricMap) {
+    private void populateResourceInfoTable(
+            String indexName,
+            NodeShardKey nodeShardKey,
+            double metricValue,
+            Table<String, NodeShardKey, Double> metricMap) {
         if (null == metricMap.get(indexName, nodeShardKey)) {
             metricMap.put(indexName, nodeShardKey, metricValue);
         } else {
@@ -100,23 +107,36 @@ public class HotShardClusterRca extends Rca<ResourceFlowUnit<HotClusterSummary>>
                 String indexName = hotShardSummary.getIndexName();
                 NodeShardKey nodeShardKey = new NodeShardKey(nodeId, hotShardSummary.getShardId());
 
-                populateResourceInfoTable(indexName, nodeShardKey, hotShardSummary.getCpuUtilization(), cpuUtilizationInfoTable);
-                populateResourceInfoTable(indexName, nodeShardKey, hotShardSummary.getIOThroughput(), IOThroughputInfoTable);
-                populateResourceInfoTable(indexName, nodeShardKey, hotShardSummary.getIOSysCallrate(), IOSysCallRateInfoTable);
-
+                populateResourceInfoTable(
+                        indexName,
+                        nodeShardKey,
+                        hotShardSummary.getCpuUtilization(),
+                        cpuUtilizationInfoTable);
+                populateResourceInfoTable(
+                        indexName,
+                        nodeShardKey,
+                        hotShardSummary.getIOThroughput(),
+                        IOThroughputInfoTable);
+                populateResourceInfoTable(
+                        indexName,
+                        nodeShardKey,
+                        hotShardSummary.getIOSysCallrate(),
+                        IOSysCallRateInfoTable);
             }
         }
     }
 
     /**
      * Evaluates the threshold value for resource usage across shards for given index.
+     *
      * @param perIndexShardInfo Resource usage across shards for given index
      * @param thresholdInPercentage Threshold for the resource in percentage
-     *
      */
-    private double getThresholdValue(Map<NodeShardKey, Double> perIndexShardInfo, double thresholdInPercentage) {
+    private double getThresholdValue(
+            Map<NodeShardKey, Double> perIndexShardInfo, double thresholdInPercentage) {
         // To handle the outlier(s) in the data, using median instead of mean
-        double[] perIndexShardUsage = perIndexShardInfo.values().stream().mapToDouble(usage -> usage).toArray();
+        double[] perIndexShardUsage =
+                perIndexShardInfo.values().stream().mapToDouble(usage -> usage).toArray();
         Arrays.sort(perIndexShardUsage);
 
         double median;
@@ -131,37 +151,51 @@ public class HotShardClusterRca extends Rca<ResourceFlowUnit<HotClusterSummary>>
 
     /**
      * Finds hot shard(s) across an index and creates HotResourceSummary for them.
+     *
      * @param resourceInfoTable Guava Table with 'Index_Name', 'NodeShardKey' and 'UsageValue'
      * @param thresholdInPercentage Threshold for the resource in percentage
      * @param hotResourceSummaryList Summary List for hot shards
      * @param resource Resource message object defined in protobuf
-     *
      */
-    private void findHotShardAndCreateSummary(Table<String, NodeShardKey, Double> resourceInfoTable, double thresholdInPercentage,
-                                              List<HotResourceSummary> hotResourceSummaryList, Resource resource) {
+    private void findHotShardAndCreateSummary(
+            Table<String, NodeShardKey, Double> resourceInfoTable,
+            double thresholdInPercentage,
+            List<HotResourceSummary> hotResourceSummaryList,
+            Resource resource) {
         for (String indexName : resourceInfoTable.rowKeySet()) {
             Map<NodeShardKey, Double> perIndexShardInfo = resourceInfoTable.row(indexName);
             double thresholdValue = getThresholdValue(perIndexShardInfo, thresholdInPercentage);
             for (Map.Entry<NodeShardKey, Double> shardInfo : perIndexShardInfo.entrySet()) {
                 if (shardInfo.getValue() > thresholdValue) {
                     // Shard Identifier is represented by "Node_ID Index_Name Shard_ID" string
-                    String shardIdentifier =  String.join(" ", new String[]
-                            { shardInfo.getKey().getNodeId(), indexName, shardInfo.getKey().getShardId() });
+                    String shardIdentifier =
+                            String.join(
+                                    " ",
+                                    new String[] {
+                                        shardInfo.getKey().getNodeId(),
+                                        indexName,
+                                        shardInfo.getKey().getShardId()
+                                    });
 
                     // Add to hotResourceSummaryList
-                    hotResourceSummaryList.add(new HotResourceSummary(resource, thresholdValue,
-                            shardInfo.getValue(), SLIDING_WINDOW_IN_SECONDS, shardIdentifier));
+                    hotResourceSummaryList.add(
+                            new HotResourceSummary(
+                                    resource,
+                                    thresholdValue,
+                                    shardInfo.getValue(),
+                                    SLIDING_WINDOW_IN_SECONDS,
+                                    shardIdentifier));
                 }
             }
         }
     }
 
     /**
-     * Compare between the shard counterparts. Within an index, the shard which
-     * is (threshold)% higher than the mean resource utilization is hot.
+     * Compare between the shard counterparts. Within an index, the shard which is (threshold)%
+     * higher than the mean resource utilization is hot.
      *
-     * <p>We are evaluating hot shards on 3 dimensions and if shard is hot in any of
-     * the 3 dimension, we declare it hot.
+     * <p>We are evaluating hot shards on 3 dimensions and if shard is hot in any of the 3
+     * dimension, we declare it hot.
      */
     @Override
     public ResourceFlowUnit<HotClusterSummary> operate() {
@@ -183,20 +217,26 @@ public class HotShardClusterRca extends Rca<ResourceFlowUnit<HotClusterSummary>>
         if (counter >= rcaPeriod) {
             List<HotResourceSummary> hotShardSummaryList = new ArrayList<>();
             ResourceContext context;
-            HotClusterSummary summary = new HotClusterSummary(
-                getAllClusterInstances().size(), unhealthyNodes.size());
+            HotClusterSummary summary =
+                    new HotClusterSummary(getAllClusterInstances().size(), unhealthyNodes.size());
 
             // We evaluate hot shards individually on all the 3 dimensions
             findHotShardAndCreateSummary(
-                    cpuUtilizationInfoTable, cpuUtilizationClusterThreshold, hotShardSummaryList,
+                    cpuUtilizationInfoTable,
+                    cpuUtilizationClusterThreshold,
+                    hotShardSummaryList,
                     ResourceUtil.CPU_USAGE);
 
             findHotShardAndCreateSummary(
-                    IOThroughputInfoTable, ioTotThroughputClusterThreshold, hotShardSummaryList,
+                    IOThroughputInfoTable,
+                    ioTotThroughputClusterThreshold,
+                    hotShardSummaryList,
                     ResourceUtil.IO_TOTAL_THROUGHPUT);
 
             findHotShardAndCreateSummary(
-                    IOSysCallRateInfoTable, ioTotSysCallRateClusterThreshold, hotShardSummaryList,
+                    IOSysCallRateInfoTable,
+                    ioTotSysCallRateClusterThreshold,
+                    hotShardSummaryList,
                     ResourceUtil.IO_TOTAL_SYS_CALLRATE);
 
             if (hotShardSummaryList.isEmpty()) {
@@ -205,8 +245,9 @@ public class HotShardClusterRca extends Rca<ResourceFlowUnit<HotClusterSummary>>
                 context = new ResourceContext(Resources.State.UNHEALTHY);
 
                 InstanceDetails instanceDetails = getInstanceDetails();
-                HotNodeSummary nodeSummary = new HotNodeSummary(instanceDetails.getInstanceId(),
-                    instanceDetails.getInstanceIp());
+                HotNodeSummary nodeSummary =
+                        new HotNodeSummary(
+                                instanceDetails.getInstanceId(), instanceDetails.getInstanceIp());
                 for (HotResourceSummary hotResourceSummary : hotShardSummaryList) {
                     nodeSummary.appendNestedSummary(hotResourceSummary);
                 }
@@ -230,6 +271,7 @@ public class HotShardClusterRca extends Rca<ResourceFlowUnit<HotClusterSummary>>
 
     /**
      * read threshold values from rca.conf
+     *
      * @param conf RcaConf object
      */
     @Override
@@ -246,7 +288,7 @@ public class HotShardClusterRca extends Rca<ResourceFlowUnit<HotClusterSummary>>
      */
     @Override
     public void generateFlowUnitListFromWire(FlowUnitOperationArgWrapper args) {
-        throw new IllegalArgumentException(name() + "'s generateFlowUnitListFromWire() should not "
-            + "be required.");
+        throw new IllegalArgumentException(
+                name() + "'s generateFlowUnitListFromWire() should not " + "be required.");
     }
 }

@@ -15,21 +15,21 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.pck1;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.ValueColumn;
 
 public class TestPersist {
-  @ValueColumn
-  int x;
+    @ValueColumn int x;
 
-  public TestPersist() {
-    this.x = 1;
-  }
+    public TestPersist() {
+        this.x = 1;
+    }
 
-  public int getX() {
-    return x;
-  }
+    public int getX() {
+        return x;
+    }
 
-  public void setX(int x) {
-    x = x;
-  }
+    public void setX(int x) {
+        x = x;
+    }
 }

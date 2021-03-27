@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,19 +15,19 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core;
 
-import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 
+import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import org.jooq.Record;
 import org.jooq.Result;
 
 public interface Queryable {
 
-  MetricsDB getMetricsDB() throws Exception;
+    MetricsDB getMetricsDB() throws Exception;
 
-  Result<Record> queryMetrics(MetricsDB db, String metricName);
+    Result<Record> queryMetrics(MetricsDB db, String metricName);
 
-  Result<Record> queryMetrics(
-      MetricsDB db, String metricName, String dimension, String aggregation) throws Exception;
+    Result<Record> queryMetrics(
+            MetricsDB db, String metricName, String dimension, String aggregation) throws Exception;
 
-  long getDBTimestamp(MetricsDB db);
+    long getDBTimestamp(MetricsDB db);
 }

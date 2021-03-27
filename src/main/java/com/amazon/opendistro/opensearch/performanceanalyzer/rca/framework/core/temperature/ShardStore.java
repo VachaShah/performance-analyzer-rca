@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.temperature.ShardProfileSummary;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.hotshard.IndexShardKey;
 import java.util.Map;
@@ -24,14 +25,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The same set of shards will be seen for each metric and across multiple operations.
- * This creates a pool of all shards so that they can be referenced from multiple places.
+ * The same set of shards will be seen for each metric and across multiple operations. This creates
+ * a pool of all shards so that they can be referenced from multiple places.
  */
 public class ShardStore {
     private static final Logger LOG = LogManager.getLogger(ShardStore.class);
 
     /**
-     * The key for the map is indexShardKey Given an IndexShardKey a shard can be uniquely identified.
+     * The key for the map is indexShardKey Given an IndexShardKey a shard can be uniquely
+     * identified.
      */
     Map<IndexShardKey, ShardProfileSummary> shardToShardProfileMap;
 
@@ -47,10 +49,11 @@ public class ShardStore {
         ShardProfileSummary shardProfileSummary = shardToShardProfileMap.get(indexShardKey);
         if (shardProfileSummary == null) {
             // Could not find a shard with the given IndexShardKey; create one.
-            shardProfileSummary = new ShardProfileSummary(indexShardKey.getIndexName(), indexShardKey.getShardId());
+            shardProfileSummary =
+                    new ShardProfileSummary(
+                            indexShardKey.getIndexName(), indexShardKey.getShardId());
             shardToShardProfileMap.put(indexShardKey, shardProfileSummary);
         }
         return shardProfileSummary;
     }
-
 }

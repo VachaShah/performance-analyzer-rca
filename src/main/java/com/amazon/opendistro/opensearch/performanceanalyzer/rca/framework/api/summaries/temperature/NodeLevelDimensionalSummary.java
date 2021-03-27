@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.temperature;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.GenericSummary;
@@ -42,8 +43,8 @@ import org.jooq.SelectJoinStep;
 import org.jooq.impl.DSL;
 
 /**
- * A node dimension profile is categorization of all shards in the node into different heatZones across 1 dimension.
- * The dimension_key stores the dimension value.
+ * A node dimension profile is categorization of all shards in the node into different heatZones
+ * across 1 dimension. The dimension_key stores the dimension value.
  */
 public class NodeLevelDimensionalSummary extends GenericSummary {
 
@@ -62,7 +63,8 @@ public class NodeLevelDimensionalSummary extends GenericSummary {
     private final NodeLevelZoneSummary[] zoneProfiles;
     private int numberOfShards;
 
-    // Mean Temperature is a mean of the normalized heat of the resource used across shards on the node.
+    // Mean Temperature is a mean of the normalized heat of the resource used across shards on the
+    // node.
     // e.g. if there are 10 shards on the node and the normalized sum of the resource used
     // across shards is 33. The mean would be 3.3
     // This aim is the balance this parameter across the nodes and have as little delta
@@ -70,9 +72,10 @@ public class NodeLevelDimensionalSummary extends GenericSummary {
     // TotalUsage is the total value of the resource used in that node.
     // Note that normalized(totalUsage) != meanTemperature*numberofshards as total usage
     // also has shard Independent component.
-    public NodeLevelDimensionalSummary(final TemperatureDimension profileForDimension,
-                                       final TemperatureVector.NormalizedValue meanTemperature,
-                                       double totalUsage) {
+    public NodeLevelDimensionalSummary(
+            final TemperatureDimension profileForDimension,
+            final TemperatureVector.NormalizedValue meanTemperature,
+            double totalUsage) {
         this.profileForDimension = profileForDimension;
         this.meanTemperature = meanTemperature;
         this.totalUsage = totalUsage;
@@ -113,7 +116,8 @@ public class NodeLevelDimensionalSummary extends GenericSummary {
     }
 
     @VisibleForTesting
-    public List<ShardProfileSummary> getShardsForZoneInReverseTemperatureOrder(HeatZoneAssigner.Zone zone) {
+    public List<ShardProfileSummary> getShardsForZoneInReverseTemperatureOrder(
+            HeatZoneAssigner.Zone zone) {
         return zoneProfiles[zone.ordinal()].getShardsInReverseTemperatureOrder();
     }
 
@@ -170,11 +174,11 @@ public class NodeLevelDimensionalSummary extends GenericSummary {
         summaryObj.addProperty(NUM_SHARDS_KEY, getNumberOfShards());
 
         JsonArray array = new JsonArray();
-        getNestedSummaryList().forEach(
-                summary -> {
-                    array.add(summary.toJson());
-                }
-        );
+        getNestedSummaryList()
+                .forEach(
+                        summary -> {
+                            array.add(summary.toJson());
+                        });
 
         summaryObj.add(ZONE_SUMMARY_TABLE_NAME, array);
         return summaryObj;
@@ -182,12 +186,12 @@ public class NodeLevelDimensionalSummary extends GenericSummary {
 
     /**
      * +------------------------------+---------------+----+----------------+---------+------+
-     * |NodeLevelDimensionalSummary_ID|dimension      |mean|           total|numShards|RCA_ID|
-     * +------------------------------+---------------+----+----------------+---------+------+
-     * |                             1|CPU_Utilization|   1|1.20827386264977|        3|     1|
+     * |NodeLevelDimensionalSummary_ID|dimension |mean| total|numShards|RCA_ID|
+     * +------------------------------+---------------+----+----------------+---------+------+ |
+     * 1|CPU_Utilization| 1|1.20827386264977| 3| 1|
      * +------------------------------+---------------+----+----------------+---------+------+
      *
-     * @param record  A db row containing the values for a temperature dimension.
+     * @param record A db row containing the values for a temperature dimension.
      * @param context the database context. It is used to query the nested summary tables.
      * @return Creates a new instance of the NodeLevelDimensionalSummary.
      */
@@ -211,16 +215,22 @@ public class NodeLevelDimensionalSummary extends GenericSummary {
         // using the ID column of this table that is a foreign key to the nested summary table.
 
         // Get the primary key value for this tuple.
-        int dimensionId = record.get(
-                SQLiteQueryUtils.getPrimaryKeyColumnName(SUMMARY_TABLE_NAME),
-                Integer.class);
+        int dimensionId =
+                record.get(
+                        SQLiteQueryUtils.getPrimaryKeyColumnName(SUMMARY_TABLE_NAME),
+                        Integer.class);
 
         // Find out the foreign key column name for the nested summary table.
-        Field<Integer> foreignKeyForDimensionalTable = DSL.field(
-                SQLiteQueryUtils.getPrimaryKeyColumnName(SUMMARY_TABLE_NAME), Integer.class);
+        Field<Integer> foreignKeyForDimensionalTable =
+                DSL.field(
+                        SQLiteQueryUtils.getPrimaryKeyColumnName(SUMMARY_TABLE_NAME),
+                        Integer.class);
 
-        SelectJoinStep<Record> rcaQuery = SQLiteQueryUtils
-                .buildSummaryQuery(context, ZONE_SUMMARY_TABLE_NAME, dimensionId,
+        SelectJoinStep<Record> rcaQuery =
+                SQLiteQueryUtils.buildSummaryQuery(
+                        context,
+                        ZONE_SUMMARY_TABLE_NAME,
+                        dimensionId,
                         foreignKeyForDimensionalTable);
 
         Result<Record> recordList = rcaQuery.fetch();
@@ -234,14 +244,12 @@ public class NodeLevelDimensionalSummary extends GenericSummary {
     /**
      * +-----------------------+----+----+----+----------+------------------------------+
      * |NodeLevelZoneSummary_ID|zone|min |max |all_shards|NodeLevelDimensionalSummary_ID|
-     * +-----------------------+----+----+----+----------+------------------------------+
-     * |                      1|HOT |    |    |[]        |                             1|
-     * +-----------------------+----+----+----+----------+------------------------------+
+     * +-----------------------+----+----+----+----------+------------------------------+ | 1|HOT |
+     * | |[] | 1| +-----------------------+----+----+----+----------+------------------------------+
      *
      * @param record A database row containing the values for one of the 4 zones.
      */
-    private void buildZoneProfile(final Record record, ShardStore shardStore
-    ) {
+    private void buildZoneProfile(final Record record, ShardStore shardStore) {
         String zoneName = record.get(NodeLevelZoneSummary.ZONE_KEY, String.class);
         HeatZoneAssigner.Zone zone = HeatZoneAssigner.Zone.valueOf(zoneName);
 
@@ -258,14 +266,18 @@ public class NodeLevelDimensionalSummary extends GenericSummary {
             IndexShardKey indexShardKey = new IndexShardKey(indexName, shardId);
             ShardProfileSummary shard = shardStore.getOrCreateIfAbsent(indexShardKey);
             JsonArray temperatureProfiles =
-                    element.getAsJsonObject().get(ShardProfileSummary.TEMPERATURE_KEY).getAsJsonArray();
+                    element.getAsJsonObject()
+                            .get(ShardProfileSummary.TEMPERATURE_KEY)
+                            .getAsJsonArray();
 
             for (JsonElement temperature : temperatureProfiles) {
                 JsonObject obj = temperature.getAsJsonObject();
                 TemperatureDimension dimension =
-                        TemperatureDimension.valueOf(obj.get(TemperatureVector.DIMENSION_KEY).getAsString());
+                        TemperatureDimension.valueOf(
+                                obj.get(TemperatureVector.DIMENSION_KEY).getAsString());
                 TemperatureVector.NormalizedValue value =
-                        new TemperatureVector.NormalizedValue((short) obj.get(TemperatureVector.VALUE_KEY).getAsInt());
+                        new TemperatureVector.NormalizedValue(
+                                (short) obj.get(TemperatureVector.VALUE_KEY).getAsInt());
                 shard.addTemperatureForDimension(dimension, value);
             }
             zoneSummary.addShard(shard);
@@ -353,11 +365,11 @@ public class NodeLevelDimensionalSummary extends GenericSummary {
             summaryObj.addProperty(ZONE_KEY, myZone.name());
 
             JsonArray array = new JsonArray();
-            getNestedSummaryList().forEach(
-                    summary -> {
-                        array.add(summary.toJson());
-                    }
-            );
+            getNestedSummaryList()
+                    .forEach(
+                            summary -> {
+                                array.add(summary.toJson());
+                            });
             summaryObj.add(ALL_KEY, array);
             return summaryObj;
         }
@@ -370,7 +382,8 @@ public class NodeLevelDimensionalSummary extends GenericSummary {
         }
 
         private int reverseSort(ShardProfileSummary o1, ShardProfileSummary o2) {
-            return o2.getHeatInDimension(profileForDimension).getPOINTS() - o1.getHeatInDimension(profileForDimension).getPOINTS();
+            return o2.getHeatInDimension(profileForDimension).getPOINTS()
+                    - o1.getHeatInDimension(profileForDimension).getPOINTS();
         }
     }
 }

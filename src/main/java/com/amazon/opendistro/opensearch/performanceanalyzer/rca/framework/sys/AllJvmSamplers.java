@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.sys;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.emitters.ISampler;
 import java.util.Arrays;
 import java.util.List;
 
 public class AllJvmSamplers {
-  public static List<ISampler> getJvmSamplers() {
-    return Arrays.asList(new JvmFreeMem(), new JvmTotalMem());
-  }
+    public static List<ISampler> getJvmSamplers() {
+        return Arrays.asList(new JvmFreeMem(), new JvmTotalMem());
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.temperature;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Rca;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Resources;
@@ -30,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,16 +46,15 @@ public class ClusterTemperatureRca extends Rca<ClusterTemperatureFlowUnit> {
 
     @Override
     public void generateFlowUnitListFromWire(FlowUnitOperationArgWrapper args) {
-        throw new IllegalArgumentException(name() + "'s generateFlowUnitListFromWire() should not "
-                + "be required.");
+        throw new IllegalArgumentException(
+                name() + "'s generateFlowUnitListFromWire() should not " + "be required.");
     }
 
-    /**
-     * @return
-     */
+    /** @return */
     @Override
     public ClusterTemperatureFlowUnit operate() {
-        List<CompactNodeTemperatureFlowUnit> flowUnitsAcrossNodes = nodeTemperatureRca.getFlowUnits();
+        List<CompactNodeTemperatureFlowUnit> flowUnitsAcrossNodes =
+                nodeTemperatureRca.getFlowUnits();
 
         // EachNodeTemperatureRCA should generate a one @{code DimensionalFlowUnit}.
         if (flowUnitsAcrossNodes.size() < 1) {
@@ -64,14 +63,15 @@ public class ClusterTemperatureRca extends Rca<ClusterTemperatureFlowUnit> {
         }
 
         AtomicBoolean emptyFlowUnit = new AtomicBoolean(false);
-        flowUnitsAcrossNodes.forEach(flowUnitForOneNode -> {
-            if (flowUnitForOneNode.isEmpty()) {
-                LOG.debug("Empty flowUnitAcrossOneDimension");
-                emptyFlowUnit.set(true);
-            } else {
-                emptyFlowUnit.set(false);
-            }
-        });
+        flowUnitsAcrossNodes.forEach(
+                flowUnitForOneNode -> {
+                    if (flowUnitForOneNode.isEmpty()) {
+                        LOG.debug("Empty flowUnitAcrossOneDimension");
+                        emptyFlowUnit.set(true);
+                    } else {
+                        emptyFlowUnit.set(false);
+                    }
+                });
 
         if (emptyFlowUnit.get()) {
             return new ClusterTemperatureFlowUnit(System.currentTimeMillis());
@@ -87,7 +87,8 @@ public class ClusterTemperatureRca extends Rca<ClusterTemperatureFlowUnit> {
         Map<String, CompactClusterLevelNodeSummary> nodeTemperatureSummaryMap = new HashMap<>();
         final int TOTAL_NODES_IN_CLUSTER = flowUnitsAcrossNodes.size();
 
-        ClusterTemperatureSummary clusterTemperatureSummary = new ClusterTemperatureSummary(TOTAL_NODES_IN_CLUSTER);
+        ClusterTemperatureSummary clusterTemperatureSummary =
+                new ClusterTemperatureSummary(TOTAL_NODES_IN_CLUSTER);
 
         // For each dimension go through the temperature profiles sent by each node and figure
         // out the cluster level average along that dimension. Then this method recreates a
@@ -102,7 +103,8 @@ public class ClusterTemperatureRca extends Rca<ClusterTemperatureFlowUnit> {
             for (CompactNodeTemperatureFlowUnit nodeFlowUnit : flowUnitsAcrossNodes) {
                 CompactNodeSummary summary = nodeFlowUnit.getCompactNodeTemperatureSummary();
                 if (summary != null) {
-                    totalUsageInClusterForDimension += summary.getTotalConsumedByDimension(dimension);
+                    totalUsageInClusterForDimension +=
+                            summary.getTotalConsumedByDimension(dimension);
                     allFlowUnitSummariesNull = false;
                 }
             }
@@ -110,39 +112,50 @@ public class ClusterTemperatureRca extends Rca<ClusterTemperatureFlowUnit> {
                 continue;
             }
 
-            double nodeAverageForDimension = totalUsageInClusterForDimension / TOTAL_NODES_IN_CLUSTER;
+            double nodeAverageForDimension =
+                    totalUsageInClusterForDimension / TOTAL_NODES_IN_CLUSTER;
             TemperatureVector.NormalizedValue normalizedAvgForDimension =
-                    TemperatureVector.NormalizedValue.calculate(nodeAverageForDimension, totalUsageInClusterForDimension);
+                    TemperatureVector.NormalizedValue.calculate(
+                            nodeAverageForDimension, totalUsageInClusterForDimension);
 
-            clusterTemperatureSummary.createClusterDimensionalTemperature(dimension,
-                    normalizedAvgForDimension, totalUsageInClusterForDimension);
+            clusterTemperatureSummary.createClusterDimensionalTemperature(
+                    dimension, normalizedAvgForDimension, totalUsageInClusterForDimension);
 
-            recalibrateNodeTemperaturesAtClusterLevelUsage(flowUnitsAcrossNodes, nodeTemperatureSummaryMap,
-                    dimension, totalUsageInClusterForDimension);
+            recalibrateNodeTemperaturesAtClusterLevelUsage(
+                    flowUnitsAcrossNodes,
+                    nodeTemperatureSummaryMap,
+                    dimension,
+                    totalUsageInClusterForDimension);
         }
         clusterTemperatureSummary.addNodesSummaries(nodeTemperatureSummaryMap);
-        return new ClusterTemperatureFlowUnit(System.currentTimeMillis(),
-                                              new ResourceContext(Resources.State.UNKNOWN),
-                                              clusterTemperatureSummary);
+        return new ClusterTemperatureFlowUnit(
+                System.currentTimeMillis(),
+                new ResourceContext(Resources.State.UNKNOWN),
+                clusterTemperatureSummary);
     }
 
-    private void recalibrateNodeTemperaturesAtClusterLevelUsage(List<CompactNodeTemperatureFlowUnit> flowUnitsAcrossNodes,
-                                                                Map<String,
-                                                                CompactClusterLevelNodeSummary> nodeTemperatureSummaryMap,
-                                                                TemperatureDimension dimension,
-                                                                double totalForDimension) {
+    private void recalibrateNodeTemperaturesAtClusterLevelUsage(
+            List<CompactNodeTemperatureFlowUnit> flowUnitsAcrossNodes,
+            Map<String, CompactClusterLevelNodeSummary> nodeTemperatureSummaryMap,
+            TemperatureDimension dimension,
+            double totalForDimension) {
 
         for (CompactNodeTemperatureFlowUnit nodeFlowUnit : flowUnitsAcrossNodes) {
-            CompactNodeSummary obtainedNodeTempSummary = nodeFlowUnit.getCompactNodeTemperatureSummary();
+            CompactNodeSummary obtainedNodeTempSummary =
+                    nodeFlowUnit.getCompactNodeTemperatureSummary();
             if (obtainedNodeTempSummary == null) {
                 continue;
             }
             String key = obtainedNodeTempSummary.getNodeId();
 
-            nodeTemperatureSummaryMap.putIfAbsent(key,
-                    new CompactClusterLevelNodeSummary(obtainedNodeTempSummary.getNodeId(), obtainedNodeTempSummary.getHostAddress()));
+            nodeTemperatureSummaryMap.putIfAbsent(
+                    key,
+                    new CompactClusterLevelNodeSummary(
+                            obtainedNodeTempSummary.getNodeId(),
+                            obtainedNodeTempSummary.getHostAddress()));
 
-            CompactClusterLevelNodeSummary constructedCompactNodeTemperatureSummary = nodeTemperatureSummaryMap.get(key);
+            CompactClusterLevelNodeSummary constructedCompactNodeTemperatureSummary =
+                    nodeTemperatureSummaryMap.get(key);
 
             double obtainedTotal = obtainedNodeTempSummary.getTotalConsumedByDimension(dimension);
 
@@ -152,10 +165,12 @@ public class ClusterTemperatureRca extends Rca<ClusterTemperatureFlowUnit> {
             TemperatureVector.NormalizedValue newClusterBasedValue =
                     TemperatureVector.NormalizedValue.calculate(obtainedTotal, totalForDimension);
 
-            constructedCompactNodeTemperatureSummary.setTemperatureForDimension(dimension, newClusterBasedValue);
-            constructedCompactNodeTemperatureSummary.setNumOfShards(dimension,
-                    obtainedNodeTempSummary.getNumberOfShardsByDimension(dimension));
-            constructedCompactNodeTemperatureSummary.setTotalConsumedByDimension(dimension, obtainedTotal);
+            constructedCompactNodeTemperatureSummary.setTemperatureForDimension(
+                    dimension, newClusterBasedValue);
+            constructedCompactNodeTemperatureSummary.setNumOfShards(
+                    dimension, obtainedNodeTempSummary.getNumberOfShardsByDimension(dimension));
+            constructedCompactNodeTemperatureSummary.setTotalConsumedByDimension(
+                    dimension, obtainedTotal);
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.temperature;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.GenericSummary;
@@ -38,7 +39,6 @@ public class ShardProfileSummary extends GenericSummary {
     private final int shardId;
 
     private final TemperatureVector temperatureVector;
-
 
     public ShardProfileSummary(String indexName, int shardId) {
         this.indexName = indexName;
@@ -105,8 +105,8 @@ public class ShardProfileSummary extends GenericSummary {
         return temperatureVector.getTemperatureFor(dimension);
     }
 
-    public void addTemperatureForDimension(TemperatureDimension dimension,
-                                           TemperatureVector.NormalizedValue value) {
+    public void addTemperatureForDimension(
+            TemperatureDimension dimension, TemperatureVector.NormalizedValue value) {
         // TODO: Need to handle rcas updating heat profile of a shard along a dimension multiple
         //  times per tick.
         temperatureVector.updateTemperatureForDimension(dimension, value);

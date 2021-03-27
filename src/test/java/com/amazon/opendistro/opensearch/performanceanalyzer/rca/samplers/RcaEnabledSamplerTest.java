@@ -28,7 +28,6 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.collectors
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.ClusterDetailsEventProcessor;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.ClusterDetailsEventProcessorTestHelper;
 import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,8 +37,7 @@ public class RcaEnabledSamplerTest {
     private RcaEnabledSampler uut;
     private AppContext appContext;
 
-    @Mock
-    private SampleAggregator sampleAggregator;
+    @Mock private SampleAggregator sampleAggregator;
 
     @Before
     public void setup() {
@@ -57,7 +55,8 @@ public class RcaEnabledSamplerTest {
         ClusterDetailsEventProcessor.NodeDetails details =
                 ClusterDetailsEventProcessorTestHelper.newNodeDetails("nodex", "127.0.0.1", false);
 
-        ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
         clusterDetailsEventProcessor.setNodesDetails(Collections.singletonList(details));
         appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
 
@@ -74,7 +73,9 @@ public class RcaEnabledSamplerTest {
 
         uut.sample(sampleAggregator);
         verify(sampleAggregator, times(1))
-                .updateStat(RcaRuntimeMetrics.RCA_ENABLED, "",
-                    PerformanceAnalyzerApp.getRcaController().isRcaEnabled() ? 1 : 0);
+                .updateStat(
+                        RcaRuntimeMetrics.RCA_ENABLED,
+                        "",
+                        PerformanceAnalyzerApp.getRcaController().isRcaEnabled() ? 1 : 0);
     }
 }

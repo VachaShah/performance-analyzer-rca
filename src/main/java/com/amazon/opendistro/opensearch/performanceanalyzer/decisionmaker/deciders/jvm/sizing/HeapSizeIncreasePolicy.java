@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders.jvm.sizing;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatsCollector;
@@ -40,112 +41,123 @@ import javax.annotation.Nonnull;
 
 public class HeapSizeIncreasePolicy implements DecisionPolicy {
 
-  private static final String HEAP_SIZE_INCREASE_ACTION_RECOMMENDED = "RecommendHeapSizeIncrease";
-  private final LargeHeapClusterRca largeHeapClusterRca;
-  private AppContext appContext;
-  private RcaConf rcaConf;
-  private final HeapSizeIncreaseClusterMonitor heapSizeIncreaseClusterMonitor;
+    private static final String HEAP_SIZE_INCREASE_ACTION_RECOMMENDED = "RecommendHeapSizeIncrease";
+    private final LargeHeapClusterRca largeHeapClusterRca;
+    private AppContext appContext;
+    private RcaConf rcaConf;
+    private final HeapSizeIncreaseClusterMonitor heapSizeIncreaseClusterMonitor;
 
-  private int unhealthyNodePercentage;
+    private int unhealthyNodePercentage;
 
-  public HeapSizeIncreasePolicy(final LargeHeapClusterRca largeHeapClusterRca) {
-    this.heapSizeIncreaseClusterMonitor = new HeapSizeIncreaseClusterMonitor();
-    this.largeHeapClusterRca = largeHeapClusterRca;
-  }
-
-  @Override
-  public List<Action> evaluate() {
-    addToClusterMonitor();
-
-    List<Action> actions = new ArrayList<>();
-    if (!heapSizeIncreaseClusterMonitor.isHealthy()) {
-      Action heapSizeIncreaseAction = new HeapSizeIncreaseAction(appContext);
-      if (heapSizeIncreaseAction.isActionable()) {
-        StatsCollector.instance().logMetric(HEAP_SIZE_INCREASE_ACTION_RECOMMENDED);
-        actions.add(heapSizeIncreaseAction);
-      }
+    public HeapSizeIncreasePolicy(final LargeHeapClusterRca largeHeapClusterRca) {
+        this.heapSizeIncreaseClusterMonitor = new HeapSizeIncreaseClusterMonitor();
+        this.largeHeapClusterRca = largeHeapClusterRca;
     }
 
-    return actions;
-  }
+    @Override
+    public List<Action> evaluate() {
+        addToClusterMonitor();
 
-  private void addToClusterMonitor() {
-    long currTime = System.currentTimeMillis();
-    if (largeHeapClusterRca.getFlowUnits().isEmpty()) {
-      return;
-    }
-    ResourceFlowUnit<HotClusterSummary> flowUnit = largeHeapClusterRca.getFlowUnits().get(0);
-
-    if (flowUnit.getSummary() == null) {
-      return;
-    }
-    List<HotNodeSummary> hotNodeSummaries = flowUnit.getSummary().getHotNodeSummaryList();
-    hotNodeSummaries.forEach(hotNodeSummary -> {
-      NodeKey nodeKey = new NodeKey(hotNodeSummary.getNodeID(), hotNodeSummary.getHostAddress());
-      heapSizeIncreaseClusterMonitor.recordIssue(nodeKey, currTime);
-    });
-  }
-
-  private class HeapSizeIncreaseClusterMonitor {
-
-    private static final int DEFAULT_DAY_BREACH_THRESHOLD = 8;
-    private static final int DEFAULT_WEEK_BREACH_THRESHOLD = 3;
-    private static final String PERSISTENCE_PREFIX = "heap-size-increase-alarm-";
-    private final Map<NodeKey, AlarmMonitor> perNodeMonitor;
-    private int dayBreachThreshold = DEFAULT_DAY_BREACH_THRESHOLD;
-    private int weekBreachThreshold = DEFAULT_WEEK_BREACH_THRESHOLD;
-
-    HeapSizeIncreaseClusterMonitor() {
-      this.perNodeMonitor = new HashMap<>();
-    }
-
-    public void recordIssue(final NodeKey nodeKey, long currTimeStamp) {
-      perNodeMonitor.computeIfAbsent(nodeKey,
-          key -> new JvmActionsAlarmMonitor(dayBreachThreshold,
-              weekBreachThreshold, Paths.get(RcaConsts.CONFIG_DIR_PATH,
-              PERSISTENCE_PREFIX + key.getNodeId().toString())))
-                    .recordIssue(currTimeStamp, 1d);
-    }
-
-    public boolean isHealthy() {
-      int numDataNodesInCluster = appContext.getDataNodeInstances().size();
-      double unhealthyCount = 0;
-      for (final AlarmMonitor monitor : perNodeMonitor.values()) {
-        if (!monitor.isHealthy()) {
-          unhealthyCount++;
+        List<Action> actions = new ArrayList<>();
+        if (!heapSizeIncreaseClusterMonitor.isHealthy()) {
+            Action heapSizeIncreaseAction = new HeapSizeIncreaseAction(appContext);
+            if (heapSizeIncreaseAction.isActionable()) {
+                StatsCollector.instance().logMetric(HEAP_SIZE_INCREASE_ACTION_RECOMMENDED);
+                actions.add(heapSizeIncreaseAction);
+            }
         }
-      }
-      return (unhealthyCount / numDataNodesInCluster) * 100d < unhealthyNodePercentage;
+
+        return actions;
     }
 
-    public void setDayBreachThreshold(int dayBreachThreshold) {
-      this.dayBreachThreshold = dayBreachThreshold;
+    private void addToClusterMonitor() {
+        long currTime = System.currentTimeMillis();
+        if (largeHeapClusterRca.getFlowUnits().isEmpty()) {
+            return;
+        }
+        ResourceFlowUnit<HotClusterSummary> flowUnit = largeHeapClusterRca.getFlowUnits().get(0);
+
+        if (flowUnit.getSummary() == null) {
+            return;
+        }
+        List<HotNodeSummary> hotNodeSummaries = flowUnit.getSummary().getHotNodeSummaryList();
+        hotNodeSummaries.forEach(
+                hotNodeSummary -> {
+                    NodeKey nodeKey =
+                            new NodeKey(
+                                    hotNodeSummary.getNodeID(), hotNodeSummary.getHostAddress());
+                    heapSizeIncreaseClusterMonitor.recordIssue(nodeKey, currTime);
+                });
     }
 
-    public void setWeekBreachThreshold(int weekBreachThreshold) {
-      this.weekBreachThreshold = weekBreachThreshold;
+    private class HeapSizeIncreaseClusterMonitor {
+
+        private static final int DEFAULT_DAY_BREACH_THRESHOLD = 8;
+        private static final int DEFAULT_WEEK_BREACH_THRESHOLD = 3;
+        private static final String PERSISTENCE_PREFIX = "heap-size-increase-alarm-";
+        private final Map<NodeKey, AlarmMonitor> perNodeMonitor;
+        private int dayBreachThreshold = DEFAULT_DAY_BREACH_THRESHOLD;
+        private int weekBreachThreshold = DEFAULT_WEEK_BREACH_THRESHOLD;
+
+        HeapSizeIncreaseClusterMonitor() {
+            this.perNodeMonitor = new HashMap<>();
+        }
+
+        public void recordIssue(final NodeKey nodeKey, long currTimeStamp) {
+            perNodeMonitor
+                    .computeIfAbsent(
+                            nodeKey,
+                            key ->
+                                    new JvmActionsAlarmMonitor(
+                                            dayBreachThreshold,
+                                            weekBreachThreshold,
+                                            Paths.get(
+                                                    RcaConsts.CONFIG_DIR_PATH,
+                                                    PERSISTENCE_PREFIX
+                                                            + key.getNodeId().toString())))
+                    .recordIssue(currTimeStamp, 1d);
+        }
+
+        public boolean isHealthy() {
+            int numDataNodesInCluster = appContext.getDataNodeInstances().size();
+            double unhealthyCount = 0;
+            for (final AlarmMonitor monitor : perNodeMonitor.values()) {
+                if (!monitor.isHealthy()) {
+                    unhealthyCount++;
+                }
+            }
+            return (unhealthyCount / numDataNodesInCluster) * 100d < unhealthyNodePercentage;
+        }
+
+        public void setDayBreachThreshold(int dayBreachThreshold) {
+            this.dayBreachThreshold = dayBreachThreshold;
+        }
+
+        public void setWeekBreachThreshold(int weekBreachThreshold) {
+            this.weekBreachThreshold = weekBreachThreshold;
+        }
     }
-  }
 
-  public void setAppContext(@Nonnull final AppContext appContext) {
-    this.appContext = appContext;
-  }
+    public void setAppContext(@Nonnull final AppContext appContext) {
+        this.appContext = appContext;
+    }
 
-  public void setRcaConf(final RcaConf rcaConf) {
-    this.rcaConf = rcaConf;
-    readThresholdValuesFromConf();
-  }
+    public void setRcaConf(final RcaConf rcaConf) {
+        this.rcaConf = rcaConf;
+        readThresholdValuesFromConf();
+    }
 
-  private void readThresholdValuesFromConf() {
-    HeapSizeIncreasePolicyConfig policyConfig = rcaConf.getJvmScaleUpPolicyConfig();
-    this.unhealthyNodePercentage = policyConfig.getUnhealthyNodePercentage();
-    this.heapSizeIncreaseClusterMonitor.setDayBreachThreshold(policyConfig.getDayBreachThreshold());
-    this.heapSizeIncreaseClusterMonitor
-        .setWeekBreachThreshold(policyConfig.getWeekBreachThreshold());
-  }
+    private void readThresholdValuesFromConf() {
+        HeapSizeIncreasePolicyConfig policyConfig = rcaConf.getJvmScaleUpPolicyConfig();
+        this.unhealthyNodePercentage = policyConfig.getUnhealthyNodePercentage();
+        this.heapSizeIncreaseClusterMonitor.setDayBreachThreshold(
+                policyConfig.getDayBreachThreshold());
+        this.heapSizeIncreaseClusterMonitor.setWeekBreachThreshold(
+                policyConfig.getWeekBreachThreshold());
+    }
 
-  @VisibleForTesting
-  public int getUnhealthyNodePercentage() {
-    return unhealthyNodePercentage;
-  }
+    @VisibleForTesting
+    public int getUnhealthyNodePercentage() {
+        return unhealthyNodePercentage;
+    }
 }

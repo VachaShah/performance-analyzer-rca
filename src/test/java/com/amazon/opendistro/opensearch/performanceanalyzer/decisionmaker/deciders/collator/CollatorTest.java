@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -26,15 +26,14 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.action
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions.ImpactVector;
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders.Decider;
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders.Decision;
-import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster.NodeKey;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
+import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster.NodeKey;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,149 +41,153 @@ import org.mockito.Mock;
 
 public class CollatorTest {
 
-  private Collator testCollator;
+    private Collator testCollator;
 
-  @Mock
-  private Decider mockDecider1;
+    @Mock private Decider mockDecider1;
 
-  @Mock
-  private Decider mockDecider2;
+    @Mock private Decider mockDecider2;
 
-  @Mock
-  private Comparator<Action> mockComparator;
+    @Mock private Comparator<Action> mockComparator;
 
-  @Mock
-  private Decision decision1;
+    @Mock private Decision decision1;
 
-  @Mock
-  private Decision decision2;
+    @Mock private Decision decision2;
 
-  @Mock
-  private Action moveShardAction1;
+    @Mock private Action moveShardAction1;
 
-  @Mock
-  private Action moveShardAction2;
+    @Mock private Action moveShardAction2;
 
-  @Mock
-  private Action moveShardAction3;
+    @Mock private Action moveShardAction3;
 
-  private final ImpactAssessor impactAssessor = new ImpactAssessor();
+    private final ImpactAssessor impactAssessor = new ImpactAssessor();
 
-  private final NodeKey nodeA = new NodeKey(new InstanceDetails.Id("node A"), new InstanceDetails.Ip("1.2.3.4"));
-  private final NodeKey nodeB = new NodeKey(new InstanceDetails.Id("node B"), new InstanceDetails.Ip("5.6.7.8"));
-  private final NodeKey nodeC = new NodeKey(new InstanceDetails.Id("node C"), new InstanceDetails.Ip("9.10.11.12"));
+    private final NodeKey nodeA =
+            new NodeKey(new InstanceDetails.Id("node A"), new InstanceDetails.Ip("1.2.3.4"));
+    private final NodeKey nodeB =
+            new NodeKey(new InstanceDetails.Id("node B"), new InstanceDetails.Ip("5.6.7.8"));
+    private final NodeKey nodeC =
+            new NodeKey(new InstanceDetails.Id("node C"), new InstanceDetails.Ip("9.10.11.12"));
 
-  private String moveShardActionName = "MoveShard";
-  
-  private Map<NodeKey, ImpactVector> moveShardImpact1 = ImmutableMap.of(
-      nodeA, buildShardMoveOutImpactVector(),
-      nodeB, buildShardMoveInImpactVector()
-  );
+    private String moveShardActionName = "MoveShard";
 
-  private Map<NodeKey, ImpactVector> moveShardImpact2 = ImmutableMap.of(
-      nodeB, buildShardMoveOutImpactVector(),
-      nodeC, buildShardMoveInImpactVector()
-  );
+    private Map<NodeKey, ImpactVector> moveShardImpact1 =
+            ImmutableMap.of(
+                    nodeA, buildShardMoveOutImpactVector(),
+                    nodeB, buildShardMoveInImpactVector());
 
-  private Map<NodeKey, ImpactVector> moveShardImpact3 = ImmutableMap.of(
-      nodeC, buildShardMoveOutImpactVector(),
-      nodeA, buildShardMoveInImpactVector()
-  );
+    private Map<NodeKey, ImpactVector> moveShardImpact2 =
+            ImmutableMap.of(
+                    nodeB, buildShardMoveOutImpactVector(),
+                    nodeC, buildShardMoveInImpactVector());
 
-  @Before
-  public void setup() {
-    initMocks(this);
-    this.testCollator = new Collator(impactAssessor, mockComparator, mockDecider1,
-        mockDecider2);
-    setupActions();
-    setupDecisions();
-  }
+    private Map<NodeKey, ImpactVector> moveShardImpact3 =
+            ImmutableMap.of(
+                    nodeC, buildShardMoveOutImpactVector(),
+                    nodeA, buildShardMoveInImpactVector());
 
-  @Test
-  public void testCollatorAcyclicImpactDecisions() {
-    when(mockDecider1.getFlowUnits()).thenReturn(Collections.singletonList(decision1));
-    when(mockDecider2.getFlowUnits()).thenReturn(Collections.singletonList(decision2));
-    // fix some order for the test.
-    when(mockComparator.compare(eq(moveShardAction1), eq(moveShardAction2))).thenReturn(-1);
+    @Before
+    public void setup() {
+        initMocks(this);
+        this.testCollator =
+                new Collator(impactAssessor, mockComparator, mockDecider1, mockDecider2);
+        setupActions();
+        setupDecisions();
+    }
 
-    Decision decision = testCollator.operate();
+    @Test
+    public void testCollatorAcyclicImpactDecisions() {
+        when(mockDecider1.getFlowUnits()).thenReturn(Collections.singletonList(decision1));
+        when(mockDecider2.getFlowUnits()).thenReturn(Collections.singletonList(decision2));
+        // fix some order for the test.
+        when(mockComparator.compare(eq(moveShardAction1), eq(moveShardAction2))).thenReturn(-1);
 
-    assertEquals(1, decision.getActions().size());
-    Assert.assertEquals(moveShardAction2, decision.getActions().get(0));
-  }
+        Decision decision = testCollator.operate();
 
-  @Test
-  public void testCollatorCyclicImpactDecisions() {
-    when(decision1.getActions()).thenReturn(Arrays.asList(moveShardAction1, moveShardAction3));
-    when(mockDecider1.getFlowUnits()).thenReturn(Collections.singletonList(decision1));
-    when(mockDecider2.getFlowUnits()).thenReturn(Collections.singletonList(decision2));
-    when(mockComparator.compare(any(Action.class), any(Action.class))).thenReturn(0);
-    this.testCollator = new Collator(impactAssessor, new Collator.ImpactBasedActionComparator(),
-        mockDecider1, mockDecider2);
+        assertEquals(1, decision.getActions().size());
+        Assert.assertEquals(moveShardAction2, decision.getActions().get(0));
+    }
 
-    Decision decision = testCollator.operate();
+    @Test
+    public void testCollatorCyclicImpactDecisions() {
+        when(decision1.getActions()).thenReturn(Arrays.asList(moveShardAction1, moveShardAction3));
+        when(mockDecider1.getFlowUnits()).thenReturn(Collections.singletonList(decision1));
+        when(mockDecider2.getFlowUnits()).thenReturn(Collections.singletonList(decision2));
+        when(mockComparator.compare(any(Action.class), any(Action.class))).thenReturn(0);
+        this.testCollator =
+                new Collator(
+                        impactAssessor,
+                        new Collator.ImpactBasedActionComparator(),
+                        mockDecider1,
+                        mockDecider2);
 
-    assertEquals(1, decision.getActions().size());
-    Assert.assertEquals(moveShardAction3, decision.getActions().get(0));
-  }
+        Decision decision = testCollator.operate();
 
-  @Test
-  public void testCollatorEmptyActions() {
-    when(decision1.getActions()).thenReturn(Collections.emptyList());
-    when(decision2.getActions()).thenReturn(Collections.emptyList());
-    when(mockDecider1.getFlowUnits()).thenReturn(Collections.singletonList(decision1));
-    when(mockDecider2.getFlowUnits()).thenReturn(Collections.singletonList(decision2));
-    this.testCollator = new Collator(impactAssessor, new Collator.ImpactBasedActionComparator(),
-        mockDecider1, mockDecider2);
+        assertEquals(1, decision.getActions().size());
+        Assert.assertEquals(moveShardAction3, decision.getActions().get(0));
+    }
 
-    Decision decision = testCollator.operate();
+    @Test
+    public void testCollatorEmptyActions() {
+        when(decision1.getActions()).thenReturn(Collections.emptyList());
+        when(decision2.getActions()).thenReturn(Collections.emptyList());
+        when(mockDecider1.getFlowUnits()).thenReturn(Collections.singletonList(decision1));
+        when(mockDecider2.getFlowUnits()).thenReturn(Collections.singletonList(decision2));
+        this.testCollator =
+                new Collator(
+                        impactAssessor,
+                        new Collator.ImpactBasedActionComparator(),
+                        mockDecider1,
+                        mockDecider2);
 
-    assertTrue(decision.getActions().isEmpty());
-  }
+        Decision decision = testCollator.operate();
 
-  @Test
-  public void testNoDeciders() {
-    testCollator = new Collator(impactAssessor, mockComparator);
+        assertTrue(decision.getActions().isEmpty());
+    }
 
-    final Decision decision = testCollator.operate();
+    @Test
+    public void testNoDeciders() {
+        testCollator = new Collator(impactAssessor, mockComparator);
 
-    assertTrue(decision.getActions().isEmpty());
-  }
+        final Decision decision = testCollator.operate();
 
-  public void setupDecisions() {
-    when(decision1.getActions())
-        .thenReturn(Collections.singletonList(moveShardAction1));
-    when(decision2.getActions())
-        .thenReturn(Collections.singletonList(moveShardAction2));
-  }
+        assertTrue(decision.getActions().isEmpty());
+    }
 
-  public void setupActions() {
-    when(moveShardAction1.name()).thenReturn(moveShardActionName);
-    when(moveShardAction1.impact()).thenReturn(moveShardImpact1);
-    when(moveShardAction1.impactedNodes()).thenReturn(new ArrayList<>(moveShardImpact1.keySet()));
+    public void setupDecisions() {
+        when(decision1.getActions()).thenReturn(Collections.singletonList(moveShardAction1));
+        when(decision2.getActions()).thenReturn(Collections.singletonList(moveShardAction2));
+    }
 
-    when(moveShardAction2.name()).thenReturn(moveShardActionName);
-    when(moveShardAction2.impact()).thenReturn(moveShardImpact2);
-    when(moveShardAction2.impactedNodes()).thenReturn(new ArrayList<>(moveShardImpact2.keySet()));
+    public void setupActions() {
+        when(moveShardAction1.name()).thenReturn(moveShardActionName);
+        when(moveShardAction1.impact()).thenReturn(moveShardImpact1);
+        when(moveShardAction1.impactedNodes())
+                .thenReturn(new ArrayList<>(moveShardImpact1.keySet()));
 
-    when(moveShardAction3.name()).thenReturn(moveShardActionName);
-    when(moveShardAction3.impact()).thenReturn(moveShardImpact3);
-    when(moveShardAction3.impactedNodes()).thenReturn(new ArrayList<>(moveShardImpact3.keySet()));
-  }
+        when(moveShardAction2.name()).thenReturn(moveShardActionName);
+        when(moveShardAction2.impact()).thenReturn(moveShardImpact2);
+        when(moveShardAction2.impactedNodes())
+                .thenReturn(new ArrayList<>(moveShardImpact2.keySet()));
 
-  public ImpactVector buildShardMoveOutImpactVector() {
-    final ImpactVector impactVector = new ImpactVector();
-    impactVector.decreasesPressure(ImpactVector.Dimension.CPU);
-    impactVector.decreasesPressure(ImpactVector.Dimension.HEAP);
+        when(moveShardAction3.name()).thenReturn(moveShardActionName);
+        when(moveShardAction3.impact()).thenReturn(moveShardImpact3);
+        when(moveShardAction3.impactedNodes())
+                .thenReturn(new ArrayList<>(moveShardImpact3.keySet()));
+    }
 
-    return impactVector;
-  }
+    public ImpactVector buildShardMoveOutImpactVector() {
+        final ImpactVector impactVector = new ImpactVector();
+        impactVector.decreasesPressure(ImpactVector.Dimension.CPU);
+        impactVector.decreasesPressure(ImpactVector.Dimension.HEAP);
 
-  public ImpactVector buildShardMoveInImpactVector() {
-    final ImpactVector impactVector = new ImpactVector();
-    impactVector.increasesPressure(ImpactVector.Dimension.CPU);
-    impactVector.increasesPressure(ImpactVector.Dimension.HEAP);
+        return impactVector;
+    }
 
-    return impactVector;
-  }
+    public ImpactVector buildShardMoveInImpactVector() {
+        final ImpactVector impactVector = new ImpactVector();
+        impactVector.increasesPressure(ImpactVector.Dimension.CPU);
+        impactVector.increasesPressure(ImpactVector.Dimension.HEAP);
+
+        return impactVector;
+    }
 }

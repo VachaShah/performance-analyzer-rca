@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.admission_control;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Metric;
@@ -24,7 +25,6 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.fl
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.persist.SQLParsingUtil;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.HotNodeSummary;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.scheduler.FlowUnitOperationArgWrapper;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,10 +42,11 @@ public class AdmissionControllerRca extends Rca<ResourceFlowUnit<HotNodeSummary>
     private final Metric admissionControlThresholdValue;
     private final Metric admissionControlRejectionCount;
 
-    public <M extends Metric> AdmissionControllerRca(final int rcaPeriod,
-                                                     final M admissionControlCurrentValue,
-                                                     final M admissionControlThresholdValue,
-                                                     final M admissionControlRejectionCount) {
+    public <M extends Metric> AdmissionControllerRca(
+            final int rcaPeriod,
+            final M admissionControlCurrentValue,
+            final M admissionControlThresholdValue,
+            final M admissionControlRejectionCount) {
         super(rcaPeriod);
 
         this.admissionControlCurrentValue = admissionControlCurrentValue;
@@ -63,19 +64,24 @@ public class AdmissionControllerRca extends Rca<ResourceFlowUnit<HotNodeSummary>
                 continue;
             }
             try {
-                metricValue = SQLParsingUtil.readDataFromSqlResult(
-                        metricFU.getData(),
-                        AllMetrics.AdmissionControlDimension.CONTROLLER_NAME.getField(),
-                        controllerName,
-                        MetricsDB.MAX);
+                metricValue =
+                        SQLParsingUtil.readDataFromSqlResult(
+                                metricFU.getData(),
+                                AllMetrics.AdmissionControlDimension.CONTROLLER_NAME.getField(),
+                                controllerName,
+                                MetricsDB.MAX);
                 if (Double.isNaN(metricValue)) {
                     metricValue = 0;
                     LOG.warn("[AdmissionControl] Failed to parse metric from {}", metric.name());
                 } else {
-                    LOG.debug("[AdmissionControl] Metric value {} is {}", metric.name(), metricValue);
+                    LOG.debug(
+                            "[AdmissionControl] Metric value {} is {}", metric.name(), metricValue);
                 }
             } catch (Exception ex) {
-                LOG.warn("[AdmissionControl] Failed to parse metric from {}. [{}]", metric.name(), ex.toString());
+                LOG.warn(
+                        "[AdmissionControl] Failed to parse metric from {}. [{}]",
+                        metric.name(),
+                        ex.toString());
             }
         }
         return metricValue;
@@ -84,9 +90,12 @@ public class AdmissionControllerRca extends Rca<ResourceFlowUnit<HotNodeSummary>
     private AdmissionControlMetrics getMetricModel(String controllerName) {
         AdmissionControlMetrics metricValue = new AdmissionControlMetrics();
         metricValue.controllerName = controllerName;
-        metricValue.rejectionCount = (long)getMaxMetricValue(controllerName, admissionControlRejectionCount);
-        metricValue.thresholdValue = (long)getMaxMetricValue(controllerName, admissionControlThresholdValue);
-        metricValue.currentValue = (long)getMaxMetricValue(controllerName, admissionControlCurrentValue);
+        metricValue.rejectionCount =
+                (long) getMaxMetricValue(controllerName, admissionControlRejectionCount);
+        metricValue.thresholdValue =
+                (long) getMaxMetricValue(controllerName, admissionControlThresholdValue);
+        metricValue.currentValue =
+                (long) getMaxMetricValue(controllerName, admissionControlCurrentValue);
         return metricValue;
     }
 
@@ -97,11 +106,21 @@ public class AdmissionControllerRca extends Rca<ResourceFlowUnit<HotNodeSummary>
         AdmissionControlMetrics globalJVMMP = getMetricModel(GLOBAL_JVMMP);
         AdmissionControlMetrics requestSize = getMetricModel(REQUEST_SIZE);
 
-        LOG.info("[AdmissionControl] Time:{} Controller:{} CurrentValue:{} ThresholdValue:{} RejectionCount:{}",
-                currentTimeMillis, GLOBAL_JVMMP, globalJVMMP.currentValue, globalJVMMP.thresholdValue, globalJVMMP.rejectionCount);
+        LOG.info(
+                "[AdmissionControl] Time:{} Controller:{} CurrentValue:{} ThresholdValue:{} RejectionCount:{}",
+                currentTimeMillis,
+                GLOBAL_JVMMP,
+                globalJVMMP.currentValue,
+                globalJVMMP.thresholdValue,
+                globalJVMMP.rejectionCount);
 
-        LOG.info("[AdmissionControl] Time:{} Controller:{} CurrentValue:{} ThresholdValue:{} RejectionCount:{}",
-                currentTimeMillis, REQUEST_SIZE, requestSize.currentValue, requestSize.thresholdValue, requestSize.rejectionCount);
+        LOG.info(
+                "[AdmissionControl] Time:{} Controller:{} CurrentValue:{} ThresholdValue:{} RejectionCount:{}",
+                currentTimeMillis,
+                REQUEST_SIZE,
+                requestSize.currentValue,
+                requestSize.thresholdValue,
+                requestSize.rejectionCount);
 
         // TODO: Add the RCA logic here
         return new ResourceFlowUnit<>(currentTimeMillis);
@@ -123,7 +142,11 @@ public class AdmissionControllerRca extends Rca<ResourceFlowUnit<HotNodeSummary>
             super();
         }
 
-        public AdmissionControlMetrics(String controllerName, long currentValue, long thresholdValue, long rejectionCount) {
+        public AdmissionControlMetrics(
+                String controllerName,
+                long currentValue,
+                long thresholdValue,
+                long rejectionCount) {
             super();
             this.controllerName = controllerName;
             this.currentValue = currentValue;
@@ -147,5 +170,4 @@ public class AdmissionControllerRca extends Rca<ResourceFlowUnit<HotNodeSummary>
             return rejectionCount;
         }
     }
-
 }

@@ -34,14 +34,11 @@ public class SQLParsingUtilTest {
     private static final String FIELD_NAME = "FIELD_NAME";
     private static final String DATA_FIELD = "DATA_FIELD";
 
-    @Mock
-    private Result<Record> result;
+    @Mock private Result<Record> result;
 
-    @Mock
-    private Field<String> field;
+    @Mock private Field<String> field;
 
-    @Mock
-    private Record record;
+    @Mock private Record record;
 
     @Before
     public void setup() {
@@ -51,20 +48,33 @@ public class SQLParsingUtilTest {
     @Test
     public void testReadDataFromSqlResult() {
         // method should return Double.NaN when result is null
-        assertEquals(Double.NaN, SQLParsingUtil.readDataFromSqlResult(null, field, FIELD_NAME, DATA_FIELD), 0);
+        assertEquals(
+                Double.NaN,
+                SQLParsingUtil.readDataFromSqlResult(null, field, FIELD_NAME, DATA_FIELD),
+                0);
 
         // method should return Double.NaN when it encounters an IllegalArgumentException
         when(result.getValues(field)).thenReturn(Lists.newArrayList("no", "matches", "here"));
-        assertEquals(Double.NaN, SQLParsingUtil.readDataFromSqlResult(result, field, FIELD_NAME, DATA_FIELD), 0);
+        assertEquals(
+                Double.NaN,
+                SQLParsingUtil.readDataFromSqlResult(result, field, FIELD_NAME, DATA_FIELD),
+                0);
 
         // method should return Double.NaN when it encounters an DataTypeException
         when(result.getValues(field)).thenReturn(Lists.newArrayList("no", FIELD_NAME, "nope"));
         when(result.get(1)).thenReturn(record);
-        when(record.getValue(anyString(), eq(Double.class))).thenThrow(new DataTypeException("EXCEPTION"));
-        assertEquals(Double.NaN, SQLParsingUtil.readDataFromSqlResult(result, field, FIELD_NAME, DATA_FIELD), 0);
+        when(record.getValue(anyString(), eq(Double.class)))
+                .thenThrow(new DataTypeException("EXCEPTION"));
+        assertEquals(
+                Double.NaN,
+                SQLParsingUtil.readDataFromSqlResult(result, field, FIELD_NAME, DATA_FIELD),
+                0);
 
         // method should return the matched record value when all parameters are valid
         when(record.getValue(anyString(), eq(Double.class))).thenReturn(Math.E);
-        assertEquals(Math.E, SQLParsingUtil.readDataFromSqlResult(result, field, FIELD_NAME, DATA_FIELD), 0);
+        assertEquals(
+                Math.E,
+                SQLParsingUtil.readDataFromSqlResult(result, field, FIELD_NAME, DATA_FIELD),
+                0);
     }
 }

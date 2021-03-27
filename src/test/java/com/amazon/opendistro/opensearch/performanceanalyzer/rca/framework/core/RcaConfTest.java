@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders.configs.CachePriorityOrderConfig;
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders.configs.DeciderConfig;
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders.configs.WorkLoadTypeConfig;
@@ -26,87 +27,132 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.configs.ShardReq
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.RcaConsts;
 import java.nio.file.Paths;
 import java.util.Arrays;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class RcaConfTest {
 
-  private RcaConf rcaConf;
+    private RcaConf rcaConf;
 
-  @Before
-  public void init() {
-    String rcaConfPath = Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca_elected_master.conf").toString();
-    rcaConf = new RcaConf(rcaConfPath);
-  }
+    @Before
+    public void init() {
+        String rcaConfPath =
+                Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca_elected_master.conf").toString();
+        rcaConf = new RcaConf(rcaConfPath);
+    }
 
-  @Test
-  public void testReadRcaConfig() {
-    Integer topK = rcaConf.readRcaConfig(HighHeapUsageOldGenRcaConfig.CONFIG_NAME,
-            HighHeapUsageOldGenRcaConfig.RCA_CONF_KEY_CONSTANTS.TOP_K, HighHeapUsageOldGenRcaConfig.DEFAULT_TOP_K, Integer.class);
-    Assert.assertNotNull(topK);
-    Assert.assertEquals(HighHeapUsageOldGenRcaConfig.DEFAULT_TOP_K, topK.intValue());
+    @Test
+    public void testReadRcaConfig() {
+        Integer topK =
+                rcaConf.readRcaConfig(
+                        HighHeapUsageOldGenRcaConfig.CONFIG_NAME,
+                        HighHeapUsageOldGenRcaConfig.RCA_CONF_KEY_CONSTANTS.TOP_K,
+                        HighHeapUsageOldGenRcaConfig.DEFAULT_TOP_K,
+                        Integer.class);
+        Assert.assertNotNull(topK);
+        Assert.assertEquals(HighHeapUsageOldGenRcaConfig.DEFAULT_TOP_K, topK.intValue());
 
-    Integer promotionRateThreshold = rcaConf.readRcaConfig(HighHeapUsageYoungGenRcaConfig.CONFIG_NAME,
-        HighHeapUsageYoungGenRcaConfig.RCA_CONF_KEY_CONSTANTS.PROMOTION_RATE_THRES,
-        HighHeapUsageYoungGenRcaConfig.DEFAULT_PROMOTION_RATE_THRESHOLD_IN_MB_PER_SEC, Integer.class);
-    Assert.assertNotNull(promotionRateThreshold);
-    Assert.assertEquals(HighHeapUsageYoungGenRcaConfig.DEFAULT_PROMOTION_RATE_THRESHOLD_IN_MB_PER_SEC, promotionRateThreshold.intValue());
+        Integer promotionRateThreshold =
+                rcaConf.readRcaConfig(
+                        HighHeapUsageYoungGenRcaConfig.CONFIG_NAME,
+                        HighHeapUsageYoungGenRcaConfig.RCA_CONF_KEY_CONSTANTS.PROMOTION_RATE_THRES,
+                        HighHeapUsageYoungGenRcaConfig
+                                .DEFAULT_PROMOTION_RATE_THRESHOLD_IN_MB_PER_SEC,
+                        Integer.class);
+        Assert.assertNotNull(promotionRateThreshold);
+        Assert.assertEquals(
+                HighHeapUsageYoungGenRcaConfig.DEFAULT_PROMOTION_RATE_THRESHOLD_IN_MB_PER_SEC,
+                promotionRateThreshold.intValue());
 
-    Double unbalancedResourceThreshold = rcaConf.readRcaConfig(HotNodeClusterRcaConfig.CONFIG_NAME,
-        HotNodeClusterRcaConfig.RCA_CONF_KEY_CONSTANTS.UNBALANCED_RESOURCE_THRES,
-        HotNodeClusterRcaConfig.DEFAULT_UNBALANCED_RESOURCE_THRES, Double.class);
-    Assert.assertNotNull(unbalancedResourceThreshold);
-    Assert.assertEquals(HotNodeClusterRcaConfig.DEFAULT_UNBALANCED_RESOURCE_THRES, unbalancedResourceThreshold, 0.01);
+        Double unbalancedResourceThreshold =
+                rcaConf.readRcaConfig(
+                        HotNodeClusterRcaConfig.CONFIG_NAME,
+                        HotNodeClusterRcaConfig.RCA_CONF_KEY_CONSTANTS.UNBALANCED_RESOURCE_THRES,
+                        HotNodeClusterRcaConfig.DEFAULT_UNBALANCED_RESOURCE_THRES,
+                        Double.class);
+        Assert.assertNotNull(unbalancedResourceThreshold);
+        Assert.assertEquals(
+                HotNodeClusterRcaConfig.DEFAULT_UNBALANCED_RESOURCE_THRES,
+                unbalancedResourceThreshold,
+                0.01);
 
-    Integer val = rcaConf.readRcaConfig(HotNodeClusterRcaConfig.CONFIG_NAME,
-        HotNodeClusterRcaConfig.RCA_CONF_KEY_CONSTANTS.UNBALANCED_RESOURCE_THRES,
-        0, Integer.class);
-    Assert.assertNotNull(val);
-    Assert.assertEquals(0, val.intValue());
+        Integer val =
+                rcaConf.readRcaConfig(
+                        HotNodeClusterRcaConfig.CONFIG_NAME,
+                        HotNodeClusterRcaConfig.RCA_CONF_KEY_CONSTANTS.UNBALANCED_RESOURCE_THRES,
+                        0,
+                        Integer.class);
+        Assert.assertNotNull(val);
+        Assert.assertEquals(0, val.intValue());
 
-    val = rcaConf.readRcaConfig(HighHeapUsageOldGenRcaConfig.CONFIG_NAME, "test", 0, Integer.class);
-    Assert.assertNotNull(val);
-    Assert.assertEquals(0, val.intValue());
- 
-    Integer fieldDataTimePeriod = rcaConf.readRcaConfig(FieldDataCacheRcaConfig.CONFIG_NAME,
-            FieldDataCacheRcaConfig.RCA_CONF_KEY_CONSTANTS.FIELD_DATA_COLLECTOR_TIME_PERIOD_IN_SEC,
-            FieldDataCacheRcaConfig.DEFAULT_FIELD_DATA_COLLECTOR_TIME_PERIOD_IN_SEC, Integer.class);
-    Assert.assertNotNull(fieldDataTimePeriod);
-    Assert.assertEquals(10, fieldDataTimePeriod.intValue());
+        val =
+                rcaConf.readRcaConfig(
+                        HighHeapUsageOldGenRcaConfig.CONFIG_NAME, "test", 0, Integer.class);
+        Assert.assertNotNull(val);
+        Assert.assertEquals(0, val.intValue());
 
-    Integer shardRequestTimePeriod = rcaConf.readRcaConfig(ShardRequestCacheRcaConfig.CONFIG_NAME,
-            ShardRequestCacheRcaConfig.RCA_CONF_KEY_CONSTANTS.SHARD_REQUEST_COLLECTOR_TIME_PERIOD_IN_SEC,
-            ShardRequestCacheRcaConfig.DEFAULT_SHARD_REQUEST_COLLECTOR_TIME_PERIOD_IN_SEC, Integer.class);
-    Assert.assertNotNull(shardRequestTimePeriod);
-    Assert.assertEquals(10, shardRequestTimePeriod.intValue());
-  }
+        Integer fieldDataTimePeriod =
+                rcaConf.readRcaConfig(
+                        FieldDataCacheRcaConfig.CONFIG_NAME,
+                        FieldDataCacheRcaConfig.RCA_CONF_KEY_CONSTANTS
+                                .FIELD_DATA_COLLECTOR_TIME_PERIOD_IN_SEC,
+                        FieldDataCacheRcaConfig.DEFAULT_FIELD_DATA_COLLECTOR_TIME_PERIOD_IN_SEC,
+                        Integer.class);
+        Assert.assertNotNull(fieldDataTimePeriod);
+        Assert.assertEquals(10, fieldDataTimePeriod.intValue());
 
-  @Test
-  public void testValidateRcaConfig() {
-    Integer defaultValue1 = rcaConf.readRcaConfig(FieldDataCacheRcaConfig.CONFIG_NAME,
-            FieldDataCacheRcaConfig.RCA_CONF_KEY_CONSTANTS.FIELD_DATA_COLLECTOR_TIME_PERIOD_IN_SEC,
-            0, s -> s < 1, Integer.class);
-    Assert.assertNotNull(defaultValue1);
-    Assert.assertEquals(0, defaultValue1.intValue());
-    Integer defaultValue = rcaConf.readRcaConfig(ShardRequestCacheRcaConfig.CONFIG_NAME,
-            ShardRequestCacheRcaConfig.RCA_CONF_KEY_CONSTANTS.SHARD_REQUEST_COLLECTOR_TIME_PERIOD_IN_SEC,
-            0, s -> s < 1, Integer.class);
-    Assert.assertNotNull(defaultValue);
-    Assert.assertEquals(0, defaultValue.intValue());
-  }
+        Integer shardRequestTimePeriod =
+                rcaConf.readRcaConfig(
+                        ShardRequestCacheRcaConfig.CONFIG_NAME,
+                        ShardRequestCacheRcaConfig.RCA_CONF_KEY_CONSTANTS
+                                .SHARD_REQUEST_COLLECTOR_TIME_PERIOD_IN_SEC,
+                        ShardRequestCacheRcaConfig
+                                .DEFAULT_SHARD_REQUEST_COLLECTOR_TIME_PERIOD_IN_SEC,
+                        Integer.class);
+        Assert.assertNotNull(shardRequestTimePeriod);
+        Assert.assertEquals(10, shardRequestTimePeriod.intValue());
+    }
 
-  @Test
-  public void testReadDeciderConfig() {
-    DeciderConfig configObj = new DeciderConfig(rcaConf);
-    Assert.assertNotNull(configObj.getCachePriorityOrderConfig());
-    Assert.assertNotNull(configObj.getWorkLoadTypeConfig());
-    CachePriorityOrderConfig cachePriorityOrderConfig = configObj.getCachePriorityOrderConfig();
-    Assert.assertEquals(Arrays.asList("test-fielddata-cache", "test-shard-request-cache", "test-query-cache",
-            "test-bitset-filter-cache"), cachePriorityOrderConfig.getPriorityOrder());
-    WorkLoadTypeConfig workLoadTypeConfig = configObj.getWorkLoadTypeConfig();
-    Assert.assertFalse(workLoadTypeConfig.preferSearch());
-    Assert.assertTrue(workLoadTypeConfig.preferIngest());
-  }
+    @Test
+    public void testValidateRcaConfig() {
+        Integer defaultValue1 =
+                rcaConf.readRcaConfig(
+                        FieldDataCacheRcaConfig.CONFIG_NAME,
+                        FieldDataCacheRcaConfig.RCA_CONF_KEY_CONSTANTS
+                                .FIELD_DATA_COLLECTOR_TIME_PERIOD_IN_SEC,
+                        0,
+                        s -> s < 1,
+                        Integer.class);
+        Assert.assertNotNull(defaultValue1);
+        Assert.assertEquals(0, defaultValue1.intValue());
+        Integer defaultValue =
+                rcaConf.readRcaConfig(
+                        ShardRequestCacheRcaConfig.CONFIG_NAME,
+                        ShardRequestCacheRcaConfig.RCA_CONF_KEY_CONSTANTS
+                                .SHARD_REQUEST_COLLECTOR_TIME_PERIOD_IN_SEC,
+                        0,
+                        s -> s < 1,
+                        Integer.class);
+        Assert.assertNotNull(defaultValue);
+        Assert.assertEquals(0, defaultValue.intValue());
+    }
+
+    @Test
+    public void testReadDeciderConfig() {
+        DeciderConfig configObj = new DeciderConfig(rcaConf);
+        Assert.assertNotNull(configObj.getCachePriorityOrderConfig());
+        Assert.assertNotNull(configObj.getWorkLoadTypeConfig());
+        CachePriorityOrderConfig cachePriorityOrderConfig = configObj.getCachePriorityOrderConfig();
+        Assert.assertEquals(
+                Arrays.asList(
+                        "test-fielddata-cache",
+                        "test-shard-request-cache",
+                        "test-query-cache",
+                        "test-bitset-filter-cache"),
+                cachePriorityOrderConfig.getPriorityOrder());
+        WorkLoadTypeConfig workLoadTypeConfig = configObj.getWorkLoadTypeConfig();
+        Assert.assertFalse(workLoadTypeConfig.preferSearch());
+        Assert.assertTrue(workLoadTypeConfig.preferIngest());
+    }
 }

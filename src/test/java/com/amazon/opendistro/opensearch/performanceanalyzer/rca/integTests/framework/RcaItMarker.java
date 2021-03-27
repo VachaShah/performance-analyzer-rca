@@ -15,5 +15,4 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework;
 
-public interface RcaItMarker {
-}
+public interface RcaItMarker {}

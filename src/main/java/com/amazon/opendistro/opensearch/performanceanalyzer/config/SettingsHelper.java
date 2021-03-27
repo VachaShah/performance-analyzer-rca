@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,20 +15,21 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.config;
 
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class SettingsHelper {
-  public static Properties getSettings(final String fileAbsolutePath) throws IOException {
-    Properties prop = new Properties();
+    public static Properties getSettings(final String fileAbsolutePath) throws IOException {
+        Properties prop = new Properties();
 
-    try (InputStream input = new FileInputStream(fileAbsolutePath); ) {
-      // load a properties file
-      prop.load(input);
+        try (InputStream input = new FileInputStream(fileAbsolutePath); ) {
+            // load a properties file
+            prop.load(input);
+        }
+
+        return prop;
     }
-
-    return prop;
-  }
 }

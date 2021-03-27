@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders.collator;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions.Action;
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions.ImpactVector;
@@ -32,70 +33,82 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  */
 public class ImpactAssessor {
 
-  private static final Logger LOG = LogManager.getLogger(ImpactAssessor.class);
+    private static final Logger LOG = LogManager.getLogger(ImpactAssessor.class);
 
-  /**
-   * Combines the pressure characteristics of the given list of actions into an overall impact
-   * assessment per node.
-   *
-   * @param actions The list of actions whose for which the impact need to assessed.
-   * @return A map of instance to its overall impact on the instance based on the provided list of
-   *         actions.
-   */
-  public @NonNull Map<NodeKey, ImpactAssessment> assessOverallImpact(
-      @NonNull final List<Action> actions) {
-    Map<NodeKey, ImpactAssessment> overallImpactAssessment = new HashMap<>();
-    actions.forEach(action -> {
-      Map<NodeKey, ImpactVector> impactMap = action.impact();
-      impactMap.forEach((nodeKey, impactVector) -> overallImpactAssessment.computeIfAbsent(nodeKey,
-          ImpactAssessment::new).addActionImpact(action.name(), impactVector));
-    });
+    /**
+     * Combines the pressure characteristics of the given list of actions into an overall impact
+     * assessment per node.
+     *
+     * @param actions The list of actions whose for which the impact need to assessed.
+     * @return A map of instance to its overall impact on the instance based on the provided list of
+     *     actions.
+     */
+    public @NonNull Map<NodeKey, ImpactAssessment> assessOverallImpact(
+            @NonNull final List<Action> actions) {
+        Map<NodeKey, ImpactAssessment> overallImpactAssessment = new HashMap<>();
+        actions.forEach(
+                action -> {
+                    Map<NodeKey, ImpactVector> impactMap = action.impact();
+                    impactMap.forEach(
+                            (nodeKey, impactVector) ->
+                                    overallImpactAssessment
+                                            .computeIfAbsent(nodeKey, ImpactAssessment::new)
+                                            .addActionImpact(action.name(), impactVector));
+                });
 
-    return overallImpactAssessment;
-  }
-
-  /**
-   * Checks if the impact of a given action aligns with the overall proposed impact for a node. An
-   * action is classified as 'impact aligning' only if all the impacted nodes in the action align
-   * with their proposed pressure heading.
-   *
-   * @param action                  the action whose impact needs to be checked for alignment.
-   * @param overallImpactAssessment The impact assessment that provides the pressure heading for the
-   *                                nodes.
-   * @return true if all impacted nodes are in alignment.
-   */
-  public boolean isImpactAligned(@NonNull final Action action,
-      @NonNull final Map<NodeKey, ImpactAssessment> overallImpactAssessment) {
-
-    boolean isAligned = true;
-
-    for (final NodeKey nodeKey : action.impactedNodes()) {
-      if (!overallImpactAssessment.containsKey(nodeKey)) {
-        LOG.error("Overall impact assessment does not a node key: {} for which an impacting action "
-            + "exists.", nodeKey);
-        return false;
-      }
-
-      final ImpactAssessment nodeImpactAssessment = overallImpactAssessment.get(nodeKey);
-
-      isAligned = isAligned && nodeImpactAssessment.checkAlignmentAcrossDimensions(action.name(),
-          action.impact().get(nodeKey));
+        return overallImpactAssessment;
     }
 
-    return isAligned;
-  }
+    /**
+     * Checks if the impact of a given action aligns with the overall proposed impact for a node. An
+     * action is classified as 'impact aligning' only if all the impacted nodes in the action align
+     * with their proposed pressure heading.
+     *
+     * @param action the action whose impact needs to be checked for alignment.
+     * @param overallImpactAssessment The impact assessment that provides the pressure heading for
+     *     the nodes.
+     * @return true if all impacted nodes are in alignment.
+     */
+    public boolean isImpactAligned(
+            @NonNull final Action action,
+            @NonNull final Map<NodeKey, ImpactAssessment> overallImpactAssessment) {
 
-  public void undoActionImpactOnOverallAssessment(@NonNull final Action action,
-      @NonNull final Map<NodeKey, ImpactAssessment> overallImpactAssessment) {
-    for (final NodeKey nodeKey : action.impactedNodes()) {
-      if (!overallImpactAssessment.containsKey(nodeKey)) {
-        LOG.error("Overall impact assessment does not a node key: {} for which an impacting action "
-            + "exists.", nodeKey);
-        return;
-      }
+        boolean isAligned = true;
 
-      final ImpactAssessment nodeImpactAssessment = overallImpactAssessment.get(nodeKey);
-      nodeImpactAssessment.removeActionImpact(action.name(), action.impact().get(nodeKey));
+        for (final NodeKey nodeKey : action.impactedNodes()) {
+            if (!overallImpactAssessment.containsKey(nodeKey)) {
+                LOG.error(
+                        "Overall impact assessment does not a node key: {} for which an impacting action "
+                                + "exists.",
+                        nodeKey);
+                return false;
+            }
+
+            final ImpactAssessment nodeImpactAssessment = overallImpactAssessment.get(nodeKey);
+
+            isAligned =
+                    isAligned
+                            && nodeImpactAssessment.checkAlignmentAcrossDimensions(
+                                    action.name(), action.impact().get(nodeKey));
+        }
+
+        return isAligned;
     }
-  }
+
+    public void undoActionImpactOnOverallAssessment(
+            @NonNull final Action action,
+            @NonNull final Map<NodeKey, ImpactAssessment> overallImpactAssessment) {
+        for (final NodeKey nodeKey : action.impactedNodes()) {
+            if (!overallImpactAssessment.containsKey(nodeKey)) {
+                LOG.error(
+                        "Overall impact assessment does not a node key: {} for which an impacting action "
+                                + "exists.",
+                        nodeKey);
+                return;
+            }
+
+            final ImpactAssessment nodeImpactAssessment = overallImpactAssessment.get(nodeKey);
+            nodeImpactAssessment.removeActionImpact(action.name(), action.impact().get(nodeKey));
+        }
+    }
 }

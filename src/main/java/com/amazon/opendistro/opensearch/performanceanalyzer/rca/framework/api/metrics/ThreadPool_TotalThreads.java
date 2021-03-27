@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,11 +15,14 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.metrics;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Metric;
 
 public class ThreadPool_TotalThreads extends Metric {
-  public ThreadPool_TotalThreads(long evaluationIntervalSeconds) {
-    super(AllMetrics.ThreadPoolValue.THREADPOOL_TOTAL_THREADS.toString(), evaluationIntervalSeconds);
-  }
+    public ThreadPool_TotalThreads(long evaluationIntervalSeconds) {
+        super(
+                AllMetrics.ThreadPoolValue.THREADPOOL_TOTAL_THREADS.toString(),
+                evaluationIntervalSeconds);
+    }
 }

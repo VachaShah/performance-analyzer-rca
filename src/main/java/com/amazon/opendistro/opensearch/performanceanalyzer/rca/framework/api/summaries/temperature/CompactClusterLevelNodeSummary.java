@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -27,15 +27,14 @@ import org.jooq.exception.DataTypeException;
 
 /**
  * This object is instantiated on the elected master. This is the master's view of the {@code
- * CompactNodeSummary}. The difference is that, the CompactNodeSummary is based on on the node
- * level resource utilization by the shards and the {@code CompactClusterLevelNodeSummary} is
- * based on the utilization across multiple nodes in the cluster.
+ * CompactNodeSummary}. The difference is that, the CompactNodeSummary is based on on the node level
+ * resource utilization by the shards and the {@code CompactClusterLevelNodeSummary} is based on the
+ * utilization across multiple nodes in the cluster.
  */
 public class CompactClusterLevelNodeSummary extends CompactNodeSummary {
     private static final Logger LOG = LogManager.getLogger(CompactClusterLevelNodeSummary.class);
 
-    public final String TABLE_NAME =
-            CompactClusterLevelNodeSummary.class.getSimpleName();
+    public final String TABLE_NAME = CompactClusterLevelNodeSummary.class.getSimpleName();
 
     public CompactClusterLevelNodeSummary(String nodeId, String hostAddress) {
         super(nodeId, hostAddress);
@@ -61,8 +60,8 @@ public class CompactClusterLevelNodeSummary extends CompactNodeSummary {
                 int num_shards = record.get(dimension.NAME + NUM_SHARDS_SUFFIX_KEY, Integer.class);
 
                 summary.setNumOfShards(dimension, num_shards);
-                summary.setTemperatureForDimension(dimension,
-                        new TemperatureVector.NormalizedValue(mean));
+                summary.setTemperatureForDimension(
+                        dimension, new TemperatureVector.NormalizedValue(mean));
                 summary.setTotalConsumedByDimension(dimension, total);
             } catch (DataTypeException dex) {
                 LOG.error("Could not create valid summary object.", dex);

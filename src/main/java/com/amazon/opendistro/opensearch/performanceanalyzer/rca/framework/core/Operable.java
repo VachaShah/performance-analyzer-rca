@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core;
 
-
 /*
  * In order to operate an Operable, the input multiple streams and the output is one single stream. Each of the
  * dependencies will have multiple samples and there are expected to be multiple dependencies. Hence, the input type
  * is list of lists.
  */
 public interface Operable<T> {
-  T operate();
+    T operate();
 }

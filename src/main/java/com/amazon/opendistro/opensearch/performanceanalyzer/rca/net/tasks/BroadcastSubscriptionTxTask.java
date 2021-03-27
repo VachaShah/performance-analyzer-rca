@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,41 +15,39 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.tasks;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.net.NetClient;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.messages.IntentMsg;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.NodeStateManager;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.SubscriptionManager;
-
 import java.util.Map;
 
-/**
- * Task that broadcasts a subscription request to the current node's peers.
- */
+/** Task that broadcasts a subscription request to the current node's peers. */
 public class BroadcastSubscriptionTxTask extends SubscriptionTxTask {
-  public BroadcastSubscriptionTxTask(
-      NetClient netClient,
-      IntentMsg intentMsg,
-      SubscriptionManager subscriptionManager,
-      NodeStateManager nodeStateManager,
-      final AppContext appContext) {
-    super(netClient, intentMsg, subscriptionManager, nodeStateManager, appContext);
-  }
-
-  /**
-   * Broadcasts a subscription request to all the peers in the cluster.
-   *
-   * @see Thread#run()
-   */
-  @Override
-  public void run() {
-    final String requesterVertex = intentMsg.getRequesterGraphNode();
-    final String destinationVertex = intentMsg.getDestinationGraphNode();
-    final Map<String, String> tags = intentMsg.getRcaConfTags();
-
-    for (final InstanceDetails remoteHost : getPeerInstances()) {
-      sendSubscribeRequest(remoteHost, requesterVertex, destinationVertex, tags);
+    public BroadcastSubscriptionTxTask(
+            NetClient netClient,
+            IntentMsg intentMsg,
+            SubscriptionManager subscriptionManager,
+            NodeStateManager nodeStateManager,
+            final AppContext appContext) {
+        super(netClient, intentMsg, subscriptionManager, nodeStateManager, appContext);
     }
-  }
+
+    /**
+     * Broadcasts a subscription request to all the peers in the cluster.
+     *
+     * @see Thread#run()
+     */
+    @Override
+    public void run() {
+        final String requesterVertex = intentMsg.getRequesterGraphNode();
+        final String destinationVertex = intentMsg.getDestinationGraphNode();
+        final Map<String, String> tags = intentMsg.getRcaConfTags();
+
+        for (final InstanceDetails remoteHost : getPeerInstances()) {
+            sendSubscribeRequest(remoteHost, requesterVertex, destinationVertex, tags);
+        }
+    }
 }

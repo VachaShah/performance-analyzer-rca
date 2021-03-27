@@ -23,28 +23,28 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.frame
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.actions.PersistedAction;
 
 public class JvmGenActionValidator implements IValidator {
-  AppContext appContext;
-  long startTime;
+    AppContext appContext;
+    long startTime;
 
-  public JvmGenActionValidator() {
-    appContext = new AppContext();
-    startTime = System.currentTimeMillis();
-  }
-
-  @Override
-  public boolean checkDbObj(Object object) {
-    if (object == null) {
-      return false;
+    public JvmGenActionValidator() {
+        appContext = new AppContext();
+        startTime = System.currentTimeMillis();
     }
 
-    PersistedAction persistedAction = (PersistedAction) object;
-    return checkPersistedAction(persistedAction);
-  }
+    @Override
+    public boolean checkDbObj(Object object) {
+        if (object == null) {
+            return false;
+        }
 
-  private boolean checkPersistedAction(final PersistedAction persistedAction) {
-    JvmGenAction heapSizeIncreaseAction =
-        JvmGenAction.fromSummary(persistedAction.getSummary(), appContext);
-    assertTrue(heapSizeIncreaseAction.getTargetRatio() <= 5);
-    return true;
-  }
+        PersistedAction persistedAction = (PersistedAction) object;
+        return checkPersistedAction(persistedAction);
+    }
+
+    private boolean checkPersistedAction(final PersistedAction persistedAction) {
+        JvmGenAction heapSizeIncreaseAction =
+                JvmGenAction.fromSummary(persistedAction.getSummary(), appContext);
+        assertTrue(heapSizeIncreaseAction.getTargetRatio() <= 5);
+        return true;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -24,43 +24,42 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.me
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.Node;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.RcaConf;
 import java.nio.file.Paths;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(GradleTaskForRca.class)
 public class RcaUtilTest {
 
-  @Test
-  public void doTagsMatch() {
-    Node<MetricFlowUnit> node = new CPU_Utilization(5);
-    node.addTag("locus", "data-node");
-    RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
-    assertTrue(RcaUtil.doTagsMatch(node, rcaConf));
-  }
+    @Test
+    public void doTagsMatch() {
+        Node<MetricFlowUnit> node = new CPU_Utilization(5);
+        node.addTag("locus", "data-node");
+        RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
+        assertTrue(RcaUtil.doTagsMatch(node, rcaConf));
+    }
 
-  @Test
-  public void noMatchWithExtraNodeTags() {
-    Node<MetricFlowUnit> node = new CPU_Utilization(5);
-    node.addTag("locus", "data-node");
-    // This is the extra tag.
-    node.addTag("name", "sifi");
-    RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
-    assertFalse(RcaUtil.doTagsMatch(node, rcaConf));
-  }
+    @Test
+    public void noMatchWithExtraNodeTags() {
+        Node<MetricFlowUnit> node = new CPU_Utilization(5);
+        node.addTag("locus", "data-node");
+        // This is the extra tag.
+        node.addTag("name", "sifi");
+        RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
+        assertFalse(RcaUtil.doTagsMatch(node, rcaConf));
+    }
 
-  @Test
-  public void noNodeTagsIsAMatch() {
-    Node<MetricFlowUnit> node = new CPU_Utilization(5);
-    RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
-    assertTrue(RcaUtil.doTagsMatch(node, rcaConf));
-  }
+    @Test
+    public void noNodeTagsIsAMatch() {
+        Node<MetricFlowUnit> node = new CPU_Utilization(5);
+        RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
+        assertTrue(RcaUtil.doTagsMatch(node, rcaConf));
+    }
 
-  @Test
-  public void existingTagWithDifferentValueNoMatch() {
-    Node<MetricFlowUnit> node = new CPU_Utilization(5);
-    node.addTag("locus", "master-node");
-    RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
-    assertFalse(RcaUtil.doTagsMatch(node, rcaConf));
-  }
+    @Test
+    public void existingTagWithDifferentValueNoMatch() {
+        Node<MetricFlowUnit> node = new CPU_Utilization(5);
+        node.addTag("locus", "master-node");
+        RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
+        assertFalse(RcaUtil.doTagsMatch(node, rcaConf));
+    }
 }

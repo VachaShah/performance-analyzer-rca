@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,28 +15,29 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.metrics;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.core.Util;
 
 public interface MetricsProcessor {
 
-  default String getMetricValues(long startTime, String... keysPath) {
-    return PerformanceAnalyzerMetrics.getMetric(getMetricsPath(startTime, keysPath));
-  }
+    default String getMetricValues(long startTime, String... keysPath) {
+        return PerformanceAnalyzerMetrics.getMetric(getMetricsPath(startTime, keysPath));
+    }
 
-  default void saveMetricValues(String value, long startTime, String... keysPath) {
-    Util.invokePrivileged(
-        () ->
-            PerformanceAnalyzerMetrics.emitMetric(
-                PerformanceAnalyzerMetrics.getTimeInterval(
-                    startTime, MetricsConfiguration.SAMPLING_INTERVAL),
-                getMetricsPath(startTime, keysPath),
-                value));
-  }
+    default void saveMetricValues(String value, long startTime, String... keysPath) {
+        Util.invokePrivileged(
+                () ->
+                        PerformanceAnalyzerMetrics.emitMetric(
+                                PerformanceAnalyzerMetrics.getTimeInterval(
+                                        startTime, MetricsConfiguration.SAMPLING_INTERVAL),
+                                getMetricsPath(startTime, keysPath),
+                                value));
+    }
 
-  default String getMetricValue(String metricName, long startTime, String... keys) {
-    return PerformanceAnalyzerMetrics.extractMetricValue(
-        getMetricValues(startTime, keys), metricName);
-  }
+    default String getMetricValue(String metricName, long startTime, String... keys) {
+        return PerformanceAnalyzerMetrics.extractMetricValue(
+                getMetricValues(startTime, keys), metricName);
+    }
 
-  String getMetricsPath(long startTime, String... keysPath);
+    String getMetricsPath(long startTime, String... keysPath);
 }

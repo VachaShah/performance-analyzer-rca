@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.metrics;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Metric;
 
 public class Heap_AllocRate extends Metric {
-  public static final String NAME = AllMetrics.OSMetrics.HEAP_ALLOC_RATE.toString();
+    public static final String NAME = AllMetrics.OSMetrics.HEAP_ALLOC_RATE.toString();
 
-  public Heap_AllocRate(long evaluationIntervalSeconds) {
-    super(NAME, evaluationIntervalSeconds);
-  }
+    public Heap_AllocRate(long evaluationIntervalSeconds) {
+        super(NAME, evaluationIntervalSeconds);
+    }
 }

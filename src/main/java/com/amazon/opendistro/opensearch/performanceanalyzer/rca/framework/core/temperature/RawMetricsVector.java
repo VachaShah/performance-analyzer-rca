@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,17 +15,16 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature;
 
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
 import javax.annotation.Nullable;
 
 /**
- * This class contains the vector details which contains the raw metrics values.
- * We have added this vector to compare against the calculated normalized values of the
- * metrics so as to catch any anomalies whatsoever.
+ * This class contains the vector details which contains the raw metrics values. We have added this
+ * vector to compare against the calculated normalized values of the metrics so as to catch any
+ * anomalies whatsoever.
  */
-
 public class RawMetricsVector {
     public static final String DIMENSION_KEY = "metrics_dimension";
     public static final String VALUE_KEY = "metrics_value";
@@ -66,8 +65,7 @@ public class RawMetricsVector {
         return metricsValues[dimension.ordinal()];
     }
 
-    public void updateRawMetricsForDimension(TemperatureDimension dimension,
-                                             double metricsValue) {
+    public void updateRawMetricsForDimension(TemperatureDimension dimension, double metricsValue) {
         metricsValues[dimension.ordinal()] = metricsValue;
     }
 }

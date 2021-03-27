@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.hotshard;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatsCollector;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
+import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.configs.HotShardRcaConfig;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Metric;
@@ -31,6 +33,7 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.su
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.HotShardSummary;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.RcaConf;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
+import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.RcaConsts;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.scheduler.FlowUnitOperationArgWrapper;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -39,33 +42,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
-import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.RcaConsts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.Record;
 
 /**
- * This RCA is to identify a hot shard within an index. A Hot shard is an outlier within its counterparts.
- * The RCA subscribes to following metrics :
- * 1. CPU_Utilization
- * 2. IO_TotThroughput
- * 3. IO_TotalSyscallRate
+ * This RCA is to identify a hot shard within an index. A Hot shard is an outlier within its
+ * counterparts. The RCA subscribes to following metrics : 1. CPU_Utilization 2. IO_TotThroughput 3.
+ * IO_TotalSyscallRate
  *
- * <p>The RCA looks at the above 3 metric data, compares the values against the threshold for each resource
- * and if the usage for any of 3 resources is greater than their individual threshold, we mark the context
- * as 'UnHealthy' and create a HotShardResourceSummary for the shard.
+ * <p>The RCA looks at the above 3 metric data, compares the values against the threshold for each
+ * resource and if the usage for any of 3 resources is greater than their individual threshold, we
+ * mark the context as 'UnHealthy' and create a HotShardResourceSummary for the shard.
  *
- * <p>Optional metrics which can be added in future :
- * 1. Heap_AllocRate
- * 2. Paging_RSS
- *
+ * <p>Optional metrics which can be added in future : 1. Heap_AllocRate 2. Paging_RSS
  */
 public class HotShardRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
 
     private static final Logger LOG = LogManager.getLogger(HotShardRca.class);
-    private static final int SLIDING_WINDOW_IN_SECONDS =  60;
+    private static final int SLIDING_WINDOW_IN_SECONDS = 60;
 
     private double cpuUtilizationThreshold;
     private double ioTotThroughputThreshold;
@@ -83,8 +78,12 @@ public class HotShardRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
     private HashMap<IndexShardKey, SlidingWindow<SlidingWindowData>> ioTotThroughputMap;
     private HashMap<IndexShardKey, SlidingWindow<SlidingWindowData>> ioTotSyscallRateMap;
 
-    public <M extends Metric> HotShardRca(final long evaluationIntervalSeconds, final int rcaPeriod,
-                                          final M cpuUtilization, final M ioTotThroughput, final M ioTotSyscallRate) {
+    public <M extends Metric> HotShardRca(
+            final long evaluationIntervalSeconds,
+            final int rcaPeriod,
+            final M cpuUtilization,
+            final M ioTotThroughput,
+            final M ioTotSyscallRate) {
         super(evaluationIntervalSeconds);
         this.cpuUtilization = cpuUtilization;
         this.ioTotThroughput = ioTotThroughput;
@@ -96,22 +95,31 @@ public class HotShardRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
         this.ioTotThroughputMap = new HashMap<>();
         this.ioTotSyscallRateMap = new HashMap<>();
         this.cpuUtilizationThreshold = HotShardRcaConfig.DEFAULT_CPU_UTILIZATION_THRESHOLD;
-        this.ioTotThroughputThreshold = HotShardRcaConfig.DEFAULT_IO_TOTAL_THROUGHPUT_THRESHOLD_IN_BYTE_PER_SEC;
-        this.ioTotSysCallRateThreshold = HotShardRcaConfig.DEFAULT_IO_TOTAL_SYSCALL_RATE_THRESHOLD_PER_SEC;
+        this.ioTotThroughputThreshold =
+                HotShardRcaConfig.DEFAULT_IO_TOTAL_THROUGHPUT_THRESHOLD_IN_BYTE_PER_SEC;
+        this.ioTotSysCallRateThreshold =
+                HotShardRcaConfig.DEFAULT_IO_TOTAL_SYSCALL_RATE_THRESHOLD_PER_SEC;
     }
 
-    private void consumeFlowUnit(final MetricFlowUnit metricFlowUnit, final String metricType,
-                                 final HashMap<IndexShardKey, SlidingWindow<SlidingWindowData>> metricMap) {
+    private void consumeFlowUnit(
+            final MetricFlowUnit metricFlowUnit,
+            final String metricType,
+            final HashMap<IndexShardKey, SlidingWindow<SlidingWindowData>> metricMap) {
         for (Record record : metricFlowUnit.getData()) {
             try {
-                String indexName = record.getValue(AllMetrics.CommonDimension.INDEX_NAME.toString(), String.class);
-                Integer shardId = record.getValue(AllMetrics.CommonDimension.SHARD_ID.toString(), Integer.class);
-                if (indexName != null &&  shardId != null) {
+                String indexName =
+                        record.getValue(
+                                AllMetrics.CommonDimension.INDEX_NAME.toString(), String.class);
+                Integer shardId =
+                        record.getValue(
+                                AllMetrics.CommonDimension.SHARD_ID.toString(), Integer.class);
+                if (indexName != null && shardId != null) {
                     IndexShardKey indexShardKey = IndexShardKey.buildIndexShardKey(record);
                     double usage = record.getValue(MetricsDB.SUM, Double.class);
                     SlidingWindow<SlidingWindowData> usageDeque = metricMap.get(indexShardKey);
                     if (null == usageDeque) {
-                        usageDeque = new SlidingWindow<>(SLIDING_WINDOW_IN_SECONDS, TimeUnit.SECONDS);
+                        usageDeque =
+                                new SlidingWindow<>(SLIDING_WINDOW_IN_SECONDS, TimeUnit.SECONDS);
                         metricMap.put(indexShardKey, usageDeque);
                     }
                     usageDeque.next(new SlidingWindowData(this.clock.millis(), usage));
@@ -123,8 +131,9 @@ public class HotShardRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
         }
     }
 
-    private void consumeMetrics(final Metric metric,
-                                final HashMap<IndexShardKey, SlidingWindow<SlidingWindowData>> metricMap) {
+    private void consumeMetrics(
+            final Metric metric,
+            final HashMap<IndexShardKey, SlidingWindow<SlidingWindowData>> metricMap) {
         for (MetricFlowUnit metricFlowUnit : metric.getFlowUnits()) {
             if (metricFlowUnit.getData() != null) {
                 consumeFlowUnit(metricFlowUnit, metric.getClass().getName(), metricMap);
@@ -132,7 +141,9 @@ public class HotShardRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
         }
     }
 
-    private double fetchUsageValueFromMap(HashMap<IndexShardKey, SlidingWindow<SlidingWindowData>> usageMap, IndexShardKey indexShardKey) {
+    private double fetchUsageValueFromMap(
+            HashMap<IndexShardKey, SlidingWindow<SlidingWindowData>> usageMap,
+            IndexShardKey indexShardKey) {
         double value = 0;
         if (usageMap.get(indexShardKey) != null) {
             value = usageMap.get(indexShardKey).readAvg(TimeUnit.SECONDS);
@@ -141,13 +152,11 @@ public class HotShardRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
     }
 
     /**
-     * Locally identifies hot shards on the node.
-     * The function uses CPU_Utilization, IO_TotThroughput and IO_TotalSyscallRate FlowUnits
-     * to identify a Hot Shard.
+     * Locally identifies hot shards on the node. The function uses CPU_Utilization,
+     * IO_TotThroughput and IO_TotalSyscallRate FlowUnits to identify a Hot Shard.
      *
      * <p>We specify the threshold for CPU_Utilization, IO_TotThroughput and IO_TotalSyscallRate and
      * any shard using either of 3 resources more than the specified threshold is declared Hot.
-     *
      */
     @Override
     public ResourceFlowUnit<HotNodeSummary> operate() {
@@ -156,7 +165,8 @@ public class HotShardRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
         // Populate the Resource HashMaps
         consumeMetrics(cpuUtilization, cpuUtilizationMap);
         consumeMetrics(ioTotThroughput, ioTotThroughputMap);
-        consumeMetrics(ioTotSyscallRate, ioTotSyscallRateMap);;
+        consumeMetrics(ioTotSyscallRate, ioTotSyscallRateMap);
+        ;
 
         if (counter == rcaPeriod) {
             ResourceContext context = new ResourceContext(Resources.State.HEALTHY);
@@ -167,19 +177,25 @@ public class HotShardRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
             indexShardKeySet.addAll(ioTotThroughputMap.keySet());
             indexShardKeySet.addAll(ioTotSyscallRateMap.keySet());
 
-            HotNodeSummary nodeSummary = new HotNodeSummary(instanceDetails.getInstanceId(),
-                instanceDetails.getInstanceIp());
+            HotNodeSummary nodeSummary =
+                    new HotNodeSummary(
+                            instanceDetails.getInstanceId(), instanceDetails.getInstanceIp());
             for (IndexShardKey indexShardKey : indexShardKeySet) {
                 double avgCpuUtilization = fetchUsageValueFromMap(cpuUtilizationMap, indexShardKey);
-                double avgIoTotThroughput = fetchUsageValueFromMap(ioTotThroughputMap, indexShardKey);
-                double avgIoTotSyscallRate = fetchUsageValueFromMap(ioTotSyscallRateMap, indexShardKey);
+                double avgIoTotThroughput =
+                        fetchUsageValueFromMap(ioTotThroughputMap, indexShardKey);
+                double avgIoTotSyscallRate =
+                        fetchUsageValueFromMap(ioTotSyscallRateMap, indexShardKey);
 
                 if (avgCpuUtilization > cpuUtilizationThreshold
                         || avgIoTotThroughput > ioTotThroughputThreshold
                         || avgIoTotSyscallRate > ioTotSysCallRateThreshold) {
-                    HotShardSummary summary = new HotShardSummary(indexShardKey.getIndexName(),
-                            String.valueOf(indexShardKey.getShardId()), instanceDetails.getInstanceId().toString(),
-                        SLIDING_WINDOW_IN_SECONDS);
+                    HotShardSummary summary =
+                            new HotShardSummary(
+                                    indexShardKey.getIndexName(),
+                                    String.valueOf(indexShardKey.getShardId()),
+                                    instanceDetails.getInstanceId().toString(),
+                                    SLIDING_WINDOW_IN_SECONDS);
                     summary.setcpuUtilization(avgCpuUtilization);
                     summary.setCpuUtilizationThreshold(cpuUtilizationThreshold);
                     summary.setIoThroughput(avgIoTotThroughput);
@@ -188,16 +204,22 @@ public class HotShardRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
                     summary.setIoSysCallrateThreshold(ioTotSysCallRateThreshold);
                     nodeSummary.appendNestedSummary(summary);
                     context = new ResourceContext(Resources.State.UNHEALTHY);
-                    LOG.debug("Hot Shard Identified, Shard : {} , avgCpuUtilization = {} , avgIoTotThroughput = {}, "
-                            + "avgIoTotSyscallRate = {}", indexShardKey, avgCpuUtilization, avgIoTotThroughput, avgIoTotSyscallRate);
+                    LOG.debug(
+                            "Hot Shard Identified, Shard : {} , avgCpuUtilization = {} , avgIoTotThroughput = {}, "
+                                    + "avgIoTotSyscallRate = {}",
+                            indexShardKey,
+                            avgCpuUtilization,
+                            avgIoTotThroughput,
+                            avgIoTotSyscallRate);
                 }
             }
 
             // reset the variables
             counter = 0;
 
-            //check if the current node is data node. If it is the data node
-            //then HotNodeRca is the top level RCA on this node and we want to persist summaries in flowunit.
+            // check if the current node is data node. If it is the data node
+            // then HotNodeRca is the top level RCA on this node and we want to persist summaries in
+            // flowunit.
             boolean isDataNode = !instanceDetails.getIsMaster();
             return new ResourceFlowUnit<>(this.clock.millis(), context, nodeSummary, isDataNode);
         } else {
@@ -208,6 +230,7 @@ public class HotShardRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
 
     /**
      * read threshold values from rca.conf
+     *
      * @param conf RcaConf object
      */
     @Override

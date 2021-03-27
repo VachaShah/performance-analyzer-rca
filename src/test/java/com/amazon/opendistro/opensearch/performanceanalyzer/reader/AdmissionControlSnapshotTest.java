@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader;
 
+import static org.junit.Assert.assertEquals;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
 import org.jooq.BatchBindStep;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -22,11 +26,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-
-import static org.junit.Assert.assertEquals;
 
 public class AdmissionControlSnapshotTest {
 
@@ -52,8 +51,12 @@ public class AdmissionControlSnapshotTest {
         final Result<Record> result = snapshot.fetchAll();
 
         assertEquals(1, result.size());
-        Assert.assertEquals(TEST_CONTROLLER, result.get(0).get(AdmissionControlSnapshot.Fields.CONTROLLER_NAME.toString()));
-        Assert.assertEquals(TEST_REJECTION_COUNT, result.get(0).get(AdmissionControlSnapshot.Fields.REJECTION_COUNT.toString()));
+        Assert.assertEquals(
+                TEST_CONTROLLER,
+                result.get(0).get(AdmissionControlSnapshot.Fields.CONTROLLER_NAME.toString()));
+        Assert.assertEquals(
+                TEST_REJECTION_COUNT,
+                result.get(0).get(AdmissionControlSnapshot.Fields.REJECTION_COUNT.toString()));
     }
 
     @After
@@ -64,5 +67,4 @@ public class AdmissionControlSnapshotTest {
     private void insertIntoTable(BatchBindStep handle, String controller, Long rejectionCount) {
         handle.bind(controller, rejectionCount).execute();
     }
-
 }

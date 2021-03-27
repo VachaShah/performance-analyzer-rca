@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,45 +15,42 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.tasks;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.net.NetClient;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.messages.UnicastIntentMsg;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.NodeStateManager;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.SubscriptionManager;
-
 import java.util.Map;
 
-/**
- * Task that sends out one subscription request to a remote host.
- */
+/** Task that sends out one subscription request to a remote host. */
 public class UnicastSubscriptionTxTask extends SubscriptionTxTask {
 
-  /**
-   * The host address of the destination node.
-   */
-  private final InstanceDetails destinationInstance;
+    /** The host address of the destination node. */
+    private final InstanceDetails destinationInstance;
 
-  public UnicastSubscriptionTxTask(
-      NetClient netClient,
-      UnicastIntentMsg intentMsg,
-      SubscriptionManager subscriptionManager,
-      NodeStateManager nodeStateManager,
-      final AppContext appContext) {
-    super(netClient, intentMsg, subscriptionManager, nodeStateManager, appContext);
-    this.destinationInstance = intentMsg.getUnicastDestinationInstance();
-  }
+    public UnicastSubscriptionTxTask(
+            NetClient netClient,
+            UnicastIntentMsg intentMsg,
+            SubscriptionManager subscriptionManager,
+            NodeStateManager nodeStateManager,
+            final AppContext appContext) {
+        super(netClient, intentMsg, subscriptionManager, nodeStateManager, appContext);
+        this.destinationInstance = intentMsg.getUnicastDestinationInstance();
+    }
 
-  /**
-   * Sends a subscription request to a known destination address.
-   * @see Thread#run()
-   */
-  @Override
-  public void run() {
-    final String requesterVertex = intentMsg.getRequesterGraphNode();
-    final String destinationVertex = intentMsg.getDestinationGraphNode();
-    final Map<String, String> tags = intentMsg.getRcaConfTags();
+    /**
+     * Sends a subscription request to a known destination address.
+     *
+     * @see Thread#run()
+     */
+    @Override
+    public void run() {
+        final String requesterVertex = intentMsg.getRequesterGraphNode();
+        final String destinationVertex = intentMsg.getDestinationGraphNode();
+        final Map<String, String> tags = intentMsg.getRcaConfTags();
 
-    sendSubscribeRequest(destinationInstance, requesterVertex, destinationVertex, tags);
-  }
+        sendSubscribeRequest(destinationInstance, requesterVertex, destinationVertex, tags);
+    }
 }

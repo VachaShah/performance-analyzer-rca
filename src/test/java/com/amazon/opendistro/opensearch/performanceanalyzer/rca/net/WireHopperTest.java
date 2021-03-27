@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.net;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.net.GRPCConnectionManager;
@@ -103,8 +104,14 @@ public class WireHopperTest {
         receivedFlowUnitStore = new ReceivedFlowUnitStore();
         subscriptionManager = new SubscriptionManager(connectionManager);
         clientExecutor.set(null);
-        uut = new WireHopper(nodeStateManager, netClient, subscriptionManager, clientExecutor, receivedFlowUnitStore,
-            appContext);
+        uut =
+                new WireHopper(
+                        nodeStateManager,
+                        netClient,
+                        subscriptionManager,
+                        clientExecutor,
+                        receivedFlowUnitStore,
+                        appContext);
     }
 
     @AfterClass
@@ -119,7 +126,8 @@ public class WireHopperTest {
     @Test
     public void testSendIntent() throws Exception {
         Node<MetricFlowUnit> node = new Heap_Used(EVAL_INTERVAL_S);
-        netServer.setSubscribeHandler(new SubscribeServerHandler(subscriptionManager, serverExecutor));
+        netServer.setSubscribeHandler(
+                new SubscribeServerHandler(subscriptionManager, serverExecutor));
         Map<String, String> rcaConfTags = new HashMap<>();
         rcaConfTags.put("locus", RcaConsts.RcaTagConstants.LOCUS_DATA_NODE);
         IntentMsg msg = new IntentMsg(NODE1, node.name(), rcaConfTags);
@@ -129,17 +137,24 @@ public class WireHopperTest {
         clientExecutor.set(executorService);
         subscriptionManager.setCurrentLocus(RcaConsts.RcaTagConstants.LOCUS_DATA_NODE);
 
-        ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
-        clusterDetailsEventProcessor.setNodesDetails(Lists.newArrayList(
-                ClusterDetailsEventProcessorTestHelper.newNodeDetails(NODE1, LOCALHOST, false),
-                ClusterDetailsEventProcessorTestHelper.newNodeDetails(node.name(), LOCALHOST, false)
-        ));
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
+        clusterDetailsEventProcessor.setNodesDetails(
+                Lists.newArrayList(
+                        ClusterDetailsEventProcessorTestHelper.newNodeDetails(
+                                NODE1, LOCALHOST, false),
+                        ClusterDetailsEventProcessorTestHelper.newNodeDetails(
+                                node.name(), LOCALHOST, false)));
         uut.getAppContext().setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
         uut.sendIntent(msg);
-        WaitFor.waitFor(() -> subscriptionManager.getSubscribersFor(node.name()).size() == 1, 5,
+        WaitFor.waitFor(
+                () -> subscriptionManager.getSubscribersFor(node.name()).size() == 1,
+                5,
                 TimeUnit.SECONDS);
         Assert.assertEquals(1, subscriptionManager.getSubscribersFor(node.name()).size());
-        Assert.assertEquals(new InstanceDetails.Id(NODE1), subscriptionManager.getSubscribersFor(node.name()).asList().get(0));
+        Assert.assertEquals(
+                new InstanceDetails.Id(NODE1),
+                subscriptionManager.getSubscribersFor(node.name()).asList().get(0));
         // verify resilience to RejectedExecutionException
         clientExecutor.set(rejectingExecutor);
         uut.sendIntent(msg);
@@ -147,33 +162,49 @@ public class WireHopperTest {
 
     @Test
     public void testSendData() throws Exception {
-        netServer.setSendDataHandler(new PublishRequestHandler(nodeStateManager, receivedFlowUnitStore, serverExecutor));
+        netServer.setSendDataHandler(
+                new PublishRequestHandler(nodeStateManager, receivedFlowUnitStore, serverExecutor));
         // verify resilience to null executor
         GenericFlowUnit flowUnit = new SymptomFlowUnit(TIMESTAMP);
-        DataMsg msg = new DataMsg(NODE1, Lists.newArrayList(NODE2), Collections.singletonList(flowUnit));
+        DataMsg msg =
+                new DataMsg(NODE1, Lists.newArrayList(NODE2), Collections.singletonList(flowUnit));
         uut.sendData(msg);
 
         clientExecutor.set(executorService);
-        Assert.assertEquals(0L, nodeStateManager.getLastReceivedTimestamp(NODE1, new InstanceDetails.Id(LOCALHOST_INSTANCE)));
+        Assert.assertEquals(
+                0L,
+                nodeStateManager.getLastReceivedTimestamp(
+                        NODE1, new InstanceDetails.Id(LOCALHOST_INSTANCE)));
         // setup downstream subscribers
         subscriptionManager.setCurrentLocus(LOCUS);
         subscriptionManager.addSubscriber(NODE1, new InstanceDetails.Id(LOCALHOST_INSTANCE), LOCUS);
         // verify sendData works
-        ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
-        clusterDetailsEventProcessor.setNodesDetails(Lists.newArrayList(
-                ClusterDetailsEventProcessorTestHelper.newNodeDetails(LOCALHOST_INSTANCE, LOCALHOST, false),
-                ClusterDetailsEventProcessorTestHelper.newNodeDetails(LOCALHOST_INSTANCE, LOCALHOST, false)
-        ));
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
+        clusterDetailsEventProcessor.setNodesDetails(
+                Lists.newArrayList(
+                        ClusterDetailsEventProcessorTestHelper.newNodeDetails(
+                                LOCALHOST_INSTANCE, LOCALHOST, false),
+                        ClusterDetailsEventProcessorTestHelper.newNodeDetails(
+                                LOCALHOST_INSTANCE, LOCALHOST, false)));
         uut.getAppContext().setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
 
         uut.sendData(msg);
-        WaitFor.waitFor(() -> nodeStateManager.getLastReceivedTimestamp(NODE1, new InstanceDetails.Id(LOCALHOST_INSTANCE)) != 0, 1,
+        WaitFor.waitFor(
+                () ->
+                        nodeStateManager.getLastReceivedTimestamp(
+                                        NODE1, new InstanceDetails.Id(LOCALHOST_INSTANCE))
+                                != 0,
+                1,
                 TimeUnit.SECONDS);
         // Verify that the data gets persisted into receivedFlowUnitStore once it's received
-        WaitFor.waitFor(() -> {
-            List<FlowUnitMessage> receivedMags = receivedFlowUnitStore.drainNode(NODE1);
-            return receivedMags.size() == 1;
-        }, 10, TimeUnit.SECONDS);
+        WaitFor.waitFor(
+                () -> {
+                    List<FlowUnitMessage> receivedMags = receivedFlowUnitStore.drainNode(NODE1);
+                    return receivedMags.size() == 1;
+                },
+                10,
+                TimeUnit.SECONDS);
         // verify resilience to RejectedExecutionException
         clientExecutor.set(rejectingExecutor);
         uut.sendData(msg);
@@ -181,35 +212,47 @@ public class WireHopperTest {
 
     @Test
     public void testReadFromWire() throws Exception {
-        netServer.setSubscribeHandler(new SubscribeServerHandler(subscriptionManager, serverExecutor));
+        netServer.setSubscribeHandler(
+                new SubscribeServerHandler(subscriptionManager, serverExecutor));
         // Setup mock object responses
         Node<MetricFlowUnit> node = new Heap_Used(EVAL_INTERVAL_S);
-        node.addTag(RcaConsts.RcaTagConstants.TAG_LOCUS, RcaConsts.RcaTagConstants.LOCUS_DATA_MASTER_NODE);
+        node.addTag(
+                RcaConsts.RcaTagConstants.TAG_LOCUS,
+                RcaConsts.RcaTagConstants.LOCUS_DATA_MASTER_NODE);
         // Verify resilience to null executor
         uut.readFromWire(node);
         // Execute test method and verify return value
         clientExecutor.set(executorService);
 
-        ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
-        clusterDetailsEventProcessor.setNodesDetails(Collections.singletonList(
-                ClusterDetailsEventProcessorTestHelper.newNodeDetails(
-                        LOCALHOST_INSTANCE, LOCALHOST, false)));
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
+        clusterDetailsEventProcessor.setNodesDetails(
+                Collections.singletonList(
+                        ClusterDetailsEventProcessorTestHelper.newNodeDetails(
+                                LOCALHOST_INSTANCE, LOCALHOST, false)));
         uut.getAppContext().setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
 
         subscriptionManager.setCurrentLocus(RcaConsts.RcaTagConstants.LOCUS_DATA_NODE);
         subscriptionManager.addPublisher(node.name(), new InstanceDetails.Id(LOCALHOST_INSTANCE));
         subscriptionManager.addPublisher(node.name(), new InstanceDetails.Id(HOST_NOT_IN_CLUSTER));
-        nodeStateManager.updateReceiveTime(new InstanceDetails.Id(LOCALHOST_INSTANCE), node.name(), 1L);
+        nodeStateManager.updateReceiveTime(
+                new InstanceDetails.Id(LOCALHOST_INSTANCE), node.name(), 1L);
         FlowUnitMessage msg = FlowUnitMessage.newBuilder().setGraphNode(node.name()).build();
-        ImmutableList<FlowUnitMessage> msgList = ImmutableList.<FlowUnitMessage>builder().add(msg).build();
+        ImmutableList<FlowUnitMessage> msgList =
+                ImmutableList.<FlowUnitMessage>builder().add(msg).build();
         receivedFlowUnitStore.enqueue(node.name(), msg);
         List<FlowUnitMessage> actualMsgList = uut.readFromWire(node);
         Assert.assertEquals(msgList, actualMsgList);
         // Verify expected interactions with the subscription manager
-        WaitFor.waitFor(() -> {
-                ImmutableSet<InstanceDetails.Id> subscribers = subscriptionManager.getSubscribersFor(node.name());
-                return subscribers.size() == 1 && subscribers.asList().get(0).toString().equals(LOCALHOST_INSTANCE);
-            }, 10, TimeUnit.SECONDS);
+        WaitFor.waitFor(
+                () -> {
+                    ImmutableSet<InstanceDetails.Id> subscribers =
+                            subscriptionManager.getSubscribersFor(node.name());
+                    return subscribers.size() == 1
+                            && subscribers.asList().get(0).toString().equals(LOCALHOST_INSTANCE);
+                },
+                10,
+                TimeUnit.SECONDS);
         // Verify resilience to RejectedExecutionException
         clientExecutor.set(rejectingExecutor);
         uut.readFromWire(node);

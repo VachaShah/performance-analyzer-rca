@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatExceptionCode;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatsCollector;
+import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared.Event;
 import java.io.File;
 import java.sql.Connection;
 import java.util.Map;
 import java.util.NavigableMap;
-
-import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.BatchBindStep;
@@ -36,27 +36,29 @@ public class FaultDetectionMetricsProcessor implements EventProcessor {
     private long endTime;
     private BatchBindStep handle;
 
-    public FaultDetectionMetricsProcessor(FaultDetectionMetricsSnapshot faultDetectionMetricsSnapshot) {
+    public FaultDetectionMetricsProcessor(
+            FaultDetectionMetricsSnapshot faultDetectionMetricsSnapshot) {
         this.faultDetectionMetricsSnapshot = faultDetectionMetricsSnapshot;
     }
 
     static FaultDetectionMetricsProcessor buildFaultDetectionMetricsProcessor(
             long currWindowStartTime,
             Connection conn,
-            NavigableMap<Long, FaultDetectionMetricsSnapshot>
-                faultDetectionMetricsMap) {
+            NavigableMap<Long, FaultDetectionMetricsSnapshot> faultDetectionMetricsMap) {
 
         if (faultDetectionMetricsMap.get(currWindowStartTime) == null) {
             FaultDetectionMetricsSnapshot faultDetectionMetricsSnapshot =
                     new FaultDetectionMetricsSnapshot(conn, currWindowStartTime);
-            Map.Entry<Long, FaultDetectionMetricsSnapshot> entry = faultDetectionMetricsMap.lastEntry();
+            Map.Entry<Long, FaultDetectionMetricsSnapshot> entry =
+                    faultDetectionMetricsMap.lastEntry();
             if (entry != null) {
                 faultDetectionMetricsSnapshot.rolloverInFlightRequests(entry.getValue());
             }
             faultDetectionMetricsMap.put(currWindowStartTime, faultDetectionMetricsSnapshot);
             return new FaultDetectionMetricsProcessor(faultDetectionMetricsSnapshot);
         } else {
-            return new FaultDetectionMetricsProcessor(faultDetectionMetricsMap.get(currWindowStartTime));
+            return new FaultDetectionMetricsProcessor(
+                    faultDetectionMetricsMap.get(currWindowStartTime));
         }
     }
 
@@ -72,7 +74,9 @@ public class FaultDetectionMetricsProcessor implements EventProcessor {
         if (handle.size() > 0) {
             handle.execute();
         }
-        LOG.debug("Final Fault Detection request metrics {}", faultDetectionMetricsSnapshot.fetchAll());
+        LOG.debug(
+                "Final Fault Detection request metrics {}",
+                faultDetectionMetricsSnapshot.fetchAll());
     }
 
     @Override
@@ -102,21 +106,21 @@ public class FaultDetectionMetricsProcessor implements EventProcessor {
     }
 
     /**
-     * A keyItem is of the form : [fault_detection, follower_check, 76532, start]
-     * Example value part of the entry is:
-     * current_time:1566413979979
-     * StartTime:1566413987986
-     * SourceNodeID:g52i9a93a762cd59dda8d3379b09a752a
-     * TargetNodeID:b2a5a93a762cd59dda8d3379b09a752a
+     * A keyItem is of the form : [fault_detection, follower_check, 76532, start] Example value part
+     * of the entry is: current_time:1566413979979 StartTime:1566413987986
+     * SourceNodeID:g52i9a93a762cd59dda8d3379b09a752a TargetNodeID:b2a5a93a762cd59dda8d3379b09a752a
      * $
+     *
      * @param entry fault detection event.
      * @param keyItems keys extracted from metrics path
      */
     private void emitStartMetric(Event entry, String[] keyItems) {
         Map<String, String> keyValueMap = ReaderMetricsProcessor.extractEntryData(entry.value);
 
-        String sourceNodeId = keyValueMap.get(AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString());
-        String targetNodeId = keyValueMap.get(AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString());
+        String sourceNodeId =
+                keyValueMap.get(AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString());
+        String targetNodeId =
+                keyValueMap.get(AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString());
         String startTimeVal = keyValueMap.get(AllMetrics.CommonMetric.START_TIME.toString());
 
         try {
@@ -134,22 +138,21 @@ public class FaultDetectionMetricsProcessor implements EventProcessor {
     }
 
     /**
-     * A keyItem is of the form : [fault_detection, follower_check, 76532, start]
-     * Example value part of the entry is:
-     * current_time:1566413979979
-     * FinishTime:1566413987986
-     * SourceNodeID:g52i9a93a762cd59dda8d3379b09a752a
-     * TargetNodeID:b2a5a93a762cd59dda8d3379b09a752a
-     * fault:0
-     * $
+     * A keyItem is of the form : [fault_detection, follower_check, 76532, start] Example value part
+     * of the entry is: current_time:1566413979979 FinishTime:1566413987986
+     * SourceNodeID:g52i9a93a762cd59dda8d3379b09a752a TargetNodeID:b2a5a93a762cd59dda8d3379b09a752a
+     * fault:0 $
+     *
      * @param entry fault detection event.
      * @param keyItems keys extracted from metrics path
      */
     private void emitFinishMetric(Event entry, String[] keyItems) {
         Map<String, String> keyValueMap = ReaderMetricsProcessor.extractEntryData(entry.value);
 
-        String sourceNodeId = keyValueMap.get(AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString());
-        String targetNodeId = keyValueMap.get(AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString());
+        String sourceNodeId =
+                keyValueMap.get(AllMetrics.FaultDetectionDimension.SOURCE_NODE_ID.toString());
+        String targetNodeId =
+                keyValueMap.get(AllMetrics.FaultDetectionDimension.TARGET_NODE_ID.toString());
         String finishTimeVal = keyValueMap.get(AllMetrics.CommonMetric.FINISH_TIME.toString());
         String faultString = keyValueMap.get(PerformanceAnalyzerMetrics.FAULT);
 

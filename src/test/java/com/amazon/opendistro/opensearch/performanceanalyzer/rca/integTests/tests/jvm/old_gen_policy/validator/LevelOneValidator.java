@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.tests.jvm.old_gen_policy.validator;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.ResourceEnum;
 import com.google.gson.JsonArray;
 
 public class LevelOneValidator extends OldGenPolicyBaseValidator {
 
-  @Override
-  public boolean checkPersistedActions(JsonArray actionJsonArray) {
-    return (checkModifyCacheAction(actionJsonArray, ResourceEnum.FIELD_DATA_CACHE)
-        && checkModifyCacheAction(actionJsonArray, ResourceEnum.SHARD_REQUEST_CACHE));
-  }
+    @Override
+    public boolean checkPersistedActions(JsonArray actionJsonArray) {
+        return (checkModifyCacheAction(actionJsonArray, ResourceEnum.FIELD_DATA_CACHE)
+                && checkModifyCacheAction(actionJsonArray, ResourceEnum.SHARD_REQUEST_CACHE));
+    }
 }

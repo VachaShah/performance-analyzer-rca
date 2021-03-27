@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,28 +15,30 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 
 // TODO: Doc comments and a description of each member.
 public abstract class GenericFlowUnit {
 
-  private long timeStamp;
-  protected boolean empty;
+    private long timeStamp;
+    protected boolean empty;
 
-  // Creates an empty flow unit.
-  public GenericFlowUnit(long timeStamp) {
-    this.empty = true;
-    this.timeStamp = timeStamp;
-  }
+    // Creates an empty flow unit.
+    public GenericFlowUnit(long timeStamp) {
+        this.empty = true;
+        this.timeStamp = timeStamp;
+    }
 
-  public long getTimeStamp() {
-    return timeStamp;
-  }
+    public long getTimeStamp() {
+        return timeStamp;
+    }
 
-  public boolean isEmpty() {
-    return this.empty;
-  }
+    public boolean isEmpty() {
+        return this.empty;
+    }
 
-  public abstract FlowUnitMessage buildFlowUnitMessage(final String graphNode, final InstanceDetails.Id esNode);
+    public abstract FlowUnitMessage buildFlowUnitMessage(
+            final String graphNode, final InstanceDetails.Id esNode);
 }

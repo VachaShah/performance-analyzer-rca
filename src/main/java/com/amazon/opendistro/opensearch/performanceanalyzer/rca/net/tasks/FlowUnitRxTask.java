@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.tasks;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatsCollector;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
@@ -26,54 +27,48 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.ReceivedFlow
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Task that processes received flow units.
- */
+/** Task that processes received flow units. */
 public class FlowUnitRxTask implements Runnable {
 
-  private static final Logger LOG = LogManager.getLogger(FlowUnitRxTask.class);
-  /**
-   * Node state manager instance.
-   */
-  private final NodeStateManager nodeStateManager;
+    private static final Logger LOG = LogManager.getLogger(FlowUnitRxTask.class);
+    /** Node state manager instance. */
+    private final NodeStateManager nodeStateManager;
 
-  /**
-   * The buffer for holding received flow units till they are consumed by the vertices.
-   */
-  private final ReceivedFlowUnitStore receivedFlowUnitStore;
+    /** The buffer for holding received flow units till they are consumed by the vertices. */
+    private final ReceivedFlowUnitStore receivedFlowUnitStore;
 
-  /**
-   * The flow unit message object to buffer.
-   */
-  private final FlowUnitMessage flowUnitMessage;
+    /** The flow unit message object to buffer. */
+    private final FlowUnitMessage flowUnitMessage;
 
-  public FlowUnitRxTask(
-      final NodeStateManager nodeStateManager,
-      final ReceivedFlowUnitStore receivedFlowUnitStore,
-      final FlowUnitMessage flowUnitMessage) {
-    this.nodeStateManager = nodeStateManager;
-    this.receivedFlowUnitStore = receivedFlowUnitStore;
-    this.flowUnitMessage = flowUnitMessage;
-  }
-
-  /**
-   * Updates the per vertex flow unit collection.
-   *
-   * @see Thread#run()
-   */
-  @Override
-  public void run() {
-    final InstanceDetails.Id host = new InstanceDetails.Id(flowUnitMessage.getEsNode());
-    final String vertex = flowUnitMessage.getGraphNode();
-
-    nodeStateManager.updateReceiveTime(host, vertex, System.currentTimeMillis());
-    LOG.debug("rca: [pub-rx]: {} <- {}", vertex, host);
-    if (!receivedFlowUnitStore.enqueue(vertex, flowUnitMessage)) {
-      LOG.warn("Dropped a flow unit because the vertex buffer was full for vertex: {}", vertex);
-      StatsCollector.instance().logMetric(RcaConsts.VERTEX_BUFFER_FULL_METRIC);
+    public FlowUnitRxTask(
+            final NodeStateManager nodeStateManager,
+            final ReceivedFlowUnitStore receivedFlowUnitStore,
+            final FlowUnitMessage flowUnitMessage) {
+        this.nodeStateManager = nodeStateManager;
+        this.receivedFlowUnitStore = receivedFlowUnitStore;
+        this.flowUnitMessage = flowUnitMessage;
     }
 
-    PerformanceAnalyzerApp.RCA_GRAPH_METRICS_AGGREGATOR
-        .updateStat(RcaGraphMetrics.RCA_NODES_FU_CONSUME_COUNT, vertex, 1);
-  }
+    /**
+     * Updates the per vertex flow unit collection.
+     *
+     * @see Thread#run()
+     */
+    @Override
+    public void run() {
+        final InstanceDetails.Id host = new InstanceDetails.Id(flowUnitMessage.getEsNode());
+        final String vertex = flowUnitMessage.getGraphNode();
+
+        nodeStateManager.updateReceiveTime(host, vertex, System.currentTimeMillis());
+        LOG.debug("rca: [pub-rx]: {} <- {}", vertex, host);
+        if (!receivedFlowUnitStore.enqueue(vertex, flowUnitMessage)) {
+            LOG.warn(
+                    "Dropped a flow unit because the vertex buffer was full for vertex: {}",
+                    vertex);
+            StatsCollector.instance().logMetric(RcaConsts.VERTEX_BUFFER_FULL_METRIC);
+        }
+
+        PerformanceAnalyzerApp.RCA_GRAPH_METRICS_AGGREGATOR.updateStat(
+                RcaGraphMetrics.RCA_NODES_FU_CONSUME_COUNT, vertex, 1);
+    }
 }

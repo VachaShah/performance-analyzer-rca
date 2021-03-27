@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.collectors;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PluginSettings;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
@@ -23,38 +24,38 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MetricsPurgeActivity extends PerformanceAnalyzerMetricsCollector {
-  private static final Logger LOG = LogManager.getLogger(MetricsPurgeActivity.class);
+    private static final Logger LOG = LogManager.getLogger(MetricsPurgeActivity.class);
 
-  public MetricsPurgeActivity() {
-    super(
-        MetricsConfiguration.CONFIG_MAP.get(MetricsPurgeActivity.class).samplingInterval,
-        "MetricsPurgeActivity");
-  }
-
-  private static int purgeInterval =
-      MetricsConfiguration.CONFIG_MAP.get(MetricsPurgeActivity.class).deletionInterval;
-
-  @Override
-  public void collectMetrics(long startTime) {
-    deleteEventLogFiles(startTime);
-  }
-
-  private void deleteEventLogFiles(long referenceTime) {
-    LOG.debug("Starting to delete old writer files");
-    File root = new File(PluginSettings.instance().getMetricsLocation());
-    String[] children = root.list();
-    if (children == null) {
-      return;
+    public MetricsPurgeActivity() {
+        super(
+                MetricsConfiguration.CONFIG_MAP.get(MetricsPurgeActivity.class).samplingInterval,
+                "MetricsPurgeActivity");
     }
-    int filesDeletedCount = 0;
-    for (String child : children) {
-      File fileToDelete = new File(root, child);
-      if (fileToDelete.lastModified()
-          < PerformanceAnalyzerMetrics.getTimeInterval(referenceTime - purgeInterval)) {
-        PerformanceAnalyzerMetrics.removeMetrics(fileToDelete);
-        filesDeletedCount += 1;
-      }
+
+    private static int purgeInterval =
+            MetricsConfiguration.CONFIG_MAP.get(MetricsPurgeActivity.class).deletionInterval;
+
+    @Override
+    public void collectMetrics(long startTime) {
+        deleteEventLogFiles(startTime);
     }
-    LOG.debug("'{}' Old writer files cleaned up.", filesDeletedCount);
-  }
+
+    private void deleteEventLogFiles(long referenceTime) {
+        LOG.debug("Starting to delete old writer files");
+        File root = new File(PluginSettings.instance().getMetricsLocation());
+        String[] children = root.list();
+        if (children == null) {
+            return;
+        }
+        int filesDeletedCount = 0;
+        for (String child : children) {
+            File fileToDelete = new File(root, child);
+            if (fileToDelete.lastModified()
+                    < PerformanceAnalyzerMetrics.getTimeInterval(referenceTime - purgeInterval)) {
+                PerformanceAnalyzerMetrics.removeMetrics(fileToDelete);
+                filesDeletedCount += 1;
+            }
+        }
+        LOG.debug("'{}' Old writer files cleaned up.", filesDeletedCount);
+    }
 }

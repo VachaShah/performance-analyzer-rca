@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.aggregators;
 
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -28,77 +29,89 @@ import org.apache.logging.log4j.Logger;
  * <p>All data within a single bucket window time range is summed by default.
  */
 public class BucketizedSlidingWindow extends PersistableSlidingWindow {
-  private static final Logger LOG = LogManager.getLogger(BucketizedSlidingWindow.class);
-  private final long BUCKET_WINDOW_SIZE;
+    private static final Logger LOG = LogManager.getLogger(BucketizedSlidingWindow.class);
+    private final long BUCKET_WINDOW_SIZE;
 
-  /**
-   * Creates a BucketizedSlidingWindow which won't persist data on disk
-   * @param SLIDING_WINDOW_SIZE Length of the window in units of time
-   * @param BUCKET_WINDOW_SIZE Length of each bucket in units of time
-   * @param timeUnit The unit of time
-   */
-  public BucketizedSlidingWindow(int SLIDING_WINDOW_SIZE, int BUCKET_WINDOW_SIZE, TimeUnit timeUnit) {
-    this(SLIDING_WINDOW_SIZE, BUCKET_WINDOW_SIZE, timeUnit, null);
-  }
-
-  /**
-   * Creates a BucketizedSlidingWindow which will persist data on disk
-   * @param SLIDING_WINDOW_SIZE Length of the window in units of time
-   * @param BUCKET_WINDOW_SIZE Length of each bucket in units of time
-   * @param timeUnit The unit of time
-   * @param persistFilePath Path to the file to use for persistence
-   */
-  public BucketizedSlidingWindow(int SLIDING_WINDOW_SIZE, int BUCKET_WINDOW_SIZE, TimeUnit timeUnit, Path persistFilePath) {
-    super(SLIDING_WINDOW_SIZE, timeUnit, persistFilePath);
-    if (BUCKET_WINDOW_SIZE >= SLIDING_WINDOW_SIZE) {
-      throw new IllegalArgumentException("BucketWindow size should be less than SlidingWindow size");
+    /**
+     * Creates a BucketizedSlidingWindow which won't persist data on disk
+     *
+     * @param SLIDING_WINDOW_SIZE Length of the window in units of time
+     * @param BUCKET_WINDOW_SIZE Length of each bucket in units of time
+     * @param timeUnit The unit of time
+     */
+    public BucketizedSlidingWindow(
+            int SLIDING_WINDOW_SIZE, int BUCKET_WINDOW_SIZE, TimeUnit timeUnit) {
+        this(SLIDING_WINDOW_SIZE, BUCKET_WINDOW_SIZE, timeUnit, null);
     }
-    this.BUCKET_WINDOW_SIZE = timeUnit.toMillis(BUCKET_WINDOW_SIZE);
-  }
 
-  public BucketizedSlidingWindow(BucketizedSlidingWindowConfig config) {
-    this(config.getSlidingWindowSizeMinutes(), config.getBucketSizeMinutes(), config.getTimeUnit(), config.getPersistencePath());
-  }
-
-  @Override
-  public void next(SlidingWindowData e) {
-    if (!windowDeque.isEmpty()) {
-      SlidingWindowData firstElement = windowDeque.getFirst();
-      if ((e.getTimeStamp() - firstElement.getTimeStamp()) < BUCKET_WINDOW_SIZE) {
-        firstElement.value += e.getValue();
-        add(e);
-        pruneExpiredEntries(e.getTimeStamp());
-        try {
-          write(); // Try to persist the data whenever we complete writing a bucket
-        } catch (IOException ex) {
-          LOG.error("Failed to persist {} data", this.getClass().getSimpleName(), ex);
+    /**
+     * Creates a BucketizedSlidingWindow which will persist data on disk
+     *
+     * @param SLIDING_WINDOW_SIZE Length of the window in units of time
+     * @param BUCKET_WINDOW_SIZE Length of each bucket in units of time
+     * @param timeUnit The unit of time
+     * @param persistFilePath Path to the file to use for persistence
+     */
+    public BucketizedSlidingWindow(
+            int SLIDING_WINDOW_SIZE,
+            int BUCKET_WINDOW_SIZE,
+            TimeUnit timeUnit,
+            Path persistFilePath) {
+        super(SLIDING_WINDOW_SIZE, timeUnit, persistFilePath);
+        if (BUCKET_WINDOW_SIZE >= SLIDING_WINDOW_SIZE) {
+            throw new IllegalArgumentException(
+                    "BucketWindow size should be less than SlidingWindow size");
         }
-        return;
-      }
+        this.BUCKET_WINDOW_SIZE = timeUnit.toMillis(BUCKET_WINDOW_SIZE);
     }
-    super.next(e);
-  }
 
-  public int size() {
-    pruneExpiredEntries(System.currentTimeMillis());
-    return windowDeque.size();
-  }
+    public BucketizedSlidingWindow(BucketizedSlidingWindowConfig config) {
+        this(
+                config.getSlidingWindowSizeMinutes(),
+                config.getBucketSizeMinutes(),
+                config.getTimeUnit(),
+                config.getPersistencePath());
+    }
 
-  @Override
-  public double readAvg() {
-    pruneExpiredEntries(System.currentTimeMillis());
-    return super.readAvg();
-  }
+    @Override
+    public void next(SlidingWindowData e) {
+        if (!windowDeque.isEmpty()) {
+            SlidingWindowData firstElement = windowDeque.getFirst();
+            if ((e.getTimeStamp() - firstElement.getTimeStamp()) < BUCKET_WINDOW_SIZE) {
+                firstElement.value += e.getValue();
+                add(e);
+                pruneExpiredEntries(e.getTimeStamp());
+                try {
+                    write(); // Try to persist the data whenever we complete writing a bucket
+                } catch (IOException ex) {
+                    LOG.error("Failed to persist {} data", this.getClass().getSimpleName(), ex);
+                }
+                return;
+            }
+        }
+        super.next(e);
+    }
 
-  @Override
-  public double readAvg(TimeUnit timeUnit) {
-    pruneExpiredEntries(System.currentTimeMillis());
-    return super.readAvg(timeUnit);
-  }
+    public int size() {
+        pruneExpiredEntries(System.currentTimeMillis());
+        return windowDeque.size();
+    }
 
-  @Override
-  public double readSum() {
-    pruneExpiredEntries(System.currentTimeMillis());
-    return super.readSum();
-  }
+    @Override
+    public double readAvg() {
+        pruneExpiredEntries(System.currentTimeMillis());
+        return super.readAvg();
+    }
+
+    @Override
+    public double readAvg(TimeUnit timeUnit) {
+        pruneExpiredEntries(System.currentTimeMillis());
+        return super.readAvg(timeUnit);
+    }
+
+    @Override
+    public double readSum() {
+        pruneExpiredEntries(System.currentTimeMillis());
+        return super.readSum();
+    }
 }

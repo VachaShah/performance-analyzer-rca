@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.scheduler;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.Node;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.Queryable;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.WireHopper;
@@ -22,34 +23,34 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.NetP
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.Persistable;
 
 public class FlowUnitOperationArgWrapper {
-  private final Node<?> node;
-  private final Queryable queryable;
-  private final Persistable persistable;
-  private final WireHopper wireHopper;
-  private final NetPersistor netPersistor;
+    private final Node<?> node;
+    private final Queryable queryable;
+    private final Persistable persistable;
+    private final WireHopper wireHopper;
+    private final NetPersistor netPersistor;
 
-  public Node<?> getNode() {
-    return node;
-  }
+    public Node<?> getNode() {
+        return node;
+    }
 
-  public Queryable getQueryable() {
-    return queryable;
-  }
+    public Queryable getQueryable() {
+        return queryable;
+    }
 
-  public Persistable getPersistable() {
-    return persistable;
-  }
+    public Persistable getPersistable() {
+        return persistable;
+    }
 
-  public WireHopper getWireHopper() {
-    return wireHopper;
-  }
+    public WireHopper getWireHopper() {
+        return wireHopper;
+    }
 
-  FlowUnitOperationArgWrapper(
-      Node<?> node, Queryable queryable, Persistable persistable, WireHopper wireHopper) {
-    this.node = node;
-    this.queryable = queryable;
-    this.persistable = persistable;
-    this.wireHopper = wireHopper;
-    this.netPersistor = null;
-  }
+    FlowUnitOperationArgWrapper(
+            Node<?> node, Queryable queryable, Persistable persistable, WireHopper wireHopper) {
+        this.node = node;
+        this.queryable = queryable;
+        this.persistable = persistable;
+        this.wireHopper = wireHopper;
+        this.netPersistor = null;
+    }
 }

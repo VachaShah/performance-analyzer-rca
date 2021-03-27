@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,36 +15,37 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.bucket;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.ResourceEnum;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class BasicBucketCalculatorTest {
-  BasicBucketCalculator uut;
+    BasicBucketCalculator uut;
 
-  @Before
-  public void setup() {
-    uut = new BasicBucketCalculator(10.0, 40.0, 70.0);
-  }
-
-  @Test
-  public void testCompute() {
-    Assert.assertEquals(UsageBucket.UNDER_UTILIZED, uut.compute(ResourceEnum.CPU, -10.0));
-    Assert.assertEquals(UsageBucket.UNDER_UTILIZED, uut.compute(ResourceEnum.CPU, 10.0));
-    Assert.assertEquals(UsageBucket.HEALTHY_WITH_BUFFER, uut.compute(ResourceEnum.CPU, 40.0));
-    Assert.assertEquals(UsageBucket.HEALTHY, uut.compute(ResourceEnum.CPU, 70.0));
-    Assert.assertEquals(UsageBucket.UNHEALTHY, uut.compute(ResourceEnum.CPU, 70.1));
-    Assert.assertEquals(UsageBucket.UNHEALTHY, uut.compute(ResourceEnum.CPU, 10000));
-  }
-
-  @Test
-  public void testInvalidBucketCalculator() {
-    try {
-      uut = new BasicBucketCalculator(10.0, 5.0, 10.0);
-      Assert.fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
+    @Before
+    public void setup() {
+        uut = new BasicBucketCalculator(10.0, 40.0, 70.0);
     }
-  }
+
+    @Test
+    public void testCompute() {
+        Assert.assertEquals(UsageBucket.UNDER_UTILIZED, uut.compute(ResourceEnum.CPU, -10.0));
+        Assert.assertEquals(UsageBucket.UNDER_UTILIZED, uut.compute(ResourceEnum.CPU, 10.0));
+        Assert.assertEquals(UsageBucket.HEALTHY_WITH_BUFFER, uut.compute(ResourceEnum.CPU, 40.0));
+        Assert.assertEquals(UsageBucket.HEALTHY, uut.compute(ResourceEnum.CPU, 70.0));
+        Assert.assertEquals(UsageBucket.UNHEALTHY, uut.compute(ResourceEnum.CPU, 70.1));
+        Assert.assertEquals(UsageBucket.UNHEALTHY, uut.compute(ResourceEnum.CPU, 10000));
+    }
+
+    @Test
+    public void testInvalidBucketCalculator() {
+        try {
+            uut = new BasicBucketCalculator(10.0, 5.0, 10.0);
+            Assert.fail();
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+    }
 }

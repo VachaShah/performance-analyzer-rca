@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.metrics_generator.linux;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.hwnet.Disks;
 import com.amazon.opendistro.opensearch.performanceanalyzer.hwnet.MountedPartitions;
@@ -35,66 +36,66 @@ import java.util.Set;
 
 public class LinuxOSMetricsGenerator implements OSMetricsGenerator {
 
-  private static OSMetricsGenerator osMetricsGenerator;
+    private static OSMetricsGenerator osMetricsGenerator;
 
-  static {
-    osMetricsGenerator = new LinuxOSMetricsGenerator();
-  }
+    static {
+        osMetricsGenerator = new LinuxOSMetricsGenerator();
+    }
 
-  public static OSMetricsGenerator getInstance() {
+    public static OSMetricsGenerator getInstance() {
 
-    return osMetricsGenerator;
-  }
+        return osMetricsGenerator;
+    }
 
-  @Override
-  public String getPid() {
+    @Override
+    public String getPid() {
 
-    return OSGlobals.getPid();
-  }
+        return OSGlobals.getPid();
+    }
 
-  @Override
-  public CPUPagingActivityGenerator getPagingActivityGenerator() {
+    @Override
+    public CPUPagingActivityGenerator getPagingActivityGenerator() {
 
-    return ThreadCPU.INSTANCE.getCPUPagingActivity();
-  }
+        return ThreadCPU.INSTANCE.getCPUPagingActivity();
+    }
 
-  @Override
-  public Set<String> getAllThreadIds() {
-    return ThreadCPU.INSTANCE.getCPUPagingActivity().getAllThreadIds();
-  }
+    @Override
+    public Set<String> getAllThreadIds() {
+        return ThreadCPU.INSTANCE.getCPUPagingActivity().getAllThreadIds();
+    }
 
-  @Override
-  public DiskIOMetricsGenerator getDiskIOMetricsGenerator() {
+    @Override
+    public DiskIOMetricsGenerator getDiskIOMetricsGenerator() {
 
-    return ThreadDiskIO.getIOUtilization();
-  }
+        return ThreadDiskIO.getIOUtilization();
+    }
 
-  @Override
-  public SchedMetricsGenerator getSchedMetricsGenerator() {
+    @Override
+    public SchedMetricsGenerator getSchedMetricsGenerator() {
 
-    return ThreadSched.INSTANCE.getSchedLatency();
-  }
+        return ThreadSched.INSTANCE.getSchedLatency();
+    }
 
-  @Override
-  public TCPMetricsGenerator getTCPMetricsGenerator() {
+    @Override
+    public TCPMetricsGenerator getTCPMetricsGenerator() {
 
-    return NetworkE2E.getTCPMetricsHandler();
-  }
+        return NetworkE2E.getTCPMetricsHandler();
+    }
 
-  @Override
-  public IPMetricsGenerator getIPMetricsGenerator() {
+    @Override
+    public IPMetricsGenerator getIPMetricsGenerator() {
 
-    return NetworkInterface.getLinuxIPMetricsGenerator();
-  }
+        return NetworkInterface.getLinuxIPMetricsGenerator();
+    }
 
-  @Override
-  public DiskMetricsGenerator getDiskMetricsGenerator() {
+    @Override
+    public DiskMetricsGenerator getDiskMetricsGenerator() {
 
-    return Disks.getDiskMetricsHandler();
-  }
+        return Disks.getDiskMetricsHandler();
+    }
 
-  @Override
-  public MountedPartitionMetricsGenerator getMountedPartitionMetricsGenerator() {
-    return MountedPartitions.getLinuxMountedPartitionMetricsGenerator();
-  }
+    @Override
+    public MountedPartitionMetricsGenerator getMountedPartitionMetricsGenerator() {
+        return MountedPartitions.getLinuxMountedPartitionMetricsGenerator();
+    }
 }

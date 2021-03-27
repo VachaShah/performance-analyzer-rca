@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,17 +15,16 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.DBUtils;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import com.google.common.annotations.VisibleForTesting;
-
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jooq.BatchBindStep;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -52,11 +51,17 @@ public class MasterThrottlingMetricsSnapshot implements Removable {
                     {
                         this.add(
                                 DSL.field(
-                                        DSL.name(AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT.toString()),
+                                        DSL.name(
+                                                AllMetrics.MasterThrottlingValue
+                                                        .DATA_RETRYING_TASK_COUNT
+                                                        .toString()),
                                         Long.class));
                         this.add(
                                 DSL.field(
-                                        DSL.name(AllMetrics.MasterThrottlingValue.MASTER_THROTTLED_PENDING_TASK_COUNT.toString()),
+                                        DSL.name(
+                                                AllMetrics.MasterThrottlingValue
+                                                        .MASTER_THROTTLED_PENDING_TASK_COUNT
+                                                        .toString()),
                                         Long.class));
                     }
                 };
@@ -71,10 +76,9 @@ public class MasterThrottlingMetricsSnapshot implements Removable {
     /**
      * Return all master throttling metric in the current window.
      *
-     * <p>Actual Table
-     * Data_RetryingPendingTasksCount|Master_ThrottledPendingTasksCount
-     * 5 |10
-     * <p/>
+     * <p>Actual Table Data_RetryingPendingTasksCount|Master_ThrottledPendingTasksCount 5 |10
+     *
+     * <p>
      *
      * @return aggregated master task
      */
@@ -95,7 +99,8 @@ public class MasterThrottlingMetricsSnapshot implements Removable {
      *
      * <p>|SUM_MASTER_THROTTLED_COUNT|AVG_MASTER_THROTTLED_COUNT|MIN_MASTER_THROTTLED_COUNT|MAX_MASTER_THROTTLED_COUNT|
      * SUM_DATA_RETRYING_COUNT|AVG_DATA_RETRYING_COUNT|MIN_DATA_RETRYING_COUNT|MAX_DATA_RETRYING_COUNT
-     * <p/>
+     *
+     * <p>
      *
      * @return aggregated master task
      */
@@ -106,97 +111,120 @@ public class MasterThrottlingMetricsSnapshot implements Removable {
                     {
                         this.add(
                                 DSL.sum(
-                                        DSL.field(
-                                                DSL.name(
-                                                        AllMetrics.MasterThrottlingValue.MASTER_THROTTLED_PENDING_TASK_COUNT
-                                                                .toString()),
-                                                Long.class))
+                                                DSL.field(
+                                                        DSL.name(
+                                                                AllMetrics.MasterThrottlingValue
+                                                                        .MASTER_THROTTLED_PENDING_TASK_COUNT
+                                                                        .toString()),
+                                                        Long.class))
                                         .as(
                                                 DBUtils.getAggFieldName(
-                                                        AllMetrics.MasterThrottlingValue.MASTER_THROTTLED_PENDING_TASK_COUNT.toString(),
+                                                        AllMetrics.MasterThrottlingValue
+                                                                .MASTER_THROTTLED_PENDING_TASK_COUNT
+                                                                .toString(),
                                                         MetricsDB.SUM)));
                         this.add(
                                 DSL.avg(
-                                        DSL.field(
-                                                DSL.name(
-                                                        AllMetrics.MasterThrottlingValue.MASTER_THROTTLED_PENDING_TASK_COUNT
-                                                                .toString()),
-                                                Double.class))
+                                                DSL.field(
+                                                        DSL.name(
+                                                                AllMetrics.MasterThrottlingValue
+                                                                        .MASTER_THROTTLED_PENDING_TASK_COUNT
+                                                                        .toString()),
+                                                        Double.class))
                                         .as(
                                                 DBUtils.getAggFieldName(
-                                                        AllMetrics.MasterThrottlingValue.MASTER_THROTTLED_PENDING_TASK_COUNT.toString(),
+                                                        AllMetrics.MasterThrottlingValue
+                                                                .MASTER_THROTTLED_PENDING_TASK_COUNT
+                                                                .toString(),
                                                         MetricsDB.AVG)));
                         this.add(
                                 DSL.min(
-                                        DSL.field(
-                                                DSL.name(
-                                                        AllMetrics.MasterThrottlingValue.MASTER_THROTTLED_PENDING_TASK_COUNT
-                                                                .toString()),
-                                                Long.class))
+                                                DSL.field(
+                                                        DSL.name(
+                                                                AllMetrics.MasterThrottlingValue
+                                                                        .MASTER_THROTTLED_PENDING_TASK_COUNT
+                                                                        .toString()),
+                                                        Long.class))
                                         .as(
                                                 DBUtils.getAggFieldName(
-                                                        AllMetrics.MasterThrottlingValue.MASTER_THROTTLED_PENDING_TASK_COUNT.toString(),
+                                                        AllMetrics.MasterThrottlingValue
+                                                                .MASTER_THROTTLED_PENDING_TASK_COUNT
+                                                                .toString(),
                                                         MetricsDB.MIN)));
                         this.add(
                                 DSL.max(
-                                        DSL.field(
-                                                DSL.name(
-                                                        AllMetrics.MasterThrottlingValue.MASTER_THROTTLED_PENDING_TASK_COUNT
-                                                                .toString()),
-                                                Long.class))
+                                                DSL.field(
+                                                        DSL.name(
+                                                                AllMetrics.MasterThrottlingValue
+                                                                        .MASTER_THROTTLED_PENDING_TASK_COUNT
+                                                                        .toString()),
+                                                        Long.class))
                                         .as(
                                                 DBUtils.getAggFieldName(
-                                                        AllMetrics.MasterThrottlingValue.MASTER_THROTTLED_PENDING_TASK_COUNT.toString(),
+                                                        AllMetrics.MasterThrottlingValue
+                                                                .MASTER_THROTTLED_PENDING_TASK_COUNT
+                                                                .toString(),
                                                         MetricsDB.MAX)));
 
                         this.add(
                                 DSL.sum(
-                                        DSL.field(
-                                                DSL.name(
-                                                        AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT
-                                                                .toString()),
-                                                Long.class))
+                                                DSL.field(
+                                                        DSL.name(
+                                                                AllMetrics.MasterThrottlingValue
+                                                                        .DATA_RETRYING_TASK_COUNT
+                                                                        .toString()),
+                                                        Long.class))
                                         .as(
                                                 DBUtils.getAggFieldName(
-                                                        AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT.toString(),
+                                                        AllMetrics.MasterThrottlingValue
+                                                                .DATA_RETRYING_TASK_COUNT
+                                                                .toString(),
                                                         MetricsDB.SUM)));
                         this.add(
                                 DSL.avg(
-                                        DSL.field(
-                                                DSL.name(
-                                                        AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT
-                                                                .toString()),
-                                                Double.class))
+                                                DSL.field(
+                                                        DSL.name(
+                                                                AllMetrics.MasterThrottlingValue
+                                                                        .DATA_RETRYING_TASK_COUNT
+                                                                        .toString()),
+                                                        Double.class))
                                         .as(
                                                 DBUtils.getAggFieldName(
-                                                        AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT.toString(),
+                                                        AllMetrics.MasterThrottlingValue
+                                                                .DATA_RETRYING_TASK_COUNT
+                                                                .toString(),
                                                         MetricsDB.AVG)));
                         this.add(
                                 DSL.min(
-                                        DSL.field(
-                                                DSL.name(
-                                                        AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT
-                                                                .toString()),
-                                                Long.class))
+                                                DSL.field(
+                                                        DSL.name(
+                                                                AllMetrics.MasterThrottlingValue
+                                                                        .DATA_RETRYING_TASK_COUNT
+                                                                        .toString()),
+                                                        Long.class))
                                         .as(
                                                 DBUtils.getAggFieldName(
-                                                        AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT.toString(),
+                                                        AllMetrics.MasterThrottlingValue
+                                                                .DATA_RETRYING_TASK_COUNT
+                                                                .toString(),
                                                         MetricsDB.MIN)));
                         this.add(
                                 DSL.max(
-                                        DSL.field(
-                                                DSL.name(
-                                                        AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT
-                                                                .toString()),
-                                                Long.class))
+                                                DSL.field(
+                                                        DSL.name(
+                                                                AllMetrics.MasterThrottlingValue
+                                                                        .DATA_RETRYING_TASK_COUNT
+                                                                        .toString()),
+                                                        Long.class))
                                         .as(
                                                 DBUtils.getAggFieldName(
-                                                        AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT.toString(),
+                                                        AllMetrics.MasterThrottlingValue
+                                                                .DATA_RETRYING_TASK_COUNT
+                                                                .toString(),
                                                         MetricsDB.MAX)));
                     }
                 };
-        ArrayList<Field<?>> groupByFields =
-                new ArrayList<Field<?>>();
+        ArrayList<Field<?>> groupByFields = new ArrayList<Field<?>>();
 
         return create.select(fields).from(DSL.table(this.tableName)).groupBy(groupByFields).fetch();
     }
@@ -205,16 +233,26 @@ public class MasterThrottlingMetricsSnapshot implements Removable {
     public void putMetrics(long retrying_task, Map<String, String> dimensions) {
         Map<Field<?>, String> dimensionMap = new HashMap<>();
         for (Map.Entry<String, String> dimension : dimensions.entrySet()) {
-            dimensionMap.put(DSL.field(DSL.name(dimension.getKey()), String.class), dimension.getValue());
+            dimensionMap.put(
+                    DSL.field(DSL.name(dimension.getKey()), String.class), dimension.getValue());
         }
-        create
-                .insertInto(DSL.table(this.tableName))
-                .set(DSL.field(DSL.name(AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT.toString()), Long.class),
+        create.insertInto(DSL.table(this.tableName))
+                .set(
+                        DSL.field(
+                                DSL.name(
+                                        AllMetrics.MasterThrottlingValue.DATA_RETRYING_TASK_COUNT
+                                                .toString()),
+                                Long.class),
                         retrying_task)
-                .set(DSL.field(DSL.name(AllMetrics.MasterThrottlingValue.MASTER_THROTTLED_PENDING_TASK_COUNT.toString()), Long.class),
+                .set(
+                        DSL.field(
+                                DSL.name(
+                                        AllMetrics.MasterThrottlingValue
+                                                .MASTER_THROTTLED_PENDING_TASK_COUNT
+                                                .toString()),
+                                Long.class),
                         0L)
                 .set(dimensionMap)
                 .execute();
     }
 }
-

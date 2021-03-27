@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,16 +15,15 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.contexts;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.ResourceContextMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Resources;
 import java.util.List;
-
 import org.jooq.Field;
 import org.jooq.impl.DSL;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 
 public class ResourceContextTest {
     private ResourceContext uut;
@@ -42,8 +41,10 @@ public class ResourceContextTest {
 
     @Test
     public void testBuildResourceContextFromMessage() {
-        ResourceContextMessage msg = ResourceContextMessage.newBuilder().setState(Resources.State.HEALTHY.ordinal())
-                .build();
+        ResourceContextMessage msg =
+                ResourceContextMessage.newBuilder()
+                        .setState(Resources.State.HEALTHY.ordinal())
+                        .build();
         ResourceContext context = ResourceContext.buildResourceContextFromMessage(msg);
         Assert.assertEquals(Resources.State.HEALTHY, context.getState());
     }
@@ -58,10 +59,15 @@ public class ResourceContextTest {
     public void testGetSqlSchema() {
         List<Field<?>> schema = uut.getSqlSchema();
         // Done for static class coverage
-        Assert.assertTrue(new ResourceContext.SQL_SCHEMA_CONSTANTS() instanceof ResourceContext.SQL_SCHEMA_CONSTANTS);
+        Assert.assertTrue(
+                new ResourceContext.SQL_SCHEMA_CONSTANTS()
+                        instanceof ResourceContext.SQL_SCHEMA_CONSTANTS);
         Assert.assertEquals(1, schema.size());
         Assert.assertEquals("State", ResourceContext.SQL_SCHEMA_CONSTANTS.STATE_COL_NAME);
-        Assert.assertEquals(DSL.field(DSL.name(ResourceContext.SQL_SCHEMA_CONSTANTS.STATE_COL_NAME), String.class),
+        Assert.assertEquals(
+                DSL.field(
+                        DSL.name(ResourceContext.SQL_SCHEMA_CONSTANTS.STATE_COL_NAME),
+                        String.class),
                 schema.get(0));
     }
 

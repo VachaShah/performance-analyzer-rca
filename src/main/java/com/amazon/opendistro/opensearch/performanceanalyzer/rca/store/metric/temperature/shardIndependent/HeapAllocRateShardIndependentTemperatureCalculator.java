@@ -15,13 +15,14 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.shardIndependent;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature.TemperatureDimension;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.shardIndependent.calculators.ShardIndependentTemperatureCalculator;
 
-public class HeapAllocRateShardIndependentTemperatureCalculator extends
-    ShardIndependentTemperatureCalculator {
+public class HeapAllocRateShardIndependentTemperatureCalculator
+        extends ShardIndependentTemperatureCalculator {
 
-  public HeapAllocRateShardIndependentTemperatureCalculator() {
-    super(TemperatureDimension.Heap_AllocRate);
-  }
+    public HeapAllocRateShardIndependentTemperatureCalculator() {
+        super(TemperatureDimension.Heap_AllocRate);
+    }
 }

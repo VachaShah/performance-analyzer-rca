@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.net;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.CertificateUtils;
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PluginSettings;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.MetricsRequest;
@@ -36,22 +37,25 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 /**
- * GRPCTest tests that our gRPC servers and clients perform mutual authentication when TLS is enabled
+ * GRPCTest tests that our gRPC servers and clients perform mutual authentication when TLS is
+ * enabled
  */
 @Category(GradleTaskForRca.class)
 public class GRPCTest {
     private static final Logger LOG = LogManager.getLogger(GRPCTest.class);
     private static final int TEST_PORT = 13231;
-    private static final MetricsRequest METRICS_REQUEST = MetricsRequest.newBuilder()
-            .addMetricList("CPU_UTILIZATION")
-            .addAggList("avg")
-            .addDimList("ShardId")
-            .build();
+    private static final MetricsRequest METRICS_REQUEST =
+            MetricsRequest.newBuilder()
+                    .addMetricList("CPU_UTILIZATION")
+                    .addAggList("avg")
+                    .addDimList("ShardId")
+                    .build();
 
     private static TestNetServer netServer;
 
     /**
      * Starts a TestNetServer then waits until the server is running
+     *
      * @param netServer The TestNetServer to start
      * @throws Exception If the function times out before the server starts running
      */
@@ -82,101 +86,155 @@ public class GRPCTest {
     }
 
     /**
-     * testSecureGetMetrics tests that a client and server can communicate properly when certificates are properly
-     * configured
+     * testSecureGetMetrics tests that a client and server can communicate properly when
+     * certificates are properly configured
      */
     @Test
     public void testSecureGetMetrics() throws Exception {
         // Setup client with trusted identity
         ClassLoader classLoader = getClass().getClassLoader();
-        PluginSettings.instance().overrideProperty(CertificateUtils.CLIENT_CERTIFICATE_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/client/localhost.crt")).getFile());
-        PluginSettings.instance().overrideProperty(CertificateUtils.CLIENT_PRIVATE_KEY_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/client/localhost.key")).getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.CLIENT_CERTIFICATE_FILE_PATH,
+                        Objects.requireNonNull(classLoader.getResource("tls/client/localhost.crt"))
+                                .getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.CLIENT_PRIVATE_KEY_FILE_PATH,
+                        Objects.requireNonNull(classLoader.getResource("tls/client/localhost.key"))
+                                .getFile());
         NetClient validClient = new NetClient(new GRPCConnectionManager(true, TEST_PORT));
         // Make getMetrics request to server
         ResponseObserver observer = new ResponseObserver();
 
-        InstanceDetails remoteInstance = new InstanceDetails(new InstanceDetails.Id("host1"),
-                new InstanceDetails.Ip("127.0.0.1"), TEST_PORT);
+        InstanceDetails remoteInstance =
+                new InstanceDetails(
+                        new InstanceDetails.Id("host1"),
+                        new InstanceDetails.Ip("127.0.0.1"),
+                        TEST_PORT);
         validClient.getMetrics(remoteInstance, METRICS_REQUEST, observer);
         // Wait for the expected response from the server
-        WaitFor.waitFor(() -> {
-            return observer.responses[0] != null && observer.responses[0].getMetricsResult().equals("metrics");
-        }, 15, TimeUnit.SECONDS);
+        WaitFor.waitFor(
+                () -> {
+                    return observer.responses[0] != null
+                            && observer.responses[0].getMetricsResult().equals("metrics");
+                },
+                15,
+                TimeUnit.SECONDS);
         validClient.stop();
         validClient.getConnectionManager().shutdown();
     }
 
     /**
-     * testInvalidGetMetricsFails tests that a non-TLS client can't communicate with a TLS secured server
+     * testInvalidGetMetricsFails tests that a non-TLS client can't communicate with a TLS secured
+     * server
      */
     @Test
     public void testInvalidGetMetricsFails() throws Exception {
         // Setup client with untrusted identity
         ClassLoader classLoader = getClass().getClassLoader();
-        PluginSettings.instance().overrideProperty(CertificateUtils.CLIENT_CERTIFICATE_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/attacker/attack_cert.pem")).getFile());
-        PluginSettings.instance().overrideProperty(CertificateUtils.CLIENT_PRIVATE_KEY_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/attacker/attack_key.pem")).getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.CLIENT_CERTIFICATE_FILE_PATH,
+                        Objects.requireNonNull(
+                                        classLoader.getResource("tls/attacker/attack_cert.pem"))
+                                .getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.CLIENT_PRIVATE_KEY_FILE_PATH,
+                        Objects.requireNonNull(
+                                        classLoader.getResource("tls/attacker/attack_key.pem"))
+                                .getFile());
         NetClient invalidClient = new NetClient(new GRPCConnectionManager(true, TEST_PORT));
         // Make invalid getMetrics request to server
         ErrorObserver<MetricsResponse> observer = new ErrorObserver<>();
-        InstanceDetails remoteInstance = new InstanceDetails(new InstanceDetails.Id("host1"),
-                new InstanceDetails.Ip("127.0.0.1"), TEST_PORT);
+        InstanceDetails remoteInstance =
+                new InstanceDetails(
+                        new InstanceDetails.Id("host1"),
+                        new InstanceDetails.Ip("127.0.0.1"),
+                        TEST_PORT);
         invalidClient.getMetrics(remoteInstance, METRICS_REQUEST, observer);
         // Wait for the client to fail
-        WaitFor.waitFor(() -> observer.errors[0] != null && observer.errors[0] instanceof StatusRuntimeException,
-                15, TimeUnit.SECONDS);
+        WaitFor.waitFor(
+                () ->
+                        observer.errors[0] != null
+                                && observer.errors[0] instanceof StatusRuntimeException,
+                15,
+                TimeUnit.SECONDS);
         invalidClient.stop();
         invalidClient.getConnectionManager().shutdown();
-
     }
 
     /**
-     * testNonTLSGetMetricsFails tests that the server doesn't communicate with an unauthenticated client
+     * testNonTLSGetMetricsFails tests that the server doesn't communicate with an unauthenticated
+     * client
      */
     @Test
     public void testNonTLSGetMetricsFails() throws Exception {
         NetClient insecureClient = new NetClient(new GRPCConnectionManager(false, TEST_PORT));
         // Make invalid getMetrics request to server
         ErrorObserver<MetricsResponse> observer = new ErrorObserver<>();
-        InstanceDetails remoteInstance = new InstanceDetails(new InstanceDetails.Id("host1"), new InstanceDetails.Ip("127.0.0.1"),
-                TEST_PORT);
+        InstanceDetails remoteInstance =
+                new InstanceDetails(
+                        new InstanceDetails.Id("host1"),
+                        new InstanceDetails.Ip("127.0.0.1"),
+                        TEST_PORT);
         insecureClient.getMetrics(remoteInstance, METRICS_REQUEST, observer);
         // Wait for the client to fail
-        WaitFor.waitFor(() -> observer.errors[0] != null && observer.errors[0] instanceof StatusRuntimeException,
-                1, TimeUnit.MINUTES);
+        WaitFor.waitFor(
+                () ->
+                        observer.errors[0] != null
+                                && observer.errors[0] instanceof StatusRuntimeException,
+                1,
+                TimeUnit.MINUTES);
         insecureClient.stop();
         insecureClient.getConnectionManager().shutdown();
     }
 
     /**
-     * testClientShouldRejectUntrustedServer tests that a client doesn't communicate with an unauthenticated server
+     * testClientShouldRejectUntrustedServer tests that a client doesn't communicate with an
+     * unauthenticated server
      */
     @Test
     public void testClientShouldRejectUntrustedServer() throws Exception {
         // Setup a client which shouldn't trust our TestNetServer
         ClassLoader classLoader = getClass().getClassLoader();
-        PluginSettings.instance().overrideProperty(CertificateUtils.CLIENT_TRUSTED_CAS_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/rootca/root2ca.pem")).getFile());
-        PluginSettings.instance().overrideProperty(CertificateUtils.CLIENT_CERTIFICATE_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/client/localhost.crt")).getFile());
-        PluginSettings.instance().overrideProperty(CertificateUtils.CLIENT_PRIVATE_KEY_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/client/localhost.key")).getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.CLIENT_TRUSTED_CAS_FILE_PATH,
+                        Objects.requireNonNull(classLoader.getResource("tls/rootca/root2ca.pem"))
+                                .getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.CLIENT_CERTIFICATE_FILE_PATH,
+                        Objects.requireNonNull(classLoader.getResource("tls/client/localhost.crt"))
+                                .getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.CLIENT_PRIVATE_KEY_FILE_PATH,
+                        Objects.requireNonNull(classLoader.getResource("tls/client/localhost.key"))
+                                .getFile());
         NetClient client = new NetClient(new GRPCConnectionManager(true, TEST_PORT));
         // Make valid getMetrics request to server
         ErrorObserver<MetricsResponse> observer = new ErrorObserver<>();
 
-        InstanceDetails remoteInstance = new InstanceDetails(new InstanceDetails.Id("host1"), new InstanceDetails.Ip("127.0.0.1"),
-                TEST_PORT);
+        InstanceDetails remoteInstance =
+                new InstanceDetails(
+                        new InstanceDetails.Id("host1"),
+                        new InstanceDetails.Ip("127.0.0.1"),
+                        TEST_PORT);
         client.getMetrics(remoteInstance, METRICS_REQUEST, observer);
         // Client should fail because the server cert isn't signed by the client CA
-        WaitFor.waitFor(() -> observer.errors[0] != null && observer.errors[0] instanceof StatusRuntimeException,
-                15, TimeUnit.SECONDS);
+        WaitFor.waitFor(
+                () ->
+                        observer.errors[0] != null
+                                && observer.errors[0] instanceof StatusRuntimeException,
+                15,
+                TimeUnit.SECONDS);
         client.stop();
         client.getConnectionManager().shutdown();
-        PluginSettings.instance().overrideProperty(CertificateUtils.CLIENT_TRUSTED_CAS_FILE_PATH, "");
+        PluginSettings.instance()
+                .overrideProperty(CertificateUtils.CLIENT_TRUSTED_CAS_FILE_PATH, "");
     }
 
     // ErrorObserver is a StreamObserver that stores the most recent error it receives

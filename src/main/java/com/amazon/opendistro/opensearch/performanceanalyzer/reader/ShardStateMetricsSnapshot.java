@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,15 +15,14 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.google.common.annotations.VisibleForTesting;
-
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.BatchBindStep;
@@ -91,11 +90,14 @@ public class ShardStateMetricsSnapshot implements Removable {
     public void putMetrics(String shard_state, Map<String, String> dimensions) {
         Map<Field<?>, String> dimensionMap = new HashMap<>();
         for (Map.Entry<String, String> dimension : dimensions.entrySet()) {
-            dimensionMap.put(DSL.field(DSL.name(dimension.getKey()), String.class), dimension.getValue());
+            dimensionMap.put(
+                    DSL.field(DSL.name(dimension.getKey()), String.class), dimension.getValue());
         }
-        create
-                .insertInto(DSL.table(this.tableName))
-                .set(DSL.field(DSL.name(AllMetrics.ShardStateDimension.SHARD_STATE.toString()), String.class),
+        create.insertInto(DSL.table(this.tableName))
+                .set(
+                        DSL.field(
+                                DSL.name(AllMetrics.ShardStateDimension.SHARD_STATE.toString()),
+                                String.class),
                         shard_state)
                 .set(dimensionMap)
                 .execute();

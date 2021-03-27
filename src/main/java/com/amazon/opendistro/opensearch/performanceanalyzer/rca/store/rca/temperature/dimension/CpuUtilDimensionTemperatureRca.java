@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.temperature.dimension;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Rca;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units.temperature.DimensionalTemperatureFlowUnit;
@@ -39,15 +40,17 @@ public class CpuUtilDimensionTemperatureRca extends Rca<DimensionalTemperatureFl
 
     private final ShardStore shardStore;
 
-    public static final TemperatureVector.NormalizedValue THRESHOLD_NORMALIZED_VAL_FOR_HEAT_ZONE_ASSIGNMENT =
-            new TemperatureVector.NormalizedValue((short) 2);
+    public static final TemperatureVector.NormalizedValue
+            THRESHOLD_NORMALIZED_VAL_FOR_HEAT_ZONE_ASSIGNMENT =
+                    new TemperatureVector.NormalizedValue((short) 2);
 
-    public CpuUtilDimensionTemperatureRca(final long evaluationIntervalSeconds,
-                                          ShardStore shardStore,
-                                          CpuUtilByShardsMetricBasedTemperatureCalculator cpuUtilByShard,
-                                          AvgCpuUtilByShardsMetricBasedTemperatureCalculator avgCpuUtilByShards,
-                                          ShardIndependentTemperatureCalculatorCpuUtilMetric shardIndependentCpuUtilMetric,
-                                          TotalCpuUtilForTotalNodeMetric cpuUtilPeakUsage) {
+    public CpuUtilDimensionTemperatureRca(
+            final long evaluationIntervalSeconds,
+            ShardStore shardStore,
+            CpuUtilByShardsMetricBasedTemperatureCalculator cpuUtilByShard,
+            AvgCpuUtilByShardsMetricBasedTemperatureCalculator avgCpuUtilByShards,
+            ShardIndependentTemperatureCalculatorCpuUtilMetric shardIndependentCpuUtilMetric,
+            TotalCpuUtilForTotalNodeMetric cpuUtilPeakUsage) {
         super(evaluationIntervalSeconds);
         this.CPU_UTIL_PEAK_USAGE = cpuUtilPeakUsage;
         this.CPU_UTIL_BY_SHARD = cpuUtilByShard;
@@ -63,13 +66,17 @@ public class CpuUtilDimensionTemperatureRca extends Rca<DimensionalTemperatureFl
 
     @Override
     public DimensionalTemperatureFlowUnit operate() {
-        DimensionalTemperatureFlowUnit cpuUtilTemperatureFlowUnit = DimensionalTemperatureCalculator.getTemperatureForDimension(
-                shardStore,
-                TemperatureDimension.CPU_Utilization,
-                CPU_UTIL_BY_SHARD,
-                AVG_CPU_UTIL_BY_SHARD, CPU_UTIL_SHARD_INDEPENDENT, CPU_UTIL_PEAK_USAGE,
-                THRESHOLD_NORMALIZED_VAL_FOR_HEAT_ZONE_ASSIGNMENT);
-        LOG.info("CPU Utilization temperature calculated: {}",
+        DimensionalTemperatureFlowUnit cpuUtilTemperatureFlowUnit =
+                DimensionalTemperatureCalculator.getTemperatureForDimension(
+                        shardStore,
+                        TemperatureDimension.CPU_Utilization,
+                        CPU_UTIL_BY_SHARD,
+                        AVG_CPU_UTIL_BY_SHARD,
+                        CPU_UTIL_SHARD_INDEPENDENT,
+                        CPU_UTIL_PEAK_USAGE,
+                        THRESHOLD_NORMALIZED_VAL_FOR_HEAT_ZONE_ASSIGNMENT);
+        LOG.info(
+                "CPU Utilization temperature calculated: {}",
                 cpuUtilTemperatureFlowUnit.getNodeDimensionProfile());
         return cpuUtilTemperatureFlowUnit;
     }

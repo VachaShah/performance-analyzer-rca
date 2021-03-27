@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,16 +15,17 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.collectors;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.util.JsonConverter;
 
 public class MetricStatus {
 
-  /**
-   * converts any object to a JSON string and return that string
-   *
-   * @return A string containing a JSON representation of the object
-   */
-  public String serialize() {
-    return JsonConverter.writeValueAsString(this);
-  }
+    /**
+     * converts any object to a JSON string and return that string
+     *
+     * @return A string containing a JSON representation of the object
+     */
+    public String serialize() {
+        return JsonConverter.writeValueAsString(this);
+    }
 }

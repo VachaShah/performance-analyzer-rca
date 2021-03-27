@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,26 +15,27 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.tests.util;
 
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class JsonParserUtil {
-  public static int getSummaryJsonSize(JsonObject jsonObject, String summaryName) {
-    JsonArray array = jsonObject.get(summaryName).getAsJsonArray();
-    if (array == null) {
-      return 0;
+    public static int getSummaryJsonSize(JsonObject jsonObject, String summaryName) {
+        JsonArray array = jsonObject.get(summaryName).getAsJsonArray();
+        if (array == null) {
+            return 0;
+        }
+        return array.size();
     }
-    return array.size();
-  }
 
-  public static JsonObject getSummaryJson(JsonObject jsonObject, String summaryName, int idx) {
-    JsonArray array = jsonObject.get(summaryName).getAsJsonArray();
-    if (array == null) {
-      return null;
+    public static JsonObject getSummaryJson(JsonObject jsonObject, String summaryName, int idx) {
+        JsonArray array = jsonObject.get(summaryName).getAsJsonArray();
+        if (array == null) {
+            return null;
+        }
+        if (idx >= array.size()) {
+            return null;
+        }
+        return array.get(idx).getAsJsonObject();
     }
-    if (idx >= array.size()) {
-      return null;
-    }
-    return array.get(idx).getAsJsonObject();
-  }
 }

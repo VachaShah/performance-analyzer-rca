@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -24,55 +24,56 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions.Action;
+import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster.NodeKey;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 public class ImpactAssessorTest {
 
-  @Mock
-  private Action mockAction;
+    @Mock private Action mockAction;
 
-  @Mock
-  private ImpactAssessment mockAssessment;
+    @Mock private ImpactAssessment mockAssessment;
 
-  private ImpactAssessor testAssessor;
+    private ImpactAssessor testAssessor;
 
-  @Before
-  public void setup() {
-    initMocks(this);
-    when(mockAction.impactedNodes()).thenReturn(Collections.singletonList(new NodeKey(new InstanceDetails.Id(
-        "other node"), new InstanceDetails.Ip("2.2.3.4"))));
-    this.testAssessor = new ImpactAssessor();
-  }
+    @Before
+    public void setup() {
+        initMocks(this);
+        when(mockAction.impactedNodes())
+                .thenReturn(
+                        Collections.singletonList(
+                                new NodeKey(
+                                        new InstanceDetails.Id("other node"),
+                                        new InstanceDetails.Ip("2.2.3.4"))));
+        this.testAssessor = new ImpactAssessor();
+    }
 
-  @Test
-  public void testIsImpactAlignedNodeMissingFromOverallImpact() {
-    NodeKey nodeKey = new NodeKey(new InstanceDetails.Id("this node"), new InstanceDetails.Ip("1.2.3.4"));
-    Map<NodeKey, ImpactAssessment> testOverallAssessment = new HashMap<>();
-    testOverallAssessment
-        .put(nodeKey, new ImpactAssessment(nodeKey));
+    @Test
+    public void testIsImpactAlignedNodeMissingFromOverallImpact() {
+        NodeKey nodeKey =
+                new NodeKey(new InstanceDetails.Id("this node"), new InstanceDetails.Ip("1.2.3.4"));
+        Map<NodeKey, ImpactAssessment> testOverallAssessment = new HashMap<>();
+        testOverallAssessment.put(nodeKey, new ImpactAssessment(nodeKey));
 
-    boolean isAligned = testAssessor.isImpactAligned(mockAction, testOverallAssessment);
+        boolean isAligned = testAssessor.isImpactAligned(mockAction, testOverallAssessment);
 
-    assertFalse(isAligned);
-  }
+        assertFalse(isAligned);
+    }
 
-  @Test
-  public void testUndoActionImpactOnOverallAssessmentNodeMissing() {
-    NodeKey nodeKey = new NodeKey(new InstanceDetails.Id("this node"), new InstanceDetails.Ip("1.2.3.4"));
-    Map<NodeKey, ImpactAssessment> testOverallAssessment = new HashMap<>();
-    testOverallAssessment
-        .put(nodeKey, mockAssessment);
+    @Test
+    public void testUndoActionImpactOnOverallAssessmentNodeMissing() {
+        NodeKey nodeKey =
+                new NodeKey(new InstanceDetails.Id("this node"), new InstanceDetails.Ip("1.2.3.4"));
+        Map<NodeKey, ImpactAssessment> testOverallAssessment = new HashMap<>();
+        testOverallAssessment.put(nodeKey, mockAssessment);
 
-    testAssessor.undoActionImpactOnOverallAssessment(mockAction, testOverallAssessment);
+        testAssessor.undoActionImpactOnOverallAssessment(mockAction, testOverallAssessment);
 
-    verify(mockAssessment, times(0)).removeActionImpact(anyString(), any());
-  }
+        verify(mockAssessment, times(0)).removeActionImpact(anyString(), any());
+    }
 }

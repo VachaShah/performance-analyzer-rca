@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions.Action;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.metrics.ExceptionsAndErrors;
@@ -23,13 +24,10 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.acti
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * A listener that persists all actions published by the publisher to rca.sqlite
- */
+/** A listener that persists all actions published by the publisher to rca.sqlite */
 public class PublisherEventsPersistor {
     public static final String NAME = "publisher_events_persistor";
     private static final Logger LOG = LogManager.getLogger(PublisherEventsPersistor.class);
@@ -47,12 +45,14 @@ public class PublisherEventsPersistor {
             PerformanceAnalyzerApp.RCA_RUNTIME_METRICS_AGGREGATOR.updateStat(
                     RcaRuntimeMetrics.ACTIONS_PUBLISHED, action.name(), 1);
             if (action.impactedNodes() != null) {
-                final String nodeIds = action.impactedNodes().stream()
-                        .map(n -> n.getNodeId().toString())
-                        .collect(Collectors.joining(",", "{", "}"));
-                final String nodeIps = action.impactedNodes().stream()
-                        .map(n -> n.getHostAddress().toString())
-                        .collect(Collectors.joining(",", "{", "}"));
+                final String nodeIds =
+                        action.impactedNodes().stream()
+                                .map(n -> n.getNodeId().toString())
+                                .collect(Collectors.joining(",", "{", "}"));
+                final String nodeIps =
+                        action.impactedNodes().stream()
+                                .map(n -> n.getHostAddress().toString())
+                                .collect(Collectors.joining(",", "{", "}"));
                 final PersistedAction actionsSummary = new PersistedAction();
                 actionsSummary.setActionName(action.name());
                 actionsSummary.setNodeIds(nodeIds);

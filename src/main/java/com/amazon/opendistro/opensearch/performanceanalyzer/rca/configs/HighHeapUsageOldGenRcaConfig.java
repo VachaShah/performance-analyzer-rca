@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,29 +15,34 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.configs;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.RcaConf;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * config object to store rca config settings in rca.conf
- */
+/** config object to store rca config settings in rca.conf */
 public class HighHeapUsageOldGenRcaConfig {
 
-  private static final Logger LOG = LogManager.getLogger(HighHeapUsageOldGenRcaConfig.class);
-  private Integer topK;
-  public static final int DEFAULT_TOP_K = 3;
-  public static final String CONFIG_NAME = "high-heap-usage-old-gen-rca";
+    private static final Logger LOG = LogManager.getLogger(HighHeapUsageOldGenRcaConfig.class);
+    private Integer topK;
+    public static final int DEFAULT_TOP_K = 3;
+    public static final String CONFIG_NAME = "high-heap-usage-old-gen-rca";
 
-  public HighHeapUsageOldGenRcaConfig(final RcaConf rcaConf) {
-    topK = rcaConf.readRcaConfig(CONFIG_NAME, RCA_CONF_KEY_CONSTANTS.TOP_K, DEFAULT_TOP_K, (s) -> (s > 0), Integer.class);
-  }
+    public HighHeapUsageOldGenRcaConfig(final RcaConf rcaConf) {
+        topK =
+                rcaConf.readRcaConfig(
+                        CONFIG_NAME,
+                        RCA_CONF_KEY_CONSTANTS.TOP_K,
+                        DEFAULT_TOP_K,
+                        (s) -> (s > 0),
+                        Integer.class);
+    }
 
-  public int getTopK() {
-    return topK;
-  }
+    public int getTopK() {
+        return topK;
+    }
 
-  public static class RCA_CONF_KEY_CONSTANTS {
-    public static final String TOP_K = "top-k";
-  }
+    public static class RCA_CONF_KEY_CONSTANTS {
+        public static final String TOP_K = "top-k";
+    }
 }

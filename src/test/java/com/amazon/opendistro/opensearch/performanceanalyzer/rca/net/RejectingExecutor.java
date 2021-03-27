@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.net;
 
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -26,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * An executor which throws an {@link RejectedExecutionException} any time it is asked to execute a task
- * This class is useful for testing certain branches of our net code
+ * An executor which throws an {@link RejectedExecutionException} any time it is asked to execute a
+ * task This class is useful for testing certain branches of our net code
  */
 class RejectingExecutor implements ExecutorService {
 
@@ -70,12 +71,14 @@ class RejectingExecutor implements ExecutorService {
     }
 
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> collection) throws InterruptedException {
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> collection)
+            throws InterruptedException {
         return null;
     }
 
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> collection, long l, TimeUnit timeUnit)
+    public <T> List<Future<T>> invokeAll(
+            Collection<? extends Callable<T>> collection, long l, TimeUnit timeUnit)
             throws InterruptedException {
         return null;
     }

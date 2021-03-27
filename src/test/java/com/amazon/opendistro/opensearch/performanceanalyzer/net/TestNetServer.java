@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.net;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.CertificateUtils;
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PluginSettings;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.MetricsRequest;
@@ -37,19 +38,33 @@ public class TestNetServer extends NetServer implements Runnable {
         if (useHttps) {
             ClassLoader classLoader = getClass().getClassLoader();
             // TODO (sidnaray) this is not the best practice for overriding settings
-            // CertificateUtils should be abstracted into an interface and should have a regular and testing impl
-            // The interface should be passed into the NetServer constructor and have the proper impl "injected"
-            PluginSettings.instance().overrideProperty(CertificateUtils.TRUSTED_CAS_FILE_PATH,
-                    Objects.requireNonNull(classLoader.getResource("tls/rootca/RootCA.pem")).getFile());
-            PluginSettings.instance().overrideProperty(CertificateUtils.CERTIFICATE_FILE_PATH,
-                    Objects.requireNonNull(classLoader.getResource("tls/server/localhost.crt")).getFile());
-            PluginSettings.instance().overrideProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH,
-                    Objects.requireNonNull(classLoader.getResource("tls/server/localhost.key")).getFile());
+            // CertificateUtils should be abstracted into an interface and should have a regular and
+            // testing impl
+            // The interface should be passed into the NetServer constructor and have the proper
+            // impl "injected"
+            PluginSettings.instance()
+                    .overrideProperty(
+                            CertificateUtils.TRUSTED_CAS_FILE_PATH,
+                            Objects.requireNonNull(classLoader.getResource("tls/rootca/RootCA.pem"))
+                                    .getFile());
+            PluginSettings.instance()
+                    .overrideProperty(
+                            CertificateUtils.CERTIFICATE_FILE_PATH,
+                            Objects.requireNonNull(
+                                            classLoader.getResource("tls/server/localhost.crt"))
+                                    .getFile());
+            PluginSettings.instance()
+                    .overrideProperty(
+                            CertificateUtils.PRIVATE_KEY_FILE_PATH,
+                            Objects.requireNonNull(
+                                            classLoader.getResource("tls/server/localhost.key"))
+                                    .getFile());
         }
     }
 
     @Override
-    public void getMetrics(MetricsRequest request, StreamObserver<MetricsResponse> responseObserver) {
+    public void getMetrics(
+            MetricsRequest request, StreamObserver<MetricsResponse> responseObserver) {
         LOG.debug("MetricsRequest received by server! {}", request);
         responseObserver.onNext(MetricsResponse.newBuilder().setMetricsResult("metrics").build());
         responseObserver.onCompleted();

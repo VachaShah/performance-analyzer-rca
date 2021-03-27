@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,22 +15,21 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.plugins;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class PluginControllerConfig {
 
-  private List<Class<? extends Plugin>> frameworkPlugins;
+    private List<Class<? extends Plugin>> frameworkPlugins;
 
-  public PluginControllerConfig() {
-    frameworkPlugins = new ArrayList<>();
-    frameworkPlugins.add(PublisherEventsLogger.class);
-  }
+    public PluginControllerConfig() {
+        frameworkPlugins = new ArrayList<>();
+        frameworkPlugins.add(PublisherEventsLogger.class);
+    }
 
-  /**
-   * Returns a list of entry point classes for internal framework plugins
-   */
-  public List<Class<? extends Plugin>> getFrameworkPlugins() {
-    return frameworkPlugins;
-  }
+    /** Returns a list of entry point classes for internal framework plugins */
+    public List<Class<? extends Plugin>> getFrameworkPlugins() {
+        return frameworkPlugins;
+    }
 }

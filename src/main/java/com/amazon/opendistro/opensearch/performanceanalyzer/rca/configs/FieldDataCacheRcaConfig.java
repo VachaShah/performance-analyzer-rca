@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.configs;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.RcaConf;
 
-/**
- * config object to store rca config settings for FieldDataCacheRca
- */
+/** config object to store rca config settings for FieldDataCacheRca */
 public class FieldDataCacheRcaConfig {
     public static final String CONFIG_NAME = "field-data-cache-rca-config";
 
@@ -57,7 +56,9 @@ public class FieldDataCacheRcaConfig {
     }
 
     public static class RCA_CONF_KEY_CONSTANTS {
-        public static final String FIELD_DATA_CACHE_SIZE_THRESHOLD = "field-data-cache-size-threshold";
-        public static final String FIELD_DATA_COLLECTOR_TIME_PERIOD_IN_SEC = "field-data-collector-time-period-in-sec";
+        public static final String FIELD_DATA_CACHE_SIZE_THRESHOLD =
+                "field-data-cache-size-threshold";
+        public static final String FIELD_DATA_COLLECTOR_TIME_PERIOD_IN_SEC =
+                "field-data-collector-time-period-in-sec";
     }
 }

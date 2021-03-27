@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cache;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.Resource;
@@ -46,8 +47,10 @@ public class CacheUtil {
             // since the flow unit data is aggregated by index, summing the size across indices
             if (flowUnit.getData().size() > 0) {
                 Result<Record> records = flowUnit.getData();
-                double size = records.stream().mapToDouble(
-                        record -> record.getValue(MetricsDB.SUM, Double.class)).sum();
+                double size =
+                        records.stream()
+                                .mapToDouble(record -> record.getValue(MetricsDB.SUM, Double.class))
+                                .sum();
                 totalSizeInKB += getSizeInKB(size);
             }
         }
@@ -67,23 +70,29 @@ public class CacheUtil {
         }
     }
 
-    public static double getCacheMaxSize(AppContext appContext, NodeKey esNode, Resource cacheResource) {
+    public static double getCacheMaxSize(
+            AppContext appContext, NodeKey esNode, Resource cacheResource) {
         try {
             return appContext.getNodeConfigCache().get(esNode, cacheResource);
         } catch (IllegalArgumentException e) {
-            LOG.error("error in fetching: {} from Node Config Cache. "
-                    + "Possibly the resource hasn't been added to cache yet.", cacheResource.toString());
+            LOG.error(
+                    "error in fetching: {} from Node Config Cache. "
+                            + "Possibly the resource hasn't been added to cache yet.",
+                    cacheResource.toString());
             return 0;
         }
     }
 
-    public static Boolean isSizeThresholdExceeded(final Metric cacheSizeGroupByOperation,
-                                                  double cacheMaxSizeinBytes,
-                                                  double threshold_percentage) {
+    public static Boolean isSizeThresholdExceeded(
+            final Metric cacheSizeGroupByOperation,
+            double cacheMaxSizeinBytes,
+            double threshold_percentage) {
         try {
             double cacheSizeInKB = getTotalSizeInKB(cacheSizeGroupByOperation);
             double cacheMaxSizeInKB = getSizeInKB(cacheMaxSizeinBytes);
-            return cacheSizeInKB != 0 && cacheMaxSizeInKB != 0 && (cacheSizeInKB > cacheMaxSizeInKB * threshold_percentage);
+            return cacheSizeInKB != 0
+                    && cacheMaxSizeInKB != 0
+                    && (cacheSizeInKB > cacheMaxSizeInKB * threshold_percentage);
         } catch (Exception e) {
             LOG.error("error in calculating isSizeThresholdExceeded");
             return Boolean.FALSE;

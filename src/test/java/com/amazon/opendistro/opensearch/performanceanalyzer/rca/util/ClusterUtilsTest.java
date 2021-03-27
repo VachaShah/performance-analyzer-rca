@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.util;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.ClusterDetailsEventProcessor;
@@ -36,9 +37,13 @@ public class ClusterUtilsTest {
 
     private List<InstanceDetails> getInstancesFromHost(List<String> hostIps) {
         List<InstanceDetails> instances = new ArrayList<>();
-        for (String id: hostIps) {
-            InstanceDetails instance = new InstanceDetails(AllMetrics.NodeRole.UNKNOWN, new InstanceDetails.Id(id),
-                    new InstanceDetails.Ip("0.0.0.0"), false);
+        for (String id : hostIps) {
+            InstanceDetails instance =
+                    new InstanceDetails(
+                            AllMetrics.NodeRole.UNKNOWN,
+                            new InstanceDetails.Id(id),
+                            new InstanceDetails.Ip("0.0.0.0"),
+                            false);
             instances.add(instance);
         }
         return instances;
@@ -53,17 +58,19 @@ public class ClusterUtilsTest {
     @Test
     public void testIsHostAddressInCluster() {
         // method should return false when there are no peers
-        Assert.assertFalse(ClusterUtils.isHostIdInCluster(new InstanceDetails.Id(HOST1), getInstancesFromHost(Collections.EMPTY_LIST)));
+        Assert.assertFalse(
+                ClusterUtils.isHostIdInCluster(
+                        new InstanceDetails.Id(HOST1),
+                        getInstancesFromHost(Collections.EMPTY_LIST)));
         // method should properly recognize which hosts are peers and which aren't
-        clusterDetailsEventProcessor.setNodesDetails(Lists.newArrayList(
-                ClusterDetailsEventProcessorTestHelper.newNodeDetails(null, HOST1, false)
-        ));
-
-
+        clusterDetailsEventProcessor.setNodesDetails(
+                Lists.newArrayList(
+                        ClusterDetailsEventProcessorTestHelper.newNodeDetails(null, HOST1, false)));
 
         List<InstanceDetails> instances = getInstancesFromHost(Collections.singletonList(HOST1));
 
         Assert.assertTrue(ClusterUtils.isHostIdInCluster(new InstanceDetails.Id(HOST1), instances));
-        Assert.assertFalse(ClusterUtils.isHostIdInCluster(new InstanceDetails.Id(HOST2), instances));
+        Assert.assertFalse(
+                ClusterUtils.isHostIdInCluster(new InstanceDetails.Id(HOST2), instances));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature;
 
-/**
- * Given the units of the resource consumed and the total consumption and
- */
+/** Given the units of the resource consumed and the total consumption and */
 public class HeatZoneAssigner {
     public enum Zone {
         HOT,
@@ -26,9 +24,10 @@ public class HeatZoneAssigner {
         COLD
     }
 
-    public static Zone assign(final TemperatureVector.NormalizedValue consumed,
-                              final TemperatureVector.NormalizedValue nodeAvg,
-                              final TemperatureVector.NormalizedValue threshold) {
+    public static Zone assign(
+            final TemperatureVector.NormalizedValue consumed,
+            final TemperatureVector.NormalizedValue nodeAvg,
+            final TemperatureVector.NormalizedValue threshold) {
         Zone zone;
         if (consumed.isGreaterThan(nodeAvg)) {
             TemperatureVector.NormalizedValue deviation = consumed.diff(nodeAvg);

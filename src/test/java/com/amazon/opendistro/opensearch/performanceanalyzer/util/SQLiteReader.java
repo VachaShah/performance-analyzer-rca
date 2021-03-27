@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.util;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.Queryable;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.Removable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -54,14 +54,13 @@ public class SQLiteReader implements Queryable, Removable {
 
     @Override
     public Result<Record> queryMetrics(MetricsDB db, String metricName) {
-        Result<Record> result = getContext().select()
-                .from(DSL.table(metricName))
-                .fetch();
+        Result<Record> result = getContext().select().from(DSL.table(metricName)).fetch();
         return result;
     }
 
     @Override
-    public Result<Record> queryMetrics(MetricsDB db, String metricName, String dimension, String aggregation) {
+    public Result<Record> queryMetrics(
+            MetricsDB db, String metricName, String dimension, String aggregation) {
         throw new IllegalArgumentException("Should not call");
     }
 

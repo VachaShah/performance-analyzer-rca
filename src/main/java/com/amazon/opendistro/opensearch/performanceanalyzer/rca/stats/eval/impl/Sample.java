@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,38 +15,38 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.impl;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.Statistics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.impl.vals.Value;
-
 import java.util.Collections;
 import java.util.List;
 
 public class Sample implements IStatistic<Value> {
-  private Number value;
-  private boolean empty;
+    private Number value;
+    private boolean empty;
 
-  public Sample() {
-    empty = true;
-  }
+    public Sample() {
+        empty = true;
+    }
 
-  @Override
-  public Statistics type() {
-    return Statistics.SAMPLE;
-  }
+    @Override
+    public Statistics type() {
+        return Statistics.SAMPLE;
+    }
 
-  @Override
-  public void calculate(String key, Number value) {
-    this.value = value;
-    empty = false;
-  }
+    @Override
+    public void calculate(String key, Number value) {
+        this.value = value;
+        empty = false;
+    }
 
-  @Override
-  public List<Value> get() {
-    return Collections.singletonList(new Value(value));
-  }
+    @Override
+    public List<Value> get() {
+        return Collections.singletonList(new Value(value));
+    }
 
-  @Override
-  public boolean isEmpty() {
-    return empty;
-  }
+    @Override
+    public boolean isEmpty() {
+        return empty;
+    }
 }

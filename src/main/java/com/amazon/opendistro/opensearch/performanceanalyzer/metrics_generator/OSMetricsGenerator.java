@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,25 +15,26 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.metrics_generator;
 
+
 import java.util.Set;
 
 public interface OSMetricsGenerator {
 
-  String getPid();
+    String getPid();
 
-  CPUPagingActivityGenerator getPagingActivityGenerator();
+    CPUPagingActivityGenerator getPagingActivityGenerator();
 
-  SchedMetricsGenerator getSchedMetricsGenerator();
+    SchedMetricsGenerator getSchedMetricsGenerator();
 
-  Set<String> getAllThreadIds();
+    Set<String> getAllThreadIds();
 
-  DiskIOMetricsGenerator getDiskIOMetricsGenerator();
+    DiskIOMetricsGenerator getDiskIOMetricsGenerator();
 
-  TCPMetricsGenerator getTCPMetricsGenerator();
+    TCPMetricsGenerator getTCPMetricsGenerator();
 
-  IPMetricsGenerator getIPMetricsGenerator();
+    IPMetricsGenerator getIPMetricsGenerator();
 
-  DiskMetricsGenerator getDiskMetricsGenerator();
+    DiskMetricsGenerator getDiskMetricsGenerator();
 
-  MountedPartitionMetricsGenerator getMountedPartitionMetricsGenerator();
+    MountedPartitionMetricsGenerator getMountedPartitionMetricsGenerator();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.sys;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.metrics.JvmMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.collectors.SampleAggregator;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.emitters.ISampler;
 
 public class JvmFreeMem implements ISampler {
-  @Override
-  public void sample(SampleAggregator sampleCollector) {
-    sampleCollector.updateStat(
-        JvmMetrics.JVM_FREE_MEM_SAMPLER, "", Runtime.getRuntime().freeMemory());
-  }
+    @Override
+    public void sample(SampleAggregator sampleCollector) {
+        sampleCollector.updateStat(
+                JvmMetrics.JVM_FREE_MEM_SAMPLER, "", Runtime.getRuntime().freeMemory());
+    }
 }

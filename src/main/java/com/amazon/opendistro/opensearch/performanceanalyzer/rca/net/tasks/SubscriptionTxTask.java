@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.tasks;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.SubscribeMessage;
@@ -25,75 +26,70 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.messages.IntentM
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.NodeStateManager;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.SubscribeResponseHandler;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.SubscriptionManager;
-
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Task to send out a subscription request.
- */
+/** Task to send out a subscription request. */
 public abstract class SubscriptionTxTask implements Runnable {
 
-  private static final Logger LOG = LogManager.getLogger(SubscriptionTxTask.class);
+    private static final Logger LOG = LogManager.getLogger(SubscriptionTxTask.class);
 
-  /**
-   * The client object to make RPC with.
-   */
-  protected final NetClient netClient;
+    /** The client object to make RPC with. */
+    protected final NetClient netClient;
 
-  /**
-   * The encapsulated subscribe message.
-   */
-  protected final IntentMsg intentMsg;
+    /** The encapsulated subscribe message. */
+    protected final IntentMsg intentMsg;
 
-  /**
-   * The subscription manager to update metadata.
-   */
-  protected final SubscriptionManager subscriptionManager;
+    /** The subscription manager to update metadata. */
+    protected final SubscriptionManager subscriptionManager;
 
-  /**
-   * The node state manager to start/update tracking staleness.
-   */
-  protected final NodeStateManager nodeStateManager;
+    /** The node state manager to start/update tracking staleness. */
+    protected final NodeStateManager nodeStateManager;
 
-  private final AppContext appContext;
+    private final AppContext appContext;
 
-  public SubscriptionTxTask(
-      final NetClient netClient,
-      final IntentMsg intentMsg,
-      final SubscriptionManager subscriptionManager,
-      final NodeStateManager nodeStateManager,
-      final AppContext appContext) {
-    this.netClient = netClient;
-    this.intentMsg = intentMsg;
-    this.subscriptionManager = subscriptionManager;
-    this.nodeStateManager = nodeStateManager;
-    this.appContext = appContext;
-  }
+    public SubscriptionTxTask(
+            final NetClient netClient,
+            final IntentMsg intentMsg,
+            final SubscriptionManager subscriptionManager,
+            final NodeStateManager nodeStateManager,
+            final AppContext appContext) {
+        this.netClient = netClient;
+        this.intentMsg = intentMsg;
+        this.subscriptionManager = subscriptionManager;
+        this.nodeStateManager = nodeStateManager;
+        this.appContext = appContext;
+    }
 
-  protected void sendSubscribeRequest(final InstanceDetails remoteHost, final String requesterVertex,
-                                      final String destinationVertex, final Map<String, String> tags) {
-    LOG.debug("rca: [sub-tx]: {} -> {} to {}", requesterVertex, destinationVertex, remoteHost);
-    final SubscribeMessage subscribeMessage = SubscribeMessage.newBuilder()
-                                                              .setDestinationGraphNode(destinationVertex)
-                                                              .setRequesterGraphNode(requesterVertex)
-                                                              .putTags("locus", tags.get("locus"))
-                                                              .putTags(
-                                                                  "requester",
-                                                                  appContext.getMyInstanceDetails().getInstanceId().toString())
-                                                              .build();
-    netClient.subscribe(remoteHost, subscribeMessage,
-        new SubscribeResponseHandler(subscriptionManager, nodeStateManager, remoteHost,
-            destinationVertex));
-    PerformanceAnalyzerApp.RCA_GRAPH_METRICS_AGGREGATOR
-        .updateStat(RcaGraphMetrics.RCA_NODES_SUB_REQ_COUNT,
-            requesterVertex + ":" + destinationVertex, 1);
-  }
+    protected void sendSubscribeRequest(
+            final InstanceDetails remoteHost,
+            final String requesterVertex,
+            final String destinationVertex,
+            final Map<String, String> tags) {
+        LOG.debug("rca: [sub-tx]: {} -> {} to {}", requesterVertex, destinationVertex, remoteHost);
+        final SubscribeMessage subscribeMessage =
+                SubscribeMessage.newBuilder()
+                        .setDestinationGraphNode(destinationVertex)
+                        .setRequesterGraphNode(requesterVertex)
+                        .putTags("locus", tags.get("locus"))
+                        .putTags(
+                                "requester",
+                                appContext.getMyInstanceDetails().getInstanceId().toString())
+                        .build();
+        netClient.subscribe(
+                remoteHost,
+                subscribeMessage,
+                new SubscribeResponseHandler(
+                        subscriptionManager, nodeStateManager, remoteHost, destinationVertex));
+        PerformanceAnalyzerApp.RCA_GRAPH_METRICS_AGGREGATOR.updateStat(
+                RcaGraphMetrics.RCA_NODES_SUB_REQ_COUNT,
+                requesterVertex + ":" + destinationVertex,
+                1);
+    }
 
-  protected Set<InstanceDetails> getPeerInstances() {
-    return appContext.getPeerInstances();
-  }
+    protected Set<InstanceDetails> getPeerInstances() {
+        return appContext.getPeerInstances();
+    }
 }

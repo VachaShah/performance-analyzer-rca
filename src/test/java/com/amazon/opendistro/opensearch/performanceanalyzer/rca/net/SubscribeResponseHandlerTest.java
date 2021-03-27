@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.net;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.CertificateUtils;
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PluginSettings;
@@ -44,48 +45,67 @@ public class SubscribeResponseHandlerTest {
     public void setup() {
         ClassLoader classLoader = getClass().getClassLoader();
 
-        oldCertificateFile = PluginSettings.instance().getProperty(CertificateUtils.CERTIFICATE_FILE_PATH);
-        oldPrivateKeyFile = PluginSettings.instance().getProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH);
+        oldCertificateFile =
+                PluginSettings.instance().getProperty(CertificateUtils.CERTIFICATE_FILE_PATH);
+        oldPrivateKeyFile =
+                PluginSettings.instance().getProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH);
 
-        PluginSettings.instance().overrideProperty(CertificateUtils.CERTIFICATE_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/server/localhost.crt")).getFile());
-        PluginSettings.instance().overrideProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/server/localhost.key")).getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.CERTIFICATE_FILE_PATH,
+                        Objects.requireNonNull(classLoader.getResource("tls/server/localhost.crt"))
+                                .getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.PRIVATE_KEY_FILE_PATH,
+                        Objects.requireNonNull(classLoader.getResource("tls/server/localhost.key"))
+                                .getFile());
 
         GRPCConnectionManager grpcConnectionManager = new GRPCConnectionManager(true);
         subscriptionManager = new SubscriptionManager(grpcConnectionManager);
         nodeStateManager = new NodeStateManager(new AppContext());
 
         InstanceDetails remoteInstance = new InstanceDetails(HOST_ID, HOST, -1);
-        uut = new SubscribeResponseHandler(subscriptionManager, nodeStateManager, remoteInstance, GRAPH_NODE);
+        uut =
+                new SubscribeResponseHandler(
+                        subscriptionManager, nodeStateManager, remoteInstance, GRAPH_NODE);
     }
 
     @After
     public void tearDown() {
         if (oldCertificateFile != null) {
-            PluginSettings.instance().overrideProperty(CertificateUtils.CERTIFICATE_FILE_PATH, oldCertificateFile);
+            PluginSettings.instance()
+                    .overrideProperty(CertificateUtils.CERTIFICATE_FILE_PATH, oldCertificateFile);
         }
 
         if (oldPrivateKeyFile != null) {
-            PluginSettings.instance().overrideProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH, oldPrivateKeyFile);
+            PluginSettings.instance()
+                    .overrideProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH, oldPrivateKeyFile);
         }
     }
 
     @Test
     public void testOnNext() {
         // Test that onNext() properly processes a successful subscription message
-        SubscribeResponse success = SubscribeResponse.newBuilder()
-                .setSubscriptionStatus(SubscribeResponse.SubscriptionStatus.SUCCESS).build();
+        SubscribeResponse success =
+                SubscribeResponse.newBuilder()
+                        .setSubscriptionStatus(SubscribeResponse.SubscriptionStatus.SUCCESS)
+                        .build();
         uut.onNext(success);
-        Assert.assertEquals(subscriptionManager.getPublishersForNode(GRAPH_NODE), Sets.newHashSet(HOST_ID));
-        Assert.assertEquals(SubscribeResponse.SubscriptionStatus.SUCCESS,
+        Assert.assertEquals(
+                subscriptionManager.getPublishersForNode(GRAPH_NODE), Sets.newHashSet(HOST_ID));
+        Assert.assertEquals(
+                SubscribeResponse.SubscriptionStatus.SUCCESS,
                 nodeStateManager.getSubscriptionStatus(GRAPH_NODE, HOST_ID));
 
         // Test that onNext() properly processes a tag mismatch subscription message
-        SubscribeResponse mismatch = SubscribeResponse.newBuilder()
-                .setSubscriptionStatus(SubscribeResponse.SubscriptionStatus.TAG_MISMATCH).build();
+        SubscribeResponse mismatch =
+                SubscribeResponse.newBuilder()
+                        .setSubscriptionStatus(SubscribeResponse.SubscriptionStatus.TAG_MISMATCH)
+                        .build();
         uut.onNext(mismatch);
-        Assert.assertEquals(SubscribeResponse.SubscriptionStatus.TAG_MISMATCH,
+        Assert.assertEquals(
+                SubscribeResponse.SubscriptionStatus.TAG_MISMATCH,
                 nodeStateManager.getSubscriptionStatus(GRAPH_NODE, HOST_ID));
         SubscribeResponse unknown = SubscribeResponse.newBuilder().build();
         uut.onNext(unknown); // This line is included for branch coverage

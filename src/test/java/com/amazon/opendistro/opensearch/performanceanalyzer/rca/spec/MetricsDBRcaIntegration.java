@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.spec;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.GradleTaskForRca;
@@ -22,51 +23,50 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.Q
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.spec.helpers.AssertHelper;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jooq.Record;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(GradleTaskForRca.class)
 public class MetricsDBRcaIntegration {
-  @Test
-  public void testIntegration() throws Exception {
-    Queryable queryable = new MetricsDBProviderTestHelper();
-    List<List<String>> expectedReturn = new ArrayList<>();
-    List<String> cols =
-        new ArrayList<String>() {
-          {
-            this.add("ShardID");
-            this.add("IndexName");
-            this.add("Operation");
-            this.add("ShardRole");
-            this.add("sum");
-            this.add("avg");
-            this.add("min");
-            this.add("max");
-          }
-        };
-    List<String> row1 =
-        new ArrayList<String>() {
-          {
-            this.add("CPU_UtilizationShardID");
-            this.add("CPU_UtilizationIndexName");
-            this.add("CPU_UtilizationOperation");
-            this.add("CPU_UtilizationShardRole");
-            this.add("1.0");
-            this.add("1.0");
-            this.add("1.0");
-            this.add("1.0");
-          }
-        };
+    @Test
+    public void testIntegration() throws Exception {
+        Queryable queryable = new MetricsDBProviderTestHelper();
+        List<List<String>> expectedReturn = new ArrayList<>();
+        List<String> cols =
+                new ArrayList<String>() {
+                    {
+                        this.add("ShardID");
+                        this.add("IndexName");
+                        this.add("Operation");
+                        this.add("ShardRole");
+                        this.add("sum");
+                        this.add("avg");
+                        this.add("min");
+                        this.add("max");
+                    }
+                };
+        List<String> row1 =
+                new ArrayList<String>() {
+                    {
+                        this.add("CPU_UtilizationShardID");
+                        this.add("CPU_UtilizationIndexName");
+                        this.add("CPU_UtilizationOperation");
+                        this.add("CPU_UtilizationShardRole");
+                        this.add("1.0");
+                        this.add("1.0");
+                        this.add("1.0");
+                        this.add("1.0");
+                    }
+                };
 
-    expectedReturn.add(cols);
-    expectedReturn.add(row1);
+        expectedReturn.add(cols);
+        expectedReturn.add(row1);
 
-    MetricsDB db = queryable.getMetricsDB();
-    for (Record record :
-        queryable.queryMetrics(db, AllMetrics.OSMetrics.CPU_UTILIZATION.toString())) {
-      AssertHelper.compareRecord(cols, row1, record);
+        MetricsDB db = queryable.getMetricsDB();
+        for (Record record :
+                queryable.queryMetrics(db, AllMetrics.OSMetrics.CPU_UTILIZATION.toString())) {
+            AssertHelper.compareRecord(cols, row1, record);
+        }
     }
-  }
 }

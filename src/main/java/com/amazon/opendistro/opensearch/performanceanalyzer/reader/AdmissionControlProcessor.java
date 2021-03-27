@@ -15,16 +15,16 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader;
 
+
+import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared.Event;
 import com.amazon.opendistro.opensearch.performanceanalyzer.util.JsonConverter;
-import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
-import org.jooq.BatchBindStep;
-
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.NavigableMap;
+import org.jooq.BatchBindStep;
 
 public class AdmissionControlProcessor implements EventProcessor {
 
@@ -40,19 +40,18 @@ public class AdmissionControlProcessor implements EventProcessor {
     static AdmissionControlProcessor build(
             long currentWindowStartTime,
             Connection connection,
-            NavigableMap<Long, AdmissionControlSnapshot> admissionControlSnapshotNavigableMap
-    ) {
+            NavigableMap<Long, AdmissionControlSnapshot> admissionControlSnapshotNavigableMap) {
 
         if (admissionControlSnapshotNavigableMap.get(currentWindowStartTime) == null) {
-            AdmissionControlSnapshot admissionControlSnapshot = new AdmissionControlSnapshot(
-                    connection,
-                    currentWindowStartTime
-            );
-            admissionControlSnapshotNavigableMap.put(currentWindowStartTime, admissionControlSnapshot);
+            AdmissionControlSnapshot admissionControlSnapshot =
+                    new AdmissionControlSnapshot(connection, currentWindowStartTime);
+            admissionControlSnapshotNavigableMap.put(
+                    currentWindowStartTime, admissionControlSnapshot);
             return new AdmissionControlProcessor(admissionControlSnapshot);
         }
 
-        return new AdmissionControlProcessor(admissionControlSnapshotNavigableMap.get(currentWindowStartTime));
+        return new AdmissionControlProcessor(
+                admissionControlSnapshotNavigableMap.get(currentWindowStartTime));
     }
 
     @Override
@@ -80,19 +79,26 @@ public class AdmissionControlProcessor implements EventProcessor {
 
     private void processEvent(String eventValue) {
         String[] lines = eventValue.split(System.lineSeparator());
-        Arrays.stream(lines).forEach(line -> {
-            Map<String, Object> map = JsonConverter.createMapFrom(line);
-            String controller = (String) map.get(AllMetrics.AdmissionControlDimension.Constants.CONTROLLER_NAME);
-            long rejectionCount = getRejectionCount(map);
-            handle.bind(controller, rejectionCount);
-        });
+        Arrays.stream(lines)
+                .forEach(
+                        line -> {
+                            Map<String, Object> map = JsonConverter.createMapFrom(line);
+                            String controller =
+                                    (String)
+                                            map.get(
+                                                    AllMetrics.AdmissionControlDimension.Constants
+                                                            .CONTROLLER_NAME);
+                            long rejectionCount = getRejectionCount(map);
+                            handle.bind(controller, rejectionCount);
+                        });
     }
 
     private long getRejectionCount(Map<String, Object> map) {
-        Object rejectionCountObject = map.get(AllMetrics.AdmissionControlValue.Constants.REJECTION_COUNT);
+        Object rejectionCountObject =
+                map.get(AllMetrics.AdmissionControlValue.Constants.REJECTION_COUNT);
         return rejectionCountObject instanceof String
-                ? Long.parseLong((String)rejectionCountObject)
-                : ((Number)rejectionCountObject).longValue();
+                ? Long.parseLong((String) rejectionCountObject)
+                : ((Number) rejectionCountObject).longValue();
     }
 
     @Override

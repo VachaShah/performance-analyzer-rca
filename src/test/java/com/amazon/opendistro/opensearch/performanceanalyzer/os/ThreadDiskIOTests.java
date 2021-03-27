@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,19 +15,20 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.os;
 
+
 import org.junit.Test;
 
 public class ThreadDiskIOTests {
-  public static void main(String[] args) throws Exception {
-    runOnce();
-  }
+    public static void main(String[] args) throws Exception {
+        runOnce();
+    }
 
-  public static void runOnce() {
-    ThreadDiskIO.addSample();
-    System.out.println(ThreadDiskIO.getIOUtilization().toString());
-  }
+    public static void runOnce() {
+        ThreadDiskIO.addSample();
+        System.out.println(ThreadDiskIO.getIOUtilization().toString());
+    }
 
-  // - to enhance
-  @Test
-  public void testMetrics() {}
+    // - to enhance
+    @Test
+    public void testMetrics() {}
 }

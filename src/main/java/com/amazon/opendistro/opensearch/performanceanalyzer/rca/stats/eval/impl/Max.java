@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,22 +15,23 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.impl;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.Statistics;
 
 /** To get the maximum observed value */
 public class Max extends MinMaxCommon {
 
-  public Max() {
-    super(Long.MIN_VALUE);
-  }
+    public Max() {
+        super(Long.MIN_VALUE);
+    }
 
-  @Override
-  boolean shouldUpdate(Number v) {
-    return getOldVal().doubleValue() < v.doubleValue();
-  }
+    @Override
+    boolean shouldUpdate(Number v) {
+        return getOldVal().doubleValue() < v.doubleValue();
+    }
 
-  @Override
-  public Statistics type() {
-    return Statistics.MAX;
-  }
+    @Override
+    public Statistics type() {
+        return Statistics.MAX;
+    }
 }

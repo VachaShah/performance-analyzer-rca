@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.TopConsumerSummaryMessage;
@@ -52,7 +53,8 @@ public class TopConsumerSummaryTest {
 
     @Test
     public void testBuildTopConsumerSummaryFromMessage() {
-        TopConsumerSummary summary = TopConsumerSummary.buildTopConsumerSummaryFromMessage(uut.buildSummaryMessage());
+        TopConsumerSummary summary =
+                TopConsumerSummary.buildTopConsumerSummaryFromMessage(uut.buildSummaryMessage());
         Assert.assertEquals(uut.getName(), summary.getName());
         Assert.assertEquals(uut.getValue(), summary.getValue(), 0);
     }
@@ -73,9 +75,13 @@ public class TopConsumerSummaryTest {
         Assert.assertEquals(2, schema.size());
         Field<?> nameField = schema.get(0);
         Field<?> valueField = schema.get(1);
-        Assert.assertEquals(TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_NAME_COL_NAME, nameField.getName());
+        Assert.assertEquals(
+                TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_NAME_COL_NAME,
+                nameField.getName());
         Assert.assertEquals(String.class, nameField.getType());
-        Assert.assertEquals(TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_VALUE_COL_NAME, valueField.getName());
+        Assert.assertEquals(
+                TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_VALUE_COL_NAME,
+                valueField.getName());
         Assert.assertEquals(Double.class, valueField.getType());
     }
 
@@ -92,9 +98,14 @@ public class TopConsumerSummaryTest {
         JsonElement elem = uut.toJson();
         Assert.assertTrue(elem.isJsonObject());
         JsonObject json = ((JsonObject) elem);
-        Assert.assertEquals(NAME,
-            json.get(TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_NAME_COL_NAME).getAsString());
-        Assert.assertEquals(VALUE,
-            json.get(TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_VALUE_COL_NAME).getAsDouble(), 0.0);
+        Assert.assertEquals(
+                NAME,
+                json.get(TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_NAME_COL_NAME)
+                        .getAsString());
+        Assert.assertEquals(
+                VALUE,
+                json.get(TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_VALUE_COL_NAME)
+                        .getAsDouble(),
+                0.0);
     }
 }

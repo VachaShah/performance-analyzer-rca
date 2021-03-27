@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units.ResourceFlowUnit;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.HotClusterSummary;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.admission_control.AdmissionControlClusterRca;
-
 import java.time.Instant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +31,10 @@ public class AdmissionControlDecider extends Decider {
     private int counter = 0;
     private AdmissionControlClusterRca admissionControlClusterRca;
 
-    public AdmissionControlDecider(long evalIntervalSeconds, int decisionFrequency, AdmissionControlClusterRca admissionControlClusterRca) {
+    public AdmissionControlDecider(
+            long evalIntervalSeconds,
+            int decisionFrequency,
+            AdmissionControlClusterRca admissionControlClusterRca) {
         super(evalIntervalSeconds, decisionFrequency);
         this.admissionControlClusterRca = admissionControlClusterRca;
     }
@@ -49,7 +52,8 @@ public class AdmissionControlDecider extends Decider {
             return decision;
         }
         counter = 0;
-        for (ResourceFlowUnit<HotClusterSummary> flowUnit : admissionControlClusterRca.getFlowUnits()) {
+        for (ResourceFlowUnit<HotClusterSummary> flowUnit :
+                admissionControlClusterRca.getFlowUnits()) {
             if (flowUnit.hasResourceSummary()) {
                 LOG.warn("encountered an unhealthy admissionControlClusterRca flowUnit");
                 return decision;

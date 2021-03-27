@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.spec;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.MetricsDBProvider;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.spec.helpers.OSMetricHelper;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -30,79 +30,79 @@ import java.util.List;
 
 public class MetricsDBProviderTestHelper extends MetricsDBProvider {
 
-  private MetricsDB db;
-  private final String DB_FILENAME = "metricsdb_4_rca.sqlite";
+    private MetricsDB db;
+    private final String DB_FILENAME = "metricsdb_4_rca.sqlite";
 
-  public MetricsDBProviderTestHelper() throws Exception {
-    this(true);
-  }
-
-  public MetricsDBProviderTestHelper(boolean fillData) throws Exception {
-    System.setProperty("java.io.tmpdir", "/tmp");
-
-    // Cleanup the file if exists.
-    try {
-      Files.delete(Paths.get(DB_FILENAME));
-    } catch (NoSuchFileException ignored) {
+    public MetricsDBProviderTestHelper() throws Exception {
+        this(true);
     }
 
-    try {
-      Files.delete(Paths.get(DB_FILENAME + "-journal"));
-    } catch (NoSuchFileException ignored) {
+    public MetricsDBProviderTestHelper(boolean fillData) throws Exception {
+        System.setProperty("java.io.tmpdir", "/tmp");
+
+        // Cleanup the file if exists.
+        try {
+            Files.delete(Paths.get(DB_FILENAME));
+        } catch (NoSuchFileException ignored) {
+        }
+
+        try {
+            Files.delete(Paths.get(DB_FILENAME + "-journal"));
+        } catch (NoSuchFileException ignored) {
+        }
+
+        // TODO: clean up the DB after the tests are done.
+        db =
+                new MetricsDB(System.currentTimeMillis()) {
+                    @Override
+                    public String getDBFilePath() {
+                        // final String dir = System.getProperty("user.dir");
+                        Path configPath = Paths.get(DB_FILENAME);
+                        return configPath.toString();
+                    }
+
+                    @Override
+                    public void deleteOnDiskFile() {
+                        try {
+                            Files.delete(Paths.get(getDBFilePath()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+
+        createAllOsMetricsTables();
+        if (fillData) {
+            fillWithData();
+        }
     }
 
-    // TODO: clean up the DB after the tests are done.
-    db =
-        new MetricsDB(System.currentTimeMillis()) {
-          @Override
-          public String getDBFilePath() {
-            // final String dir = System.getProperty("user.dir");
-            Path configPath = Paths.get(DB_FILENAME);
-            return configPath.toString();
-          }
-
-          @Override
-          public void deleteOnDiskFile() {
-            try {
-              Files.delete(Paths.get(getDBFilePath()));
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
-          }
-        };
-
-    createAllOsMetricsTables();
-    if (fillData) {
-      fillWithData();
+    @Override
+    public MetricsDB getMetricsDB() throws Exception {
+        return db;
     }
-  }
 
-  @Override
-  public MetricsDB getMetricsDB() throws Exception {
-    return db;
-  }
-
-  private void createAllOsMetricsTables() {
-    Arrays.stream(AllMetrics.OSMetrics.values())
-        .forEach((metric) -> OSMetricHelper.create(db, metric.toString()));
-  }
-
-  private void fillWithData() {
-    int fakeTimeVal = 0;
-    for (AllMetrics.OSMetrics metric : AllMetrics.OSMetrics.values()) {
-      OSMetricHelper.insert(db, metric.toString(), ++fakeTimeVal);
+    private void createAllOsMetricsTables() {
+        Arrays.stream(AllMetrics.OSMetrics.values())
+                .forEach((metric) -> OSMetricHelper.create(db, metric.toString()));
     }
-  }
 
-  private void addNewData(String metricName, double value) {
-    OSMetricHelper.insert(db, metricName, value);
-  }
+    private void fillWithData() {
+        int fakeTimeVal = 0;
+        for (AllMetrics.OSMetrics metric : AllMetrics.OSMetrics.values()) {
+            OSMetricHelper.insert(db, metric.toString(), ++fakeTimeVal);
+        }
+    }
 
-  public void addNewData(String metricName, List<String> dims, double value) {
-    OSMetricHelper.insert(db, metricName, value, dims);
-  }
+    private void addNewData(String metricName, double value) {
+        OSMetricHelper.insert(db, metricName, value);
+    }
 
-  public void addNewData(String metricName, List<Double> values) {
-    values.forEach((a) -> addNewData(metricName, a));
-  }
+    public void addNewData(String metricName, List<String> dims, double value) {
+        OSMetricHelper.insert(db, metricName, value, dims);
+    }
+
+    public void addNewData(String metricName, List<Double> values) {
+        values.forEach((a) -> addNewData(metricName, a));
+    }
 }

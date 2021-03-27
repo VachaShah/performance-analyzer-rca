@@ -25,9 +25,11 @@ public class RcaStateSamplersTest {
     private RcaStateSamplers uut;
 
     @Test
-    public void testGetRcaEnabledSampler() {  // done for constructor coverage
+    public void testGetRcaEnabledSampler() { // done for constructor coverage
         uut = new RcaStateSamplers();
         assertSame(uut.getClass(), RcaStateSamplers.class);
-        assertTrue(RcaStateSamplers.getRcaEnabledSampler(new AppContext()) instanceof RcaEnabledSampler);
+        assertTrue(
+                RcaStateSamplers.getRcaEnabledSampler(new AppContext())
+                        instanceof RcaEnabledSampler);
     }
 }

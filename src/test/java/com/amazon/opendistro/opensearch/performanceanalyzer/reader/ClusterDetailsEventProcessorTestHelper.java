@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,66 +15,67 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.overrides.ConfigOverrides;
+import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared.Event;
 import com.amazon.opendistro.opensearch.performanceanalyzer.util.JsonConverter;
-import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClusterDetailsEventProcessorTestHelper extends AbstractReaderTests {
 
-  private static final String SEPARATOR = System.getProperty("line.separator");
-  List<String> nodeDetails;
+    private static final String SEPARATOR = System.getProperty("line.separator");
+    List<String> nodeDetails;
 
-  public ClusterDetailsEventProcessorTestHelper() throws SQLException, ClassNotFoundException {
-    super();
-    nodeDetails = new ArrayList<>();
-  }
-
-  public void addNodeDetails(String nodeId, String address, boolean isMasterNode) {
-    nodeDetails.add(createNodeDetailsMetrics(nodeId, address, isMasterNode));
-  }
-
-  public void addNodeDetails(String nodeId, String address, AllMetrics.NodeRole nodeRole, boolean isMasterNode) {
-    nodeDetails.add(createNodeDetailsMetrics(nodeId, address, nodeRole, isMasterNode));
-  }
-
-  public static ClusterDetailsEventProcessor.NodeDetails newNodeDetails(final String nodeId, final String address,
-                                                                        final boolean isMasterNode) {
-    return createNodeDetails(nodeId, address, isMasterNode);
-  }
-
-  public ClusterDetailsEventProcessor generateClusterDetailsEvent() {
-    if (nodeDetails.isEmpty()) {
-      return new ClusterDetailsEventProcessor();
+    public ClusterDetailsEventProcessorTestHelper() throws SQLException, ClassNotFoundException {
+        super();
+        nodeDetails = new ArrayList<>();
     }
-    Event testEvent = generateTestEvent();
-    ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
-    clusterDetailsEventProcessor.processEvent(testEvent);
-    return clusterDetailsEventProcessor;
-  }
 
-  public Event generateTestEvent() {
-    return generateTestEventWithOverrides(new ConfigOverrides());
-  }
+    public void addNodeDetails(String nodeId, String address, boolean isMasterNode) {
+        nodeDetails.add(createNodeDetailsMetrics(nodeId, address, isMasterNode));
+    }
 
-  public Event generateTestEventWithOverrides(ConfigOverrides overrides) {
-    StringBuilder stringBuilder = new StringBuilder()
-        .append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds());
-    stringBuilder.append(SEPARATOR);
-    stringBuilder.append(JsonConverter.writeValueAsString(overrides));
-    stringBuilder.append(SEPARATOR);
-    stringBuilder.append(System.currentTimeMillis());
-    nodeDetails.stream().forEach(
-        node -> {
-          stringBuilder.append(SEPARATOR)
-                       .append(node);
+    public void addNodeDetails(
+            String nodeId, String address, AllMetrics.NodeRole nodeRole, boolean isMasterNode) {
+        nodeDetails.add(createNodeDetailsMetrics(nodeId, address, nodeRole, isMasterNode));
+    }
+
+    public static ClusterDetailsEventProcessor.NodeDetails newNodeDetails(
+            final String nodeId, final String address, final boolean isMasterNode) {
+        return createNodeDetails(nodeId, address, isMasterNode);
+    }
+
+    public ClusterDetailsEventProcessor generateClusterDetailsEvent() {
+        if (nodeDetails.isEmpty()) {
+            return new ClusterDetailsEventProcessor();
         }
-    );
-    return new Event("", stringBuilder.toString(), 0);
-  }
+        Event testEvent = generateTestEvent();
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
+        clusterDetailsEventProcessor.processEvent(testEvent);
+        return clusterDetailsEventProcessor;
+    }
+
+    public Event generateTestEvent() {
+        return generateTestEventWithOverrides(new ConfigOverrides());
+    }
+
+    public Event generateTestEventWithOverrides(ConfigOverrides overrides) {
+        StringBuilder stringBuilder =
+                new StringBuilder().append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds());
+        stringBuilder.append(SEPARATOR);
+        stringBuilder.append(JsonConverter.writeValueAsString(overrides));
+        stringBuilder.append(SEPARATOR);
+        stringBuilder.append(System.currentTimeMillis());
+        nodeDetails.stream()
+                .forEach(
+                        node -> {
+                            stringBuilder.append(SEPARATOR).append(node);
+                        });
+        return new Event("", stringBuilder.toString(), 0);
+    }
 }

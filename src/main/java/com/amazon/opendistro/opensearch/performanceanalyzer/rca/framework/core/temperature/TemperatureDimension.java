@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,17 +15,21 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.metrics.ShardSize;
 
 /**
- * This class contains the dimensions over which we are calculating the Temperature profile.
- * We are persisting both the raw metrics and the calculated normalized values for the dimensions
- * defined in this class.
+ * This class contains the dimensions over which we are calculating the Temperature profile. We are
+ * persisting both the raw metrics and the calculated normalized values for the dimensions defined
+ * in this class.
  */
-
 public enum TemperatureDimension {
-    CPU_Utilization(com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.metrics.CPU_Utilization.NAME),
-    Heap_AllocRate(com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.metrics.Heap_AllocRate.NAME),
+    CPU_Utilization(
+            com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.metrics
+                    .CPU_Utilization.NAME),
+    Heap_AllocRate(
+            com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.metrics
+                    .Heap_AllocRate.NAME),
     Shard_Size_In_Bytes(ShardSize.NAME);
 
     public final String NAME;

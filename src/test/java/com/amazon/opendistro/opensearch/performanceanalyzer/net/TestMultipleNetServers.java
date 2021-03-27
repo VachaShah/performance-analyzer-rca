@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.net;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
@@ -93,58 +94,66 @@ public class TestMultipleNetServers {
                 AllMetrics.NodeRole.DATA, instance, "127.0.0.1", false, port);
     }
 
-    private ClusterDetailsEventProcessor createClusterDetails(ClusterDetailsEventProcessor.NodeDetails node1,
-                                                              ClusterDetailsEventProcessor.NodeDetails node2) {
-        ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
+    private ClusterDetailsEventProcessor createClusterDetails(
+            ClusterDetailsEventProcessor.NodeDetails node1,
+            ClusterDetailsEventProcessor.NodeDetails node2) {
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
         clusterDetailsEventProcessor.setNodesDetails(Lists.newArrayList(node1, node2));
         return clusterDetailsEventProcessor;
     }
 
     public WireHopper setUpWireHopper(String instance1, int port1, String instance2, int port2) {
-        ClusterDetailsEventProcessor clusterDetailsEventProcessor = createClusterDetails(
-                createNodeDetails(port1, instance1),
-                createNodeDetails(port2, instance2)
-        );
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                createClusterDetails(
+                        createNodeDetails(port1, instance1), createNodeDetails(port2, instance2));
 
         AppContext appContext = new AppContext();
         appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
 
         GRPCConnectionManager connectionManager = new GRPCConnectionManager(false);
         NodeStateManager nodeStateManager = new NodeStateManager(appContext);
-        AtomicReference<ExecutorService> clientExecutor = new AtomicReference<>(Executors.newSingleThreadExecutor());
+        AtomicReference<ExecutorService> clientExecutor =
+                new AtomicReference<>(Executors.newSingleThreadExecutor());
         NetClient netClient = new NetClient(connectionManager);
         SubscriptionManager subscriptionManager = new SubscriptionManager(connectionManager);
         ReceivedFlowUnitStore receivedFlowUnitStore = new ReceivedFlowUnitStore();
 
-        return new WireHopper(nodeStateManager, netClient, subscriptionManager, clientExecutor, receivedFlowUnitStore,
+        return new WireHopper(
+                nodeStateManager,
+                netClient,
+                subscriptionManager,
+                clientExecutor,
+                receivedFlowUnitStore,
                 appContext);
     }
 
     @Before
     public void setUp() {
         wireHopper1 = setUpWireHopper("instance1", port1, "instance2", port2);
-        netServer1.setSendDataHandler(new PublishRequestHandler(
-                wireHopper1.getNodeStateManager(),
-                wireHopper1.getReceivedFlowUnitStore(),
-                wireHopper1.getExecutorReference()));
+        netServer1.setSendDataHandler(
+                new PublishRequestHandler(
+                        wireHopper1.getNodeStateManager(),
+                        wireHopper1.getReceivedFlowUnitStore(),
+                        wireHopper1.getExecutorReference()));
         netServer1.setSubscribeHandler(
                 new SubscribeServerHandler(
-                        wireHopper1.getSubscriptionManager(),
-                        wireHopper1.getExecutorReference()));
+                        wireHopper1.getSubscriptionManager(), wireHopper1.getExecutorReference()));
 
         wireHopper2 = setUpWireHopper("instance2", port2, "instance1", port1);
-        netServer2.setSendDataHandler(new PublishRequestHandler(
-                wireHopper2.getNodeStateManager(),
-                wireHopper2.getReceivedFlowUnitStore(),
-                wireHopper2.getExecutorReference()));
+        netServer2.setSendDataHandler(
+                new PublishRequestHandler(
+                        wireHopper2.getNodeStateManager(),
+                        wireHopper2.getReceivedFlowUnitStore(),
+                        wireHopper2.getExecutorReference()));
         netServer2.setSubscribeHandler(
                 new SubscribeServerHandler(
-                        wireHopper2.getSubscriptionManager(),
-                        wireHopper2.getExecutorReference()));
+                        wireHopper2.getSubscriptionManager(), wireHopper2.getExecutorReference()));
     }
 
     /**
-     * This test tries to create multiple NetServers on the same host, each listening on a different port.
+     * This test tries to create multiple NetServers on the same host, each listening on a different
+     * port.
      */
     @Test
     public void multipleNetServers() throws Exception {
@@ -154,22 +163,32 @@ public class TestMultipleNetServers {
         Map<String, String> rcaConfTags = new HashMap<>();
         rcaConfTags.put("locus", RcaConsts.RcaTagConstants.LOCUS_DATA_NODE);
         IntentMsg msg = new IntentMsg(gNode1, gNode2, rcaConfTags);
-        wireHopper2.getSubscriptionManager().setCurrentLocus(RcaConsts.RcaTagConstants.LOCUS_DATA_NODE);
+        wireHopper2
+                .getSubscriptionManager()
+                .setCurrentLocus(RcaConsts.RcaTagConstants.LOCUS_DATA_NODE);
 
         wireHopper1.sendIntent(msg);
 
-        WaitFor.waitFor(() ->
-                        wireHopper2.getSubscriptionManager().getSubscribersFor(gNode2).size() == 1,
+        WaitFor.waitFor(
+                () -> wireHopper2.getSubscriptionManager().getSubscribersFor(gNode2).size() == 1,
                 10,
                 TimeUnit.SECONDS);
         GenericFlowUnit flowUnit = new SymptomFlowUnit(System.currentTimeMillis());
-        DataMsg dmsg = new DataMsg(gNode2, Lists.newArrayList(gNode1), Collections.singletonList(flowUnit));
+        DataMsg dmsg =
+                new DataMsg(
+                        gNode2, Lists.newArrayList(gNode1), Collections.singletonList(flowUnit));
         wireHopper2.sendData(dmsg);
-        wireHopper1.getSubscriptionManager().setCurrentLocus(RcaConsts.RcaTagConstants.LOCUS_DATA_NODE);
+        wireHopper1
+                .getSubscriptionManager()
+                .setCurrentLocus(RcaConsts.RcaTagConstants.LOCUS_DATA_NODE);
 
-        WaitFor.waitFor(() -> {
-            List<FlowUnitMessage> receivedMags = wireHopper1.getReceivedFlowUnitStore().drainNode(gNode2);
-            return receivedMags.size() == 1;
-        }, 10, TimeUnit.SECONDS);
+        WaitFor.waitFor(
+                () -> {
+                    List<FlowUnitMessage> receivedMags =
+                            wireHopper1.getReceivedFlowUnitStore().drainNode(gNode2);
+                    return receivedMags.size() == 1;
+                },
+                10,
+                TimeUnit.SECONDS);
     }
 }

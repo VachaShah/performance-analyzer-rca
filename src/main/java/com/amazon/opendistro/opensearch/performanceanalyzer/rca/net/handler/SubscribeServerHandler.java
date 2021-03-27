@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.net.handler;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatExceptionCode;
@@ -31,37 +32,40 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Service handler for the subscribe RPC
- */
+/** Service handler for the subscribe RPC */
 public class SubscribeServerHandler {
 
-  private static final Logger LOG = LogManager.getLogger(SubscribeServerHandler.class);
-  private final AtomicReference<ExecutorService> executorServiceAtomicReference;
-  private final SubscriptionManager subscriptionManager;
+    private static final Logger LOG = LogManager.getLogger(SubscribeServerHandler.class);
+    private final AtomicReference<ExecutorService> executorServiceAtomicReference;
+    private final SubscriptionManager subscriptionManager;
 
-  public SubscribeServerHandler(final SubscriptionManager subscriptionManager,
-      final AtomicReference<ExecutorService> executorServiceAtomicReference) {
-    this.executorServiceAtomicReference = executorServiceAtomicReference;
-    this.subscriptionManager = subscriptionManager;
-  }
-
-  public void handleSubscriptionRequest(
-      final SubscribeMessage request, final StreamObserver<SubscribeResponse> responseObserver) {
-    final CompositeSubscribeRequest subscribeRequest = new CompositeSubscribeRequest(request,
-        responseObserver);
-    final ExecutorService executorService = executorServiceAtomicReference.get();
-    if (executorService != null) {
-      try {
-        executorService.execute(new SubscriptionRxTask(subscriptionManager, subscribeRequest));
-        PerformanceAnalyzerApp.RCA_GRAPH_METRICS_AGGREGATOR.updateStat(RcaGraphMetrics.NET_BYTES_IN,
-            subscribeRequest.getSubscribeMessage().getRequesterGraphNode(),
-            subscribeRequest.getSubscribeMessage().getSerializedSize());
-      } catch (final RejectedExecutionException ree) {
-        LOG.warn("Dropped processing subscription request because the network threadpool is full");
-        StatsCollector.instance()
-                      .logException(StatExceptionCode.RCA_NETWORK_THREADPOOL_QUEUE_FULL_ERROR);
-      }
+    public SubscribeServerHandler(
+            final SubscriptionManager subscriptionManager,
+            final AtomicReference<ExecutorService> executorServiceAtomicReference) {
+        this.executorServiceAtomicReference = executorServiceAtomicReference;
+        this.subscriptionManager = subscriptionManager;
     }
-  }
+
+    public void handleSubscriptionRequest(
+            final SubscribeMessage request,
+            final StreamObserver<SubscribeResponse> responseObserver) {
+        final CompositeSubscribeRequest subscribeRequest =
+                new CompositeSubscribeRequest(request, responseObserver);
+        final ExecutorService executorService = executorServiceAtomicReference.get();
+        if (executorService != null) {
+            try {
+                executorService.execute(
+                        new SubscriptionRxTask(subscriptionManager, subscribeRequest));
+                PerformanceAnalyzerApp.RCA_GRAPH_METRICS_AGGREGATOR.updateStat(
+                        RcaGraphMetrics.NET_BYTES_IN,
+                        subscribeRequest.getSubscribeMessage().getRequesterGraphNode(),
+                        subscribeRequest.getSubscribeMessage().getSerializedSize());
+            } catch (final RejectedExecutionException ree) {
+                LOG.warn(
+                        "Dropped processing subscription request because the network threadpool is full");
+                StatsCollector.instance()
+                        .logException(StatExceptionCode.RCA_NETWORK_THREADPOOL_QUEUE_FULL_ERROR);
+            }
+        }
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.byShard.calculators;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature.TemperatureDimension;
 import java.util.List;
-
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -26,8 +26,8 @@ import org.jooq.SelectSeekStep1;
 import org.jooq.impl.DSL;
 
 /**
- * This builds over the query from {@code SumOverOperationsForIndexShardGroup}.
- * It calculates the average over all index,shard groups.
+ * This builds over the query from {@code SumOverOperationsForIndexShardGroup}. It calculates the
+ * average over all index,shard groups.
  */
 public class AvgShardBasedTemperatureCalculator extends ShardBasedTemperatureCalculator {
     public AvgShardBasedTemperatureCalculator(TemperatureDimension metricType) {
@@ -44,13 +44,15 @@ public class AvgShardBasedTemperatureCalculator extends ShardBasedTemperatureCal
     // This uses the return from the getSumOfUtilByIndexShardGroup as inner query and gets an
     // average over all index-shard groups.
     @Override
-    protected Result<Record> createDslAndFetch(final DSLContext context,
-                                               final String tableName,
-                                               final Field<?> aggDimension,
-                                               final List<Field<?>> groupByFieldsList,
-                                               final List<Field<?>> selectFieldsList) {
+    protected Result<Record> createDslAndFetch(
+            final DSLContext context,
+            final String tableName,
+            final Field<?> aggDimension,
+            final List<Field<?>> groupByFieldsList,
+            final List<Field<?>> selectFieldsList) {
         SelectSeekStep1<Record, ?> sumByIndexShardGroupsClause =
-                getSumOfUtilByIndexShardGroup(context, tableName, aggDimension, groupByFieldsList, selectFieldsList);
+                getSumOfUtilByIndexShardGroup(
+                        context, tableName, aggDimension, groupByFieldsList, selectFieldsList);
 
         selectFieldsList.clear();
 

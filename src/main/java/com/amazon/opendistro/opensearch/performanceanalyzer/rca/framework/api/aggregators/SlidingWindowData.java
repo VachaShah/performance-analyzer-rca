@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -20,35 +20,32 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.a
  * {@link SlidingWindow}
  */
 public class SlidingWindowData {
-  protected long timeStamp;
-  protected double value;
+    protected long timeStamp;
+    protected double value;
 
-  public SlidingWindowData() {
-    this.timeStamp = -1;
-    this.value = -1;
-  }
+    public SlidingWindowData() {
+        this.timeStamp = -1;
+        this.value = -1;
+    }
 
-  public SlidingWindowData(long timeStamp, double value) {
-    this.timeStamp = timeStamp;
-    this.value = value;
-  }
+    public SlidingWindowData(long timeStamp, double value) {
+        this.timeStamp = timeStamp;
+        this.value = value;
+    }
 
-  public long getTimeStamp() {
-    return this.timeStamp;
-  }
+    public long getTimeStamp() {
+        return this.timeStamp;
+    }
 
-  public void setTimeStamp(long timeStamp) {
-    this.timeStamp = timeStamp;
-  }
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
+    }
 
-  public double getValue() {
-    return this.value;
-  }
+    public double getValue() {
+        return this.value;
+    }
 
-  public void setValue(double value) {
-    this.value = value;
-  }
+    public void setValue(double value) {
+        this.value = value;
+    }
 }
-
-
-

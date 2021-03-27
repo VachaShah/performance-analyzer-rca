@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,43 +15,51 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders.configs;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.RcaConf;
 import java.util.Arrays;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 public class CachePriorityOrderConfigTest {
 
-  @Test
-  public void testConfigOverrides() throws Exception {
-    final String configStr =
-        "{"
-            + "\"decider-config-settings\": { "
-              + "\"cache-type\": { "
-                + "\"priority-order\": [\"test-fielddata-cache\", "
-                + "\"test-shard-request-cache\", \"test-query-cache\", \"test-bitset-filter-cache\"] "
-              + "} "
-            + "} "
-        + "} ";
-    RcaConf conf = new RcaConf();
-    conf.readConfigFromString(configStr);
-    DeciderConfig deciderConfig = new DeciderConfig(conf);
-    CachePriorityOrderConfig cachePriorityOrderConfig = deciderConfig.getCachePriorityOrderConfig();
-    Assert.assertNotNull(cachePriorityOrderConfig);
-    Assert.assertEquals(
-        Arrays.asList("test-fielddata-cache", "test-shard-request-cache", "test-query-cache",
-            "test-bitset-filter-cache"), cachePriorityOrderConfig.getPriorityOrder());
-  }
+    @Test
+    public void testConfigOverrides() throws Exception {
+        final String configStr =
+                "{"
+                        + "\"decider-config-settings\": { "
+                        + "\"cache-type\": { "
+                        + "\"priority-order\": [\"test-fielddata-cache\", "
+                        + "\"test-shard-request-cache\", \"test-query-cache\", \"test-bitset-filter-cache\"] "
+                        + "} "
+                        + "} "
+                        + "} ";
+        RcaConf conf = new RcaConf();
+        conf.readConfigFromString(configStr);
+        DeciderConfig deciderConfig = new DeciderConfig(conf);
+        CachePriorityOrderConfig cachePriorityOrderConfig =
+                deciderConfig.getCachePriorityOrderConfig();
+        Assert.assertNotNull(cachePriorityOrderConfig);
+        Assert.assertEquals(
+                Arrays.asList(
+                        "test-fielddata-cache",
+                        "test-shard-request-cache",
+                        "test-query-cache",
+                        "test-bitset-filter-cache"),
+                cachePriorityOrderConfig.getPriorityOrder());
+    }
 
-  @Test
-  public void testDefaults() throws Exception {
-    final String configStr = "{}";
-    RcaConf conf = new RcaConf();
-    conf.readConfigFromString(configStr);
-    DeciderConfig deciderConfig = new DeciderConfig(conf);
-    CachePriorityOrderConfig cachePriorityOrderConfig = deciderConfig.getCachePriorityOrderConfig();
-    Assert.assertNotNull(cachePriorityOrderConfig);
-    Assert.assertEquals(CachePriorityOrderConfig.DEFAULT_PRIORITY_ORDER, cachePriorityOrderConfig.getPriorityOrder());
-  }
+    @Test
+    public void testDefaults() throws Exception {
+        final String configStr = "{}";
+        RcaConf conf = new RcaConf();
+        conf.readConfigFromString(configStr);
+        DeciderConfig deciderConfig = new DeciderConfig(conf);
+        CachePriorityOrderConfig cachePriorityOrderConfig =
+                deciderConfig.getCachePriorityOrderConfig();
+        Assert.assertNotNull(cachePriorityOrderConfig);
+        Assert.assertEquals(
+                CachePriorityOrderConfig.DEFAULT_PRIORITY_ORDER,
+                cachePriorityOrderConfig.getPriorityOrder());
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,31 +15,32 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders.configs;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.Config;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.NestedConfig;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * "cache-type": {
- *    "priority-order": ["fielddata-cache", "shard-request-cache"]
- * }
- */
+/** "cache-type": { "priority-order": ["fielddata-cache", "shard-request-cache"] } */
 public class CachePriorityOrderConfig {
-  private static final String PRIORITY_ORDER_CONFIG_NAME = "priority-order";
-  private static String FIELDDATA_CACHE = "fielddata-cache";
-  private static String SHARD_REQUEST_CACHE = "shard-request-cache";
-  public static final List<String> DEFAULT_PRIORITY_ORDER = Collections.unmodifiableList(
-      Arrays.asList(FIELDDATA_CACHE, SHARD_REQUEST_CACHE));
-  private Config<List<String>> priorityOrder;
+    private static final String PRIORITY_ORDER_CONFIG_NAME = "priority-order";
+    private static String FIELDDATA_CACHE = "fielddata-cache";
+    private static String SHARD_REQUEST_CACHE = "shard-request-cache";
+    public static final List<String> DEFAULT_PRIORITY_ORDER =
+            Collections.unmodifiableList(Arrays.asList(FIELDDATA_CACHE, SHARD_REQUEST_CACHE));
+    private Config<List<String>> priorityOrder;
 
-  public CachePriorityOrderConfig(NestedConfig configs) {
-    priorityOrder = new Config(PRIORITY_ORDER_CONFIG_NAME, configs.getValue(),
-        DEFAULT_PRIORITY_ORDER, List.class);
-  }
+    public CachePriorityOrderConfig(NestedConfig configs) {
+        priorityOrder =
+                new Config(
+                        PRIORITY_ORDER_CONFIG_NAME,
+                        configs.getValue(),
+                        DEFAULT_PRIORITY_ORDER,
+                        List.class);
+    }
 
-  public List<String> getPriorityOrder() {
-    return priorityOrder.getValue();
-  }
+    public List<String> getPriorityOrder() {
+        return priorityOrder.getValue();
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,23 +15,24 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.GenericSummary;
 import org.jooq.Record;
 
 public class SummaryBuilder<T extends GenericSummary> {
-  private final String tableName;
-  SummaryBuilderFunction<T> builder;
+    private final String tableName;
+    SummaryBuilderFunction<T> builder;
 
-  public SummaryBuilder(final String tableName, SummaryBuilderFunction<T> builder) {
-    this.tableName = tableName;
-    this.builder = builder;
-  }
+    public SummaryBuilder(final String tableName, SummaryBuilderFunction<T> builder) {
+        this.tableName = tableName;
+        this.builder = builder;
+    }
 
-  public GenericSummary buildSummary(Record record) {
-    return builder.buildSummary(record);
-  }
+    public GenericSummary buildSummary(Record record) {
+        return builder.buildSummary(record);
+    }
 
-  public String getTableName() {
-    return tableName;
-  }
+    public String getTableName() {
+        return tableName;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.contexts;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Resources;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.GenericContext;
 
 public class SymptomContext extends GenericContext {
-  public SymptomContext(Resources.State state) {
-    super(state);
-  }
+    public SymptomContext(Resources.State state) {
+        super(state);
+    }
 
-  public static SymptomContext generic() {
-    return new SymptomContext(Resources.State.UNKNOWN);
-  }
+    public static SymptomContext generic() {
+        return new SymptomContext(Resources.State.UNKNOWN);
+    }
 }

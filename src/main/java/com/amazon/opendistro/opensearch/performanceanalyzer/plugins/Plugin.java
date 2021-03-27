@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -18,13 +18,12 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.plugins;
 /**
  * Allows adding custom extensions to the analysis graph.
  *
- * <p>RCA framework plugins can be installed to extend the analysis graph through custom
- * metric nodes, rca nodes, deciders or action listeners. These can subscribe to flow
- * units from existing nodes to add new functionality, or override existing graph nodes to
- * customize for specific use cases.
+ * <p>RCA framework plugins can be installed to extend the analysis graph through custom metric
+ * nodes, rca nodes, deciders or action listeners. These can subscribe to flow units from existing
+ * nodes to add new functionality, or override existing graph nodes to customize for specific use
+ * cases.
  */
 public abstract class Plugin {
 
-  public abstract String name();
-
+    public abstract String name();
 }

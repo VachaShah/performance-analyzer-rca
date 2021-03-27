@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units.temperature;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.contexts.ResourceContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units.ResourceFlowUnit;
@@ -24,8 +25,8 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.I
 public class ClusterTemperatureFlowUnit extends ResourceFlowUnit<ClusterTemperatureSummary> {
     private final ClusterTemperatureSummary clusterTemperatureSummary;
 
-    public ClusterTemperatureFlowUnit(long timeStamp, ResourceContext context,
-                                      ClusterTemperatureSummary resourceSummary) {
+    public ClusterTemperatureFlowUnit(
+            long timeStamp, ResourceContext context, ClusterTemperatureSummary resourceSummary) {
         super(timeStamp, context, resourceSummary, true);
         clusterTemperatureSummary = resourceSummary;
     }
@@ -37,8 +38,8 @@ public class ClusterTemperatureFlowUnit extends ResourceFlowUnit<ClusterTemperat
 
     @Override
     public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id esNode) {
-        throw new IllegalStateException(this.getClass().getSimpleName() + " should not be passed "
-                + "over the wire.");
+        throw new IllegalStateException(
+                this.getClass().getSimpleName() + " should not be passed " + "over the wire.");
     }
 
     public ClusterTemperatureSummary getClusterTemperatureSummary() {

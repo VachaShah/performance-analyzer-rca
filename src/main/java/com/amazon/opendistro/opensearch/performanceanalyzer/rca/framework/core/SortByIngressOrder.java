@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core;
 
+
 import java.io.Serializable;
 import java.util.Comparator;
 
 class SortByIngressOrder implements Comparator<Node<?>>, Serializable {
 
-  @Override
-  public int compare(Node<?> o1, Node<?> o2) {
-    return o1.getUpStreamNodesCount() - o2.getUpStreamNodesCount();
-  }
+    @Override
+    public int compare(Node<?> o1, Node<?> o2) {
+        return o1.getUpStreamNodesCount() - o2.getUpStreamNodesCount();
+    }
 }

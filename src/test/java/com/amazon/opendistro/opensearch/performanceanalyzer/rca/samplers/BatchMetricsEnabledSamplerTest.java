@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -27,13 +27,11 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.collectors
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.ClusterDetailsEventProcessor;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.ClusterDetailsEventProcessorTestHelper;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.ReaderMetricsProcessor;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,83 +39,87 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 public class BatchMetricsEnabledSamplerTest {
-  private static Path batchMetricsEnabledConfFile;
-  private static String rootLocation;
-  private static ReaderMetricsProcessor mp;
-  private static AppContext appContext;
-  private static BatchMetricsEnabledSampler uut;
+    private static Path batchMetricsEnabledConfFile;
+    private static String rootLocation;
+    private static ReaderMetricsProcessor mp;
+    private static AppContext appContext;
+    private static BatchMetricsEnabledSampler uut;
 
-  @Mock
-  private SampleAggregator sampleAggregator;
+    @Mock private SampleAggregator sampleAggregator;
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    Files.createDirectories(Paths.get(Util.DATA_DIR));
-    batchMetricsEnabledConfFile = Paths.get(Util.DATA_DIR, ReaderMetricsProcessor.BATCH_METRICS_ENABLED_CONF_FILE);
-    Files.deleteIfExists(batchMetricsEnabledConfFile);
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        Files.createDirectories(Paths.get(Util.DATA_DIR));
+        batchMetricsEnabledConfFile =
+                Paths.get(Util.DATA_DIR, ReaderMetricsProcessor.BATCH_METRICS_ENABLED_CONF_FILE);
+        Files.deleteIfExists(batchMetricsEnabledConfFile);
 
-    rootLocation = "build/resources/test/reader/";
-    mp = new ReaderMetricsProcessor(rootLocation);
-    ReaderMetricsProcessor.setCurrentInstance(mp);
+        rootLocation = "build/resources/test/reader/";
+        mp = new ReaderMetricsProcessor(rootLocation);
+        ReaderMetricsProcessor.setCurrentInstance(mp);
 
-    appContext = new AppContext();
-    uut = new BatchMetricsEnabledSampler(appContext);
-  }
+        appContext = new AppContext();
+        uut = new BatchMetricsEnabledSampler(appContext);
+    }
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-  }
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
 
-  private void writeBatchMetricsEnabled(boolean enabled) throws IOException {
-    Files.write(batchMetricsEnabledConfFile, Boolean.toString(enabled).getBytes());
-  }
+    private void writeBatchMetricsEnabled(boolean enabled) throws IOException {
+        Files.write(batchMetricsEnabledConfFile, Boolean.toString(enabled).getBytes());
+    }
 
-  private void clearBatchMetricsEnabled() throws IOException {
-    Files.deleteIfExists(batchMetricsEnabledConfFile);
-  }
+    private void clearBatchMetricsEnabled() throws IOException {
+        Files.deleteIfExists(batchMetricsEnabledConfFile);
+    }
 
-  @Test
-  public void testIsBatchMetricsEnabled_notMaster() {
-    appContext.setClusterDetailsEventProcessor(null);
-    assertFalse(uut.isBatchMetricsEnabled());
-  }
+    @Test
+    public void testIsBatchMetricsEnabled_notMaster() {
+        appContext.setClusterDetailsEventProcessor(null);
+        assertFalse(uut.isBatchMetricsEnabled());
+    }
 
-  @Test
-  public void testIsBatchMetricsEnabled() throws IOException {
-    ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
-    ClusterDetailsEventProcessor.NodeDetails details =
-        ClusterDetailsEventProcessorTestHelper.newNodeDetails("nodex", "127.0.0.1", true);
-    clusterDetailsEventProcessor.setNodesDetails(Collections.singletonList(details));
-    appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
+    @Test
+    public void testIsBatchMetricsEnabled() throws IOException {
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
+        ClusterDetailsEventProcessor.NodeDetails details =
+                ClusterDetailsEventProcessorTestHelper.newNodeDetails("nodex", "127.0.0.1", true);
+        clusterDetailsEventProcessor.setNodesDetails(Collections.singletonList(details));
+        appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
 
-    // No batch metrics enabled file
-    clearBatchMetricsEnabled();
-    mp.readBatchMetricsEnabledFromConfShim();
-    assertFalse(uut.isBatchMetricsEnabled());
+        // No batch metrics enabled file
+        clearBatchMetricsEnabled();
+        mp.readBatchMetricsEnabledFromConfShim();
+        assertFalse(uut.isBatchMetricsEnabled());
 
-    // Batch metrics disabled
-    writeBatchMetricsEnabled(false);
-    mp.readBatchMetricsEnabledFromConfShim();
-    assertFalse(uut.isBatchMetricsEnabled());
+        // Batch metrics disabled
+        writeBatchMetricsEnabled(false);
+        mp.readBatchMetricsEnabledFromConfShim();
+        assertFalse(uut.isBatchMetricsEnabled());
 
-    // Batch metrics disabled
-    writeBatchMetricsEnabled(true);
-    mp.readBatchMetricsEnabledFromConfShim();
-    assertTrue(uut.isBatchMetricsEnabled());
-  }
+        // Batch metrics disabled
+        writeBatchMetricsEnabled(true);
+        mp.readBatchMetricsEnabledFromConfShim();
+        assertTrue(uut.isBatchMetricsEnabled());
+    }
 
-  @Test
-  public void testSample() {
-    ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
-    ClusterDetailsEventProcessor.NodeDetails details =
-        ClusterDetailsEventProcessorTestHelper.newNodeDetails("nodex", "127.0.0.1", true);
-    clusterDetailsEventProcessor.setNodesDetails(Collections.singletonList(details));
-    appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
+    @Test
+    public void testSample() {
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
+        ClusterDetailsEventProcessor.NodeDetails details =
+                ClusterDetailsEventProcessorTestHelper.newNodeDetails("nodex", "127.0.0.1", true);
+        clusterDetailsEventProcessor.setNodesDetails(Collections.singletonList(details));
+        appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
 
-    uut.sample(sampleAggregator);
-    verify(sampleAggregator, times(1))
-        .updateStat(ReaderMetrics.BATCH_METRICS_ENABLED, "",
-            mp.getBatchMetricsEnabled() ? 1 : 0);
-  }
+        uut.sample(sampleAggregator);
+        verify(sampleAggregator, times(1))
+                .updateStat(
+                        ReaderMetrics.BATCH_METRICS_ENABLED,
+                        "",
+                        mp.getBatchMetricsEnabled() ? 1 : 0);
+    }
 }

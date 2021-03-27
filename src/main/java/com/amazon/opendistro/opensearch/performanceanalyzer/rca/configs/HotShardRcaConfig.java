@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.configs;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.RcaConf;
 
 public class HotShardRcaConfig {
@@ -29,15 +30,29 @@ public class HotShardRcaConfig {
     public static final double DEFAULT_IO_TOTAL_SYSCALL_RATE_THRESHOLD_PER_SEC = 0.01;
 
     public HotShardRcaConfig(final RcaConf rcaConf) {
-        cpuUtilizationThreshold = rcaConf.readRcaConfig(CONFIG_NAME,
-                HotShardRcaConfig.RCA_CONF_KEY_CONSTANTS.CPU_UTILIZATION_THRESHOLD,
-                DEFAULT_CPU_UTILIZATION_THRESHOLD, (s) -> (s > 0), Double.class);
-        ioTotThroughputThreshold = rcaConf.readRcaConfig(CONFIG_NAME,
-                HotShardRcaConfig.RCA_CONF_KEY_CONSTANTS.IO_TOT_THROUGHPUT_THRESHOLD_IN_BYTES,
-                DEFAULT_IO_TOTAL_THROUGHPUT_THRESHOLD_IN_BYTE_PER_SEC, (s) -> (s > 0), Double.class);
-        ioTotSysCallRateThreshold = rcaConf.readRcaConfig(CONFIG_NAME,
-                HotShardRcaConfig.RCA_CONF_KEY_CONSTANTS.IO_TOT_SYSCALL_RATE_THRESHOLD_PER_SECOND,
-                DEFAULT_IO_TOTAL_SYSCALL_RATE_THRESHOLD_PER_SEC, (s) -> (s > 0), Double.class);
+        cpuUtilizationThreshold =
+                rcaConf.readRcaConfig(
+                        CONFIG_NAME,
+                        HotShardRcaConfig.RCA_CONF_KEY_CONSTANTS.CPU_UTILIZATION_THRESHOLD,
+                        DEFAULT_CPU_UTILIZATION_THRESHOLD,
+                        (s) -> (s > 0),
+                        Double.class);
+        ioTotThroughputThreshold =
+                rcaConf.readRcaConfig(
+                        CONFIG_NAME,
+                        HotShardRcaConfig.RCA_CONF_KEY_CONSTANTS
+                                .IO_TOT_THROUGHPUT_THRESHOLD_IN_BYTES,
+                        DEFAULT_IO_TOTAL_THROUGHPUT_THRESHOLD_IN_BYTE_PER_SEC,
+                        (s) -> (s > 0),
+                        Double.class);
+        ioTotSysCallRateThreshold =
+                rcaConf.readRcaConfig(
+                        CONFIG_NAME,
+                        HotShardRcaConfig.RCA_CONF_KEY_CONSTANTS
+                                .IO_TOT_SYSCALL_RATE_THRESHOLD_PER_SECOND,
+                        DEFAULT_IO_TOTAL_SYSCALL_RATE_THRESHOLD_PER_SEC,
+                        (s) -> (s > 0),
+                        Double.class);
     }
 
     public double getCpuUtilizationThreshold() {
@@ -54,7 +69,9 @@ public class HotShardRcaConfig {
 
     public static class RCA_CONF_KEY_CONSTANTS {
         public static final String CPU_UTILIZATION_THRESHOLD = "cpu-utilization";
-        public static final String IO_TOT_THROUGHPUT_THRESHOLD_IN_BYTES = "io-total-throughput-in-bytes";
-        public static final String IO_TOT_SYSCALL_RATE_THRESHOLD_PER_SECOND = "io-total-syscallrate-per-second";
+        public static final String IO_TOT_THROUGHPUT_THRESHOLD_IN_BYTES =
+                "io-total-throughput-in-bytes";
+        public static final String IO_TOT_SYSCALL_RATE_THRESHOLD_PER_SECOND =
+                "io-total-syscallrate-per-second";
     }
 }

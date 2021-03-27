@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,10 +15,12 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.byShard;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature.TemperatureDimension;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.byShard.calculators.AvgShardBasedTemperatureCalculator;
 
-public class AvgCpuUtilByShardsMetricBasedTemperatureCalculator extends AvgShardBasedTemperatureCalculator {
+public class AvgCpuUtilByShardsMetricBasedTemperatureCalculator
+        extends AvgShardBasedTemperatureCalculator {
     public AvgCpuUtilByShardsMetricBasedTemperatureCalculator() {
         super(TemperatureDimension.CPU_Utilization);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,61 +15,61 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions.Action;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.GenericFlowUnit;
-
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Decision extends GenericFlowUnit {
 
-  private List<Action> actions = new ArrayList<>();
-  private String decider;
+    private List<Action> actions = new ArrayList<>();
+    private String decider;
 
-  public Decision(long timeStamp, String deciderName) {
-    super(timeStamp);
-    setDecider(deciderName);
-  }
-
-  public void addAction(Action action) {
-    if (action != null) {
-      actions.add(action);
+    public Decision(long timeStamp, String deciderName) {
+        super(timeStamp);
+        setDecider(deciderName);
     }
-  }
 
-  public void addAllActions(List<Action> actions) {
-    this.actions.addAll(actions);
-  }
+    public void addAction(Action action) {
+        if (action != null) {
+            actions.add(action);
+        }
+    }
 
-  public List<Action> getActions() {
-    return actions;
-  }
+    public void addAllActions(List<Action> actions) {
+        this.actions.addAll(actions);
+    }
 
-  public String getDecider() {
-    return decider;
-  }
+    public List<Action> getActions() {
+        return actions;
+    }
 
-  public void setDecider(String decider) {
-    this.decider = decider;
-  }
+    public String getDecider() {
+        return decider;
+    }
 
-  @Override
-  public String toString() {
-    return decider + " : " + actions;
-  }
+    public void setDecider(String decider) {
+        this.decider = decider;
+    }
 
-  @Override
-  public boolean isEmpty() {
-    return actions.isEmpty();
-  }
+    @Override
+    public String toString() {
+        return decider + " : " + actions;
+    }
 
-  @Override
-  public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id esNode) {
-    // All deciders run on the master node, (in initial versions), so we dont expect Decisions
-    // to be passed over wire.
-    throw new IllegalStateException(
-        this.getClass().getSimpleName() + " not expected to be passed " + "over the wire.");
-  }
+    @Override
+    public boolean isEmpty() {
+        return actions.isEmpty();
+    }
+
+    @Override
+    public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id esNode) {
+        // All deciders run on the master node, (in initial versions), so we dont expect Decisions
+        // to be passed over wire.
+        throw new IllegalStateException(
+                this.getClass().getSimpleName() + " not expected to be passed " + "over the wire.");
+    }
 }

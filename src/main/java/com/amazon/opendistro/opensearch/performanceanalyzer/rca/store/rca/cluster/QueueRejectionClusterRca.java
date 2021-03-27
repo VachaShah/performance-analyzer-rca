@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,14 +15,16 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Rca;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units.ResourceFlowUnit;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.HotNodeSummary;
 
 public class QueueRejectionClusterRca extends BaseClusterRca {
-  public static final String RCA_TABLE_NAME = QueueRejectionClusterRca.class.getSimpleName();
+    public static final String RCA_TABLE_NAME = QueueRejectionClusterRca.class.getSimpleName();
 
-  public <R extends Rca<ResourceFlowUnit<HotNodeSummary>>> QueueRejectionClusterRca(final int rcaPeriod, final R hotNodeRca) {
-    super(rcaPeriod, hotNodeRca);
-  }
+    public <R extends Rca<ResourceFlowUnit<HotNodeSummary>>> QueueRejectionClusterRca(
+            final int rcaPeriod, final R hotNodeRca) {
+        super(rcaPeriod, hotNodeRca);
+    }
 }

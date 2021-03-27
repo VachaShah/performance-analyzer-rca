@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,13 +15,15 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.metrics;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Metric;
 
 public class ThreadPool_QueueCapacity extends Metric {
-  public static final String NAME = AllMetrics.ThreadPoolValue.THREADPOOL_QUEUE_CAPACITY.toString();
+    public static final String NAME =
+            AllMetrics.ThreadPoolValue.THREADPOOL_QUEUE_CAPACITY.toString();
 
-  public ThreadPool_QueueCapacity() {
-    super(NAME, 5);
-  }
+    public ThreadPool_QueueCapacity() {
+        super(NAME, 5);
+    }
 }

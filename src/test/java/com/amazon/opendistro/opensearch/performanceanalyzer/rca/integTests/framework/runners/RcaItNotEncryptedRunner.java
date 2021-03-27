@@ -16,9 +16,9 @@
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.runners;
 
 public class RcaItNotEncryptedRunner extends RcaItRunnerBase {
-  private static final boolean USE_HTTPS = false;
+    private static final boolean USE_HTTPS = false;
 
-  public RcaItNotEncryptedRunner(Class testClass) throws Exception {
-    super(testClass, USE_HTTPS);
-  }
+    public RcaItNotEncryptedRunner(Class testClass) throws Exception {
+        super(testClass, USE_HTTPS);
+    }
 }

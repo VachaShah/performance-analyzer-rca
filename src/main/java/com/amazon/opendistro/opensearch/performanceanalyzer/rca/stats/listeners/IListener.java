@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.listeners;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.measurements.MeasurementSet;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ import java.util.Set;
  * occurrence of a metric emission. The Aggregator makes sure it calls the listener.
  */
 public interface IListener {
-  Set<MeasurementSet> getMeasurementsListenedTo();
+    Set<MeasurementSet> getMeasurementsListenedTo();
 
-  void onOccurrence(MeasurementSet measurementSet, Number value, String key);
+    void onOccurrence(MeasurementSet measurementSet, Number value, String key);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import org.junit.Test;
 
 public class ModelTests {
 
-  @Test
-  public void testBasicMetric() {
-    MetricsModel metricAndDimensions = new MetricsModel();
-    assertTrue(MetricsModel.ALL_METRICS.get("pseudocpu") == null);
-  }
+    @Test
+    public void testBasicMetric() {
+        MetricsModel metricAndDimensions = new MetricsModel();
+        assertTrue(MetricsModel.ALL_METRICS.get("pseudocpu") == null);
+    }
 }

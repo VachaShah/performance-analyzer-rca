@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,21 +15,19 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature;
 
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.Comparator;
 import javax.annotation.Nullable;
 
 /**
- * This vector contains the normalized values across dimensions.
- * normalized[0] gives the normalized value of the CPU on a scale of 0-10.
- * This can be on a shard level as well as on a node level.
- * On a shard level the normalized value is computed taking the resource used
- * by that shard and the total used in the node.
- * On a node level the normalized value is computed by taking into account the
- * average usage by shards and the total used in the node.
+ * This vector contains the normalized values across dimensions. normalized[0] gives the normalized
+ * value of the CPU on a scale of 0-10. This can be on a shard level as well as on a node level. On
+ * a shard level the normalized value is computed taking the resource used by that shard and the
+ * total used in the node. On a node level the normalized value is computed by taking into account
+ * the average usage by shards and the total used in the node.
  */
-
 public class TemperatureVector {
     public static final String DIMENSION_KEY = "dimension";
     public static final String VALUE_KEY = "value";
@@ -42,8 +40,10 @@ public class TemperatureVector {
 
         public NormalizedValue(short heatValue) {
             if (heatValue < MIN || heatValue > MAX) {
-                String err = String.format("Only values between %d and %d allowed. Given: %d", MIN, MAX,
-                        heatValue);
+                String err =
+                        String.format(
+                                "Only values between %d and %d allowed. Given: %d",
+                                MIN, MAX, heatValue);
                 throw new IllegalArgumentException(err);
             }
 
@@ -51,11 +51,12 @@ public class TemperatureVector {
         }
 
         /**
-         * Units of a resource consumed is a number between 0 and 10 where 0 being cold(not using any
-         * resource) and 10 being hot(almost all the units of the resource were consumed by it).
+         * Units of a resource consumed is a number between 0 and 10 where 0 being cold(not using
+         * any resource) and 10 being hot(almost all the units of the resource were consumed by it).
          * Temperature is calculated by determining what parts of 10 is consumed by the resource.
          */
-        public static NormalizedValue calculate(double consumedByCandidate, double totalConsumption) {
+        public static NormalizedValue calculate(
+                double consumedByCandidate, double totalConsumption) {
             return new NormalizedValue((short) (consumedByCandidate * 10 / totalConsumption));
         }
 
@@ -81,9 +82,7 @@ public class TemperatureVector {
         }
     }
 
-    /**
-     * This array contains a normalized value per dimension.
-     */
+    /** This array contains a normalized value per dimension. */
     private NormalizedValue[] normalizedValues;
 
     public TemperatureVector() {
@@ -120,8 +119,8 @@ public class TemperatureVector {
         return normalizedValues[dimension.ordinal()];
     }
 
-    public void updateTemperatureForDimension(TemperatureDimension dimension,
-                                              NormalizedValue normalizedValue) {
+    public void updateTemperatureForDimension(
+            TemperatureDimension dimension, NormalizedValue normalizedValue) {
         normalizedValues[dimension.ordinal()] = normalizedValue;
     }
 }

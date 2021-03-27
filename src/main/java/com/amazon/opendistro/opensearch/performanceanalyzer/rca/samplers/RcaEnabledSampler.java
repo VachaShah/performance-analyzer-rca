@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,33 +15,33 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.samplers;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.metrics.RcaRuntimeMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.collectors.SampleAggregator;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.emitters.ISampler;
-
 import java.util.Objects;
 
 public class RcaEnabledSampler implements ISampler {
-  private final AppContext appContext;
+    private final AppContext appContext;
 
-  RcaEnabledSampler(final AppContext appContext) {
-    Objects.requireNonNull(appContext);
-    this.appContext = appContext;
-  }
-
-  @Override
-  public void sample(SampleAggregator sampleCollector) {
-    sampleCollector.updateStat(RcaRuntimeMetrics.RCA_ENABLED, "", isRcaEnabled() ? 1 : 0);
-  }
-
-  boolean isRcaEnabled() {
-    InstanceDetails currentNode = appContext.getMyInstanceDetails();
-    if (currentNode != null && currentNode.getIsMaster()) {
-      return PerformanceAnalyzerApp.getRcaController().isRcaEnabled();
+    RcaEnabledSampler(final AppContext appContext) {
+        Objects.requireNonNull(appContext);
+        this.appContext = appContext;
     }
-    return false;
-  }
+
+    @Override
+    public void sample(SampleAggregator sampleCollector) {
+        sampleCollector.updateStat(RcaRuntimeMetrics.RCA_ENABLED, "", isRcaEnabled() ? 1 : 0);
+    }
+
+    boolean isRcaEnabled() {
+        InstanceDetails currentNode = appContext.getMyInstanceDetails();
+        if (currentNode != null && currentNode.getIsMaster()) {
+            return PerformanceAnalyzerApp.getRcaController().isRcaEnabled();
+        }
+        return false;
+    }
 }

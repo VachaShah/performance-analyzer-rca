@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.HotResourceSummaryMessage;
@@ -93,9 +94,18 @@ public class HotResourceSummaryTest {
 
     @Test
     public void testToString() {
-        String expected = ResourceUtil.getResourceTypeName(RESOURCE_TYPE)
-            + " " + ResourceUtil.getResourceMetricName(RESOURCE_TYPE) + " " + THRESHOLD + " " + VALUE
-            + " " + uut.getNestedSummaryList() + " " + META_DATA;
+        String expected =
+                ResourceUtil.getResourceTypeName(RESOURCE_TYPE)
+                        + " "
+                        + ResourceUtil.getResourceMetricName(RESOURCE_TYPE)
+                        + " "
+                        + THRESHOLD
+                        + " "
+                        + VALUE
+                        + " "
+                        + uut.getNestedSummaryList()
+                        + " "
+                        + META_DATA;
         Assert.assertEquals(expected, uut.toString());
     }
 
@@ -108,14 +118,25 @@ public class HotResourceSummaryTest {
     public void testGetSqlSchema() {
         List<Field<?>> schema = uut.getSqlSchema();
         Assert.assertEquals(9, schema.size());
-        Assert.assertEquals(HotResourceSummary.ResourceSummaryField.RESOURCE_TYPE_FIELD.getField(), schema.get(0));
-        Assert.assertEquals(HotResourceSummary.ResourceSummaryField.RESOURCE_METRIC_FIELD.getField(), schema.get(1));
-        Assert.assertEquals(HotResourceSummary.ResourceSummaryField.THRESHOLD_FIELD.getField(), schema.get(2));
-        Assert.assertEquals(HotResourceSummary.ResourceSummaryField.VALUE_FIELD.getField(), schema.get(3));
-        Assert.assertEquals(HotResourceSummary.ResourceSummaryField.AVG_VALUE_FIELD.getField(), schema.get(4));
-        Assert.assertEquals(HotResourceSummary.ResourceSummaryField.MIN_VALUE_FIELD.getField(), schema.get(5));
-        Assert.assertEquals(HotResourceSummary.ResourceSummaryField.MAX_VALUE_FIELD.getField(), schema.get(6));
-        Assert.assertEquals(HotResourceSummary.ResourceSummaryField.TIME_PERIOD_FIELD.getField(), schema.get(7));
+        Assert.assertEquals(
+                HotResourceSummary.ResourceSummaryField.RESOURCE_TYPE_FIELD.getField(),
+                schema.get(0));
+        Assert.assertEquals(
+                HotResourceSummary.ResourceSummaryField.RESOURCE_METRIC_FIELD.getField(),
+                schema.get(1));
+        Assert.assertEquals(
+                HotResourceSummary.ResourceSummaryField.THRESHOLD_FIELD.getField(), schema.get(2));
+        Assert.assertEquals(
+                HotResourceSummary.ResourceSummaryField.VALUE_FIELD.getField(), schema.get(3));
+        Assert.assertEquals(
+                HotResourceSummary.ResourceSummaryField.AVG_VALUE_FIELD.getField(), schema.get(4));
+        Assert.assertEquals(
+                HotResourceSummary.ResourceSummaryField.MIN_VALUE_FIELD.getField(), schema.get(5));
+        Assert.assertEquals(
+                HotResourceSummary.ResourceSummaryField.MAX_VALUE_FIELD.getField(), schema.get(6));
+        Assert.assertEquals(
+                HotResourceSummary.ResourceSummaryField.TIME_PERIOD_FIELD.getField(),
+                schema.get(7));
     }
 
     @Test
@@ -138,30 +159,55 @@ public class HotResourceSummaryTest {
         JsonElement elem = uut.toJson();
         Assert.assertTrue(elem.isJsonObject());
         JsonObject json = ((JsonObject) elem);
-        Assert.assertEquals(ResourceUtil.getResourceTypeName(RESOURCE_TYPE),
-                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.RESOURCE_TYPE_COL_NAME).getAsString());
-        Assert.assertEquals(ResourceUtil.getResourceMetricName(RESOURCE_TYPE),
-                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.RESOURCE_METRIC_COL_NAME).getAsString());
-        Assert.assertEquals(THRESHOLD,
-                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.THRESHOLD_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(VALUE,
-                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.VALUE_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(AVG_VALUE,
-                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.AVG_VALUE_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(MIN_VALUE,
-                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.MIN_VALUE_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(MAX_VALUE,
-                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.MAX_VALUE_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(TIME_PERIOD,
-                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.TIME_PERIOD_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(META_DATA,
+        Assert.assertEquals(
+                ResourceUtil.getResourceTypeName(RESOURCE_TYPE),
+                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.RESOURCE_TYPE_COL_NAME)
+                        .getAsString());
+        Assert.assertEquals(
+                ResourceUtil.getResourceMetricName(RESOURCE_TYPE),
+                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.RESOURCE_METRIC_COL_NAME)
+                        .getAsString());
+        Assert.assertEquals(
+                THRESHOLD,
+                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.THRESHOLD_COL_NAME).getAsDouble(),
+                0);
+        Assert.assertEquals(
+                VALUE,
+                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.VALUE_COL_NAME).getAsDouble(),
+                0);
+        Assert.assertEquals(
+                AVG_VALUE,
+                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.AVG_VALUE_COL_NAME).getAsDouble(),
+                0);
+        Assert.assertEquals(
+                MIN_VALUE,
+                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.MIN_VALUE_COL_NAME).getAsDouble(),
+                0);
+        Assert.assertEquals(
+                MAX_VALUE,
+                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.MAX_VALUE_COL_NAME).getAsDouble(),
+                0);
+        Assert.assertEquals(
+                TIME_PERIOD,
+                json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.TIME_PERIOD_COL_NAME)
+                        .getAsDouble(),
+                0);
+        Assert.assertEquals(
+                META_DATA,
                 json.get(HotResourceSummary.SQL_SCHEMA_CONSTANTS.META_DATA_COL_NAME).getAsString());
         String tableName = uut.getTopConsumerSummaryList().get(0).getTableName();
         JsonObject consumerJson = json.get(tableName).getAsJsonArray().get(0).getAsJsonObject();
-        Assert.assertEquals(CONSUMER_NAME,
-            consumerJson.get(TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_NAME_COL_NAME).getAsString());
-        Assert.assertEquals(CONSUMER_VALUE,
-            consumerJson.get(TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_VALUE_COL_NAME).getAsDouble(), 0.01);
+        Assert.assertEquals(
+                CONSUMER_NAME,
+                consumerJson
+                        .get(TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_NAME_COL_NAME)
+                        .getAsString());
+        Assert.assertEquals(
+                CONSUMER_VALUE,
+                consumerJson
+                        .get(TopConsumerSummary.SQL_SCHEMA_CONSTANTS.CONSUMER_VALUE_COL_NAME)
+                        .getAsDouble(),
+                0.01);
     }
 
     @Test
@@ -169,22 +215,47 @@ public class HotResourceSummaryTest {
         Assert.assertNull(HotResourceSummary.buildSummary(null));
         Record testRecord = Mockito.mock(Record.class);
         Mockito.when(
-                testRecord.get(HotResourceSummary.ResourceSummaryField.RESOURCE_TYPE_FIELD.getField(), Integer.class))
+                        testRecord.get(
+                                HotResourceSummary.ResourceSummaryField.RESOURCE_TYPE_FIELD
+                                        .getField(),
+                                Integer.class))
                 .thenReturn(RESOURCE_TYPE.getResourceEnumValue());
         Mockito.when(
-                testRecord.get(HotResourceSummary.ResourceSummaryField.RESOURCE_METRIC_FIELD.getField(), Integer.class))
+                        testRecord.get(
+                                HotResourceSummary.ResourceSummaryField.RESOURCE_METRIC_FIELD
+                                        .getField(),
+                                Integer.class))
                 .thenReturn(RESOURCE_TYPE.getMetricEnumValue());
-        Mockito.when(testRecord.get(HotResourceSummary.ResourceSummaryField.THRESHOLD_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotResourceSummary.ResourceSummaryField.THRESHOLD_FIELD.getField(),
+                                Double.class))
                 .thenReturn(THRESHOLD);
-        Mockito.when(testRecord.get(HotResourceSummary.ResourceSummaryField.VALUE_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotResourceSummary.ResourceSummaryField.VALUE_FIELD.getField(),
+                                Double.class))
                 .thenReturn(VALUE);
-        Mockito.when(testRecord.get(HotResourceSummary.ResourceSummaryField.AVG_VALUE_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotResourceSummary.ResourceSummaryField.AVG_VALUE_FIELD.getField(),
+                                Double.class))
                 .thenReturn(AVG_VALUE);
-        Mockito.when(testRecord.get(HotResourceSummary.ResourceSummaryField.MIN_VALUE_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotResourceSummary.ResourceSummaryField.MIN_VALUE_FIELD.getField(),
+                                Double.class))
                 .thenReturn(MIN_VALUE);
-        Mockito.when(testRecord.get(HotResourceSummary.ResourceSummaryField.MAX_VALUE_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotResourceSummary.ResourceSummaryField.MAX_VALUE_FIELD.getField(),
+                                Double.class))
                 .thenReturn(MAX_VALUE);
-        Mockito.when(testRecord.get(HotResourceSummary.ResourceSummaryField.TIME_PERIOD_FIELD.getField(), Integer.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotResourceSummary.ResourceSummaryField.TIME_PERIOD_FIELD
+                                        .getField(),
+                                Integer.class))
                 .thenReturn(TIME_PERIOD);
         GenericSummary summary = HotResourceSummary.buildSummary(testRecord);
         Assert.assertNotNull(summary);

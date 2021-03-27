@@ -34,35 +34,37 @@ import org.mockito.Mock;
 @Category(GradleTaskForRca.class)
 public class FlowUnitRxTaskTest {
 
-  private static final String TEST_GRAPH_NODE = "testGraphNode";
-  private static final String TEST_ES_NODE = "testEsNode";
+    private static final String TEST_GRAPH_NODE = "testGraphNode";
+    private static final String TEST_ES_NODE = "testEsNode";
 
-  private FlowUnitRxTask testFlowUnitRxTask;
-  private FlowUnitMessage testFlowUnitMessage = FlowUnitMessage.newBuilder()
-                                                               .setGraphNode(TEST_GRAPH_NODE)
-                                                               .setEsNode(TEST_ES_NODE)
-                                                               .build();
+    private FlowUnitRxTask testFlowUnitRxTask;
+    private FlowUnitMessage testFlowUnitMessage =
+            FlowUnitMessage.newBuilder()
+                    .setGraphNode(TEST_GRAPH_NODE)
+                    .setEsNode(TEST_ES_NODE)
+                    .build();
 
-  @Mock
-  private NodeStateManager mockNodeStateManager;
+    @Mock private NodeStateManager mockNodeStateManager;
 
-  @Mock
-  private ReceivedFlowUnitStore mockReceivedFlowUnitStore;
+    @Mock private ReceivedFlowUnitStore mockReceivedFlowUnitStore;
 
-  @Before
-  public void setUp() throws Exception {
-    initMocks(this);
-    testFlowUnitRxTask = new FlowUnitRxTask(mockNodeStateManager, mockReceivedFlowUnitStore,
-        testFlowUnitMessage);
-  }
+    @Before
+    public void setUp() throws Exception {
+        initMocks(this);
+        testFlowUnitRxTask =
+                new FlowUnitRxTask(
+                        mockNodeStateManager, mockReceivedFlowUnitStore, testFlowUnitMessage);
+    }
 
-  @Test
-  public void testEnqueueSuccess() {
-    when(mockReceivedFlowUnitStore.enqueue(TEST_GRAPH_NODE, testFlowUnitMessage)).thenReturn(true);
+    @Test
+    public void testEnqueueSuccess() {
+        when(mockReceivedFlowUnitStore.enqueue(TEST_GRAPH_NODE, testFlowUnitMessage))
+                .thenReturn(true);
 
-    testFlowUnitRxTask.run();
+        testFlowUnitRxTask.run();
 
-    verify(mockNodeStateManager).updateReceiveTime(eq(new InstanceDetails.Id(TEST_ES_NODE)), eq(TEST_GRAPH_NODE),
-        anyLong());
-  }
+        verify(mockNodeStateManager)
+                .updateReceiveTime(
+                        eq(new InstanceDetails.Id(TEST_ES_NODE)), eq(TEST_GRAPH_NODE), anyLong());
+    }
 }

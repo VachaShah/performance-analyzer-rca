@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -16,21 +16,21 @@
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.aggregators;
 
 public class Sum {
-  double sum;
+    double sum;
 
-  public Sum() {
-    sum = 0;
-  }
+    public Sum() {
+        sum = 0;
+    }
 
-  public void insert(double val) {
-    sum += val;
-  }
+    public void insert(double val) {
+        sum += val;
+    }
 
-  public double get() {
-    return sum;
-  }
+    public double get() {
+        return sum;
+    }
 
-  public void reset() {
-    sum = 0;
-  }
+    public void reset() {
+        sum = 0;
+    }
 }

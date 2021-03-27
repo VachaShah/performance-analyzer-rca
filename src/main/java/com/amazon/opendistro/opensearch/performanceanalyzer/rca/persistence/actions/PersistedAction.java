@@ -15,8 +15,8 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.actions;
 
-import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.ValueColumn;
 
+import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.ValueColumn;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -28,11 +28,9 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>Table name : PersistedAction
  *
- * <p>schema :
- * | id(primary key) |     actionName       |   timestamp       |       nodeIds          |
- * |      1          | ModifyQueueCapacity  |  1599257910923    |   node1, node2         |
- * |        nodeIps         | actionable | coolOffPeriod    |  muted    |   summary         |
- * | 127.0.0.1, 127.0.0.2   |  1         |  300             |   0       | actionSummary     |
+ * <p>schema : | id(primary key) | actionName | timestamp | nodeIds | | 1 | ModifyQueueCapacity |
+ * 1599257910923 | node1, node2 | | nodeIps | actionable | coolOffPeriod | muted | summary | |
+ * 127.0.0.1, 127.0.0.2 | 1 | 300 | 0 | actionSummary |
  */
 public class PersistedAction {
     private static final Logger LOG = LogManager.getLogger(PersistedAction.class);
@@ -120,7 +118,6 @@ public class PersistedAction {
         public static final String SUMMARY_NAME = "summary";
         public static final String ACTIONABLE_NAME = "actionable";
         public static final String COOLOFFPERIOD_NAME = "coolOffPeriod";
-
     }
 
     public JsonElement toJson(JsonParser jsonParser) {

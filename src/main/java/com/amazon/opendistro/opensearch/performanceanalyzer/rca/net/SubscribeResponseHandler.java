@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.net;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.SubscribeResponse;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.SubscribeResponse.SubscriptionStatus;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
@@ -25,99 +26,90 @@ import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Stream observer class that handles the response to a subscription request.
- */
+/** Stream observer class that handles the response to a subscription request. */
 public class SubscribeResponseHandler implements StreamObserver<SubscribeResponse> {
 
-  private static final Logger LOG = LogManager.getLogger(SubscribeResponseHandler.class);
+    private static final Logger LOG = LogManager.getLogger(SubscribeResponseHandler.class);
 
-  /**
-   * The subscription manager instance to update subscription metadata.
-   */
-  private final SubscriptionManager subscriptionManager;
+    /** The subscription manager instance to update subscription metadata. */
+    private final SubscriptionManager subscriptionManager;
 
-  /**
-   * The node state manager instance to update tracking staleness.
-   */
-  private final NodeStateManager nodeStateManager;
+    /** The node state manager instance to update tracking staleness. */
+    private final NodeStateManager nodeStateManager;
 
-  /**
-   * The host ID of the remote host.
-   */
-  private final InstanceDetails.Id remoteHostId;
+    /** The host ID of the remote host. */
+    private final InstanceDetails.Id remoteHostId;
 
-  /**
-   * The vertex that we want to subscribe to.
-   */
-  private final String graphNode;
+    /** The vertex that we want to subscribe to. */
+    private final String graphNode;
 
-  public SubscribeResponseHandler(final SubscriptionManager subscriptionManager,
-                                  final NodeStateManager nodeStateManager,
-                                  final InstanceDetails remoteHost, final String graphNode) {
-    this.subscriptionManager = subscriptionManager;
-    this.nodeStateManager = nodeStateManager;
-    this.graphNode = graphNode;
-    this.remoteHostId = remoteHost.getInstanceId();
-  }
-
-  /**
-   * Receives a value from the stream.
-   *
-   * <p>Can be called many times but is never called after {@link #onError(Throwable)} or {@link
-   * #onCompleted()} are called.
-   *
-   * <p>Unary calls must invoke onNext at most once.  Clients may invoke onNext at most once for
-   * server streaming calls, but may receive many onNext callbacks.  Servers may invoke onNext at
-   * most once for client streaming calls, but may receive many onNext callbacks.
-   *
-   * <p>If an exception is thrown by an implementation the caller is expected to terminate the
-   * stream by calling {@link #onError(Throwable)} with the caught exception prior to propagating
-   * it.
-   *
-   * @param subscribeResponse the value passed to the stream
-   */
-  @Override
-  public void onNext(SubscribeResponse subscribeResponse) {
-    if (subscribeResponse.getSubscriptionStatus() == SubscriptionStatus.SUCCESS) {
-      subscriptionManager.addPublisher(graphNode, remoteHostId);
-      nodeStateManager.updateSubscriptionState(graphNode, remoteHostId, SubscriptionStatus.SUCCESS);
-    } else if (subscribeResponse.getSubscriptionStatus() == SubscriptionStatus.TAG_MISMATCH) {
-      nodeStateManager.updateSubscriptionState(graphNode, remoteHostId, SubscriptionStatus.TAG_MISMATCH);
+    public SubscribeResponseHandler(
+            final SubscriptionManager subscriptionManager,
+            final NodeStateManager nodeStateManager,
+            final InstanceDetails remoteHost,
+            final String graphNode) {
+        this.subscriptionManager = subscriptionManager;
+        this.nodeStateManager = nodeStateManager;
+        this.graphNode = graphNode;
+        this.remoteHostId = remoteHost.getInstanceId();
     }
-  }
 
-  /**
-   * Receives a terminating error from the stream.
-   *
-   * <p>May only be called once and if called it must be the last method called. In particular if
-   * an
-   * exception is thrown by an implementation of {@code onError} no further calls to any method are
-   * allowed.
-   *
-   * <p>{@code t} should be a {@link StatusException} or {@link
-   * StatusRuntimeException}, but other {@code Throwable} types are possible. Callers should
-   * generally convert from a {@link Status} via {@link Status#asException()} or {@link
-   * Status#asRuntimeException()}. Implementations should generally convert to a {@code Status} via
-   * {@link Status#fromThrowable(Throwable)}.
-   *
-   * @param t the error occurred on the stream
-   */
-  @Override
-  public void onError(Throwable t) {
-    LOG.error("Encountered an error while processing subscription stream", t);
-  }
+    /**
+     * Receives a value from the stream.
+     *
+     * <p>Can be called many times but is never called after {@link #onError(Throwable)} or {@link
+     * #onCompleted()} are called.
+     *
+     * <p>Unary calls must invoke onNext at most once. Clients may invoke onNext at most once for
+     * server streaming calls, but may receive many onNext callbacks. Servers may invoke onNext at
+     * most once for client streaming calls, but may receive many onNext callbacks.
+     *
+     * <p>If an exception is thrown by an implementation the caller is expected to terminate the
+     * stream by calling {@link #onError(Throwable)} with the caught exception prior to propagating
+     * it.
+     *
+     * @param subscribeResponse the value passed to the stream
+     */
+    @Override
+    public void onNext(SubscribeResponse subscribeResponse) {
+        if (subscribeResponse.getSubscriptionStatus() == SubscriptionStatus.SUCCESS) {
+            subscriptionManager.addPublisher(graphNode, remoteHostId);
+            nodeStateManager.updateSubscriptionState(
+                    graphNode, remoteHostId, SubscriptionStatus.SUCCESS);
+        } else if (subscribeResponse.getSubscriptionStatus() == SubscriptionStatus.TAG_MISMATCH) {
+            nodeStateManager.updateSubscriptionState(
+                    graphNode, remoteHostId, SubscriptionStatus.TAG_MISMATCH);
+        }
+    }
 
-  /**
-   * Receives a notification of successful stream completion.
-   *
-   * <p>May only be called once and if called it must be the last method called. In particular if
-   * an
-   * exception is thrown by an implementation of {@code onCompleted} no further calls to any method
-   * are allowed.
-   */
-  @Override
-  public void onCompleted() {
-    LOG.info("Finished subscription request for {}. Closing stream.", remoteHostId);
-  }
+    /**
+     * Receives a terminating error from the stream.
+     *
+     * <p>May only be called once and if called it must be the last method called. In particular if
+     * an exception is thrown by an implementation of {@code onError} no further calls to any method
+     * are allowed.
+     *
+     * <p>{@code t} should be a {@link StatusException} or {@link StatusRuntimeException}, but other
+     * {@code Throwable} types are possible. Callers should generally convert from a {@link Status}
+     * via {@link Status#asException()} or {@link Status#asRuntimeException()}. Implementations
+     * should generally convert to a {@code Status} via {@link Status#fromThrowable(Throwable)}.
+     *
+     * @param t the error occurred on the stream
+     */
+    @Override
+    public void onError(Throwable t) {
+        LOG.error("Encountered an error while processing subscription stream", t);
+    }
+
+    /**
+     * Receives a notification of successful stream completion.
+     *
+     * <p>May only be called once and if called it must be the last method called. In particular if
+     * an exception is thrown by an implementation of {@code onCompleted} no further calls to any
+     * method are allowed.
+     */
+    @Override
+    public void onCompleted() {
+        LOG.info("Finished subscription request for {}. Closing stream.", remoteHostId);
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.HotShardSummaryMessage;
@@ -78,12 +79,20 @@ public class HotShardSummaryTest {
 
     @Test
     public void testToString() {
-        String expected = String.join(" ", new String[] {
-                INDEX_NAME, SHARD_ID, NODE_ID,
-                String.valueOf(CPU_UTILIZATION), String.valueOf(CPU_UTILIZATION_THRESHOLD),
-                String.valueOf(IO_THROUGHPUT), String.valueOf(IO_THROUGHPUT_THRESHOLD),
-                String.valueOf(IO_SYSCALLRATE), String.valueOf(IO_SYSCALLRATE_THRESHOLD)
-        });
+        String expected =
+                String.join(
+                        " ",
+                        new String[] {
+                            INDEX_NAME,
+                            SHARD_ID,
+                            NODE_ID,
+                            String.valueOf(CPU_UTILIZATION),
+                            String.valueOf(CPU_UTILIZATION_THRESHOLD),
+                            String.valueOf(IO_THROUGHPUT),
+                            String.valueOf(IO_THROUGHPUT_THRESHOLD),
+                            String.valueOf(IO_SYSCALLRATE),
+                            String.valueOf(IO_SYSCALLRATE_THRESHOLD)
+                        });
         Assert.assertEquals(expected, uut.toString());
     }
 
@@ -96,17 +105,31 @@ public class HotShardSummaryTest {
     public void testGetSqlSchema() {
         List<Field<?>> schema = uut.getSqlSchema();
         Assert.assertEquals(10, schema.size());
-        Assert.assertEquals(HotShardSummary.HotShardSummaryField.INDEX_NAME_FIELD.getField(), schema.get(0));
-        Assert.assertEquals(HotShardSummary.HotShardSummaryField.SHARD_ID_FIELD.getField(), schema.get(1));
-        Assert.assertEquals(HotShardSummary.HotShardSummaryField.NODE_ID_FIELD.getField(), schema.get(2));
-        Assert.assertEquals(HotShardSummary.HotShardSummaryField.CPU_UTILIZATION_FIELD.getField(), schema.get(3));
-        Assert.assertEquals(HotShardSummary.HotShardSummaryField.CPU_UTILIZATION_THRESHOLD_FIELD.getField(), schema.get(4));
-        Assert.assertEquals(HotShardSummary.HotShardSummaryField.IO_THROUGHPUT_FIELD.getField(), schema.get(5));
-        Assert.assertEquals(HotShardSummary.HotShardSummaryField.IO_THROUGHPUT_THRESHOLD_FIELD.getField(), schema.get(6));
-        Assert.assertEquals(HotShardSummary.HotShardSummaryField.IO_SYSCALLRATE_FIELD.getField(), schema.get(7));
-        Assert.assertEquals(HotShardSummary.HotShardSummaryField.IO_SYSCALLRATE_THRESHOLD_FIELD.getField(), schema.get(8));
-        Assert.assertEquals(HotShardSummary.HotShardSummaryField.TIME_PERIOD_FIELD.getField(), schema.get(9
-        ));
+        Assert.assertEquals(
+                HotShardSummary.HotShardSummaryField.INDEX_NAME_FIELD.getField(), schema.get(0));
+        Assert.assertEquals(
+                HotShardSummary.HotShardSummaryField.SHARD_ID_FIELD.getField(), schema.get(1));
+        Assert.assertEquals(
+                HotShardSummary.HotShardSummaryField.NODE_ID_FIELD.getField(), schema.get(2));
+        Assert.assertEquals(
+                HotShardSummary.HotShardSummaryField.CPU_UTILIZATION_FIELD.getField(),
+                schema.get(3));
+        Assert.assertEquals(
+                HotShardSummary.HotShardSummaryField.CPU_UTILIZATION_THRESHOLD_FIELD.getField(),
+                schema.get(4));
+        Assert.assertEquals(
+                HotShardSummary.HotShardSummaryField.IO_THROUGHPUT_FIELD.getField(), schema.get(5));
+        Assert.assertEquals(
+                HotShardSummary.HotShardSummaryField.IO_THROUGHPUT_THRESHOLD_FIELD.getField(),
+                schema.get(6));
+        Assert.assertEquals(
+                HotShardSummary.HotShardSummaryField.IO_SYSCALLRATE_FIELD.getField(),
+                schema.get(7));
+        Assert.assertEquals(
+                HotShardSummary.HotShardSummaryField.IO_SYSCALLRATE_THRESHOLD_FIELD.getField(),
+                schema.get(8));
+        Assert.assertEquals(
+                HotShardSummary.HotShardSummaryField.TIME_PERIOD_FIELD.getField(), schema.get(9));
     }
 
     @Test
@@ -130,51 +153,108 @@ public class HotShardSummaryTest {
         JsonElement elem = uut.toJson();
         Assert.assertTrue(elem.isJsonObject());
         JsonObject json = ((JsonObject) elem);
-        Assert.assertEquals(INDEX_NAME,
+        Assert.assertEquals(
+                INDEX_NAME,
                 json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.INDEX_NAME_COL_NAME).getAsString());
-        Assert.assertEquals(SHARD_ID,
+        Assert.assertEquals(
+                SHARD_ID,
                 json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.SHARD_ID_COL_NAME).getAsString());
-        Assert.assertEquals(NODE_ID,
+        Assert.assertEquals(
+                NODE_ID,
                 json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.NODE_ID_COL_NAME).getAsString());
-        Assert.assertEquals(CPU_UTILIZATION,
-                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.CPU_UTILIZATION_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(CPU_UTILIZATION_THRESHOLD,
-                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.CPU_UTILIZATION_THRESHOLD_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(IO_THROUGHPUT,
-                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.IO_THROUGHPUT_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(IO_THROUGHPUT_THRESHOLD,
-                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.IO_THROUGHPUT_THRESHOLD_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(IO_SYSCALLRATE,
-                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.IO_SYSCALLRATE_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(IO_SYSCALLRATE_THRESHOLD,
-                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.IO_SYSCALLRATE_THRESHOLD_COL_NAME).getAsDouble(), 0);
-        Assert.assertEquals(TIME_PERIOD,
-                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.TIME_PERIOD_COL_NAME).getAsDouble(), 0);
+        Assert.assertEquals(
+                CPU_UTILIZATION,
+                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.CPU_UTILIZATION_COL_NAME)
+                        .getAsDouble(),
+                0);
+        Assert.assertEquals(
+                CPU_UTILIZATION_THRESHOLD,
+                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.CPU_UTILIZATION_THRESHOLD_COL_NAME)
+                        .getAsDouble(),
+                0);
+        Assert.assertEquals(
+                IO_THROUGHPUT,
+                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.IO_THROUGHPUT_COL_NAME).getAsDouble(),
+                0);
+        Assert.assertEquals(
+                IO_THROUGHPUT_THRESHOLD,
+                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.IO_THROUGHPUT_THRESHOLD_COL_NAME)
+                        .getAsDouble(),
+                0);
+        Assert.assertEquals(
+                IO_SYSCALLRATE,
+                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.IO_SYSCALLRATE_COL_NAME)
+                        .getAsDouble(),
+                0);
+        Assert.assertEquals(
+                IO_SYSCALLRATE_THRESHOLD,
+                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.IO_SYSCALLRATE_THRESHOLD_COL_NAME)
+                        .getAsDouble(),
+                0);
+        Assert.assertEquals(
+                TIME_PERIOD,
+                json.get(HotShardSummary.SQL_SCHEMA_CONSTANTS.TIME_PERIOD_COL_NAME).getAsDouble(),
+                0);
     }
 
     @Test
     public void testBuildSummary() {
         Assert.assertNull(HotShardSummary.buildSummary(null));
         Record testRecord = Mockito.mock(Record.class);
-        Mockito.when(testRecord.get(HotShardSummary.HotShardSummaryField.INDEX_NAME_FIELD.getField(), String.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotShardSummary.HotShardSummaryField.INDEX_NAME_FIELD.getField(),
+                                String.class))
                 .thenReturn(INDEX_NAME);
-        Mockito.when(testRecord.get(HotShardSummary.HotShardSummaryField.SHARD_ID_FIELD.getField(), String.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotShardSummary.HotShardSummaryField.SHARD_ID_FIELD.getField(),
+                                String.class))
                 .thenReturn(SHARD_ID);
-        Mockito.when(testRecord.get(HotShardSummary.HotShardSummaryField.NODE_ID_FIELD.getField(), String.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotShardSummary.HotShardSummaryField.NODE_ID_FIELD.getField(),
+                                String.class))
                 .thenReturn(NODE_ID);
-        Mockito.when(testRecord.get(HotShardSummary.HotShardSummaryField.CPU_UTILIZATION_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotShardSummary.HotShardSummaryField.CPU_UTILIZATION_FIELD
+                                        .getField(),
+                                Double.class))
                 .thenReturn(CPU_UTILIZATION);
-        Mockito.when(testRecord.get(HotShardSummary.HotShardSummaryField.CPU_UTILIZATION_THRESHOLD_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotShardSummary.HotShardSummaryField.CPU_UTILIZATION_THRESHOLD_FIELD
+                                        .getField(),
+                                Double.class))
                 .thenReturn(CPU_UTILIZATION_THRESHOLD);
-        Mockito.when(testRecord.get(HotShardSummary.HotShardSummaryField.IO_THROUGHPUT_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotShardSummary.HotShardSummaryField.IO_THROUGHPUT_FIELD.getField(),
+                                Double.class))
                 .thenReturn(IO_THROUGHPUT);
-        Mockito.when(testRecord.get(HotShardSummary.HotShardSummaryField.IO_THROUGHPUT_THRESHOLD_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotShardSummary.HotShardSummaryField.IO_THROUGHPUT_THRESHOLD_FIELD
+                                        .getField(),
+                                Double.class))
                 .thenReturn(IO_THROUGHPUT_THRESHOLD);
-        Mockito.when(testRecord.get(HotShardSummary.HotShardSummaryField.IO_SYSCALLRATE_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotShardSummary.HotShardSummaryField.IO_SYSCALLRATE_FIELD
+                                        .getField(),
+                                Double.class))
                 .thenReturn(IO_SYSCALLRATE);
-        Mockito.when(testRecord.get(HotShardSummary.HotShardSummaryField.IO_SYSCALLRATE_THRESHOLD_FIELD.getField(), Double.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotShardSummary.HotShardSummaryField.IO_SYSCALLRATE_THRESHOLD_FIELD
+                                        .getField(),
+                                Double.class))
                 .thenReturn(IO_SYSCALLRATE_THRESHOLD);
-        Mockito.when(testRecord.get(HotShardSummary.HotShardSummaryField.TIME_PERIOD_FIELD.getField(), Integer.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotShardSummary.HotShardSummaryField.TIME_PERIOD_FIELD.getField(),
+                                Integer.class))
                 .thenReturn(TIME_PERIOD);
         GenericSummary summary = HotShardSummary.buildSummary(testRecord);
         Assert.assertNotNull(summary);

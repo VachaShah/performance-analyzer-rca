@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Rca;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Resources;
@@ -26,84 +27,88 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.I
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.scheduler.FlowUnitOperationArgWrapper;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 public class HotNodeRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
 
-  private static final Logger LOG = LogManager.getLogger(HotNodeRca.class);
-  private Rca<ResourceFlowUnit<HotResourceSummary>>[] hotResourceRcas;
-  private boolean hasUnhealthyFlowUnit;
-  // the amount of RCA period this RCA needs to run before sending out a flowunit
-  private final int rcaPeriod;
-  private int counter;
+    private static final Logger LOG = LogManager.getLogger(HotNodeRca.class);
+    private Rca<ResourceFlowUnit<HotResourceSummary>>[] hotResourceRcas;
+    private boolean hasUnhealthyFlowUnit;
+    // the amount of RCA period this RCA needs to run before sending out a flowunit
+    private final int rcaPeriod;
+    private int counter;
 
-  public <R extends Rca<ResourceFlowUnit<HotResourceSummary>>> HotNodeRca(final int rcaPeriod, R... hotResourceRcas) {
-    super(5);
-    this.hotResourceRcas = hotResourceRcas.clone();
-    this.rcaPeriod = rcaPeriod;
-    this.counter = 0;
-    hasUnhealthyFlowUnit = false;
-  }
-
-  @Override
-  public ResourceFlowUnit<HotNodeSummary> operate() {
-    counter++;
-    List<HotResourceSummary> hotResourceSummaryList = new ArrayList<>();
-    for (int i = 0; i < hotResourceRcas.length; i++) {
-      final List<ResourceFlowUnit<HotResourceSummary>> hotResourceFlowUnits = hotResourceRcas[i].getFlowUnits();
-      for (final ResourceFlowUnit<HotResourceSummary> hotResourceFlowUnit : hotResourceFlowUnits) {
-        if (hotResourceFlowUnit.isEmpty()) {
-          continue;
-        }
-        if (hotResourceFlowUnit.hasResourceSummary()) {
-          hotResourceSummaryList.add(hotResourceFlowUnit.getSummary());
-        }
-        if (hotResourceFlowUnit.getResourceContext().isUnhealthy()) {
-          hasUnhealthyFlowUnit = true;
-        }
-      }
+    public <R extends Rca<ResourceFlowUnit<HotResourceSummary>>> HotNodeRca(
+            final int rcaPeriod, R... hotResourceRcas) {
+        super(5);
+        this.hotResourceRcas = hotResourceRcas.clone();
+        this.rcaPeriod = rcaPeriod;
+        this.counter = 0;
+        hasUnhealthyFlowUnit = false;
     }
 
-    if (counter == rcaPeriod) {
-      ResourceContext context;
+    @Override
+    public ResourceFlowUnit<HotNodeSummary> operate() {
+        counter++;
+        List<HotResourceSummary> hotResourceSummaryList = new ArrayList<>();
+        for (int i = 0; i < hotResourceRcas.length; i++) {
+            final List<ResourceFlowUnit<HotResourceSummary>> hotResourceFlowUnits =
+                    hotResourceRcas[i].getFlowUnits();
+            for (final ResourceFlowUnit<HotResourceSummary> hotResourceFlowUnit :
+                    hotResourceFlowUnits) {
+                if (hotResourceFlowUnit.isEmpty()) {
+                    continue;
+                }
+                if (hotResourceFlowUnit.hasResourceSummary()) {
+                    hotResourceSummaryList.add(hotResourceFlowUnit.getSummary());
+                }
+                if (hotResourceFlowUnit.getResourceContext().isUnhealthy()) {
+                    hasUnhealthyFlowUnit = true;
+                }
+            }
+        }
 
-      InstanceDetails instanceDetails = getInstanceDetails();
-      HotNodeSummary summary = new HotNodeSummary(instanceDetails.getInstanceId(), instanceDetails.getInstanceIp());
+        if (counter == rcaPeriod) {
+            ResourceContext context;
 
-      for (HotResourceSummary hotResourceSummary : hotResourceSummaryList) {
-        summary.appendNestedSummary(hotResourceSummary);
-      }
+            InstanceDetails instanceDetails = getInstanceDetails();
+            HotNodeSummary summary =
+                    new HotNodeSummary(
+                            instanceDetails.getInstanceId(), instanceDetails.getInstanceIp());
 
-      if (hasUnhealthyFlowUnit) {
-        context = new ResourceContext(Resources.State.UNHEALTHY);
-      } else {
-        context = new ResourceContext(Resources.State.HEALTHY);
-      }
+            for (HotResourceSummary hotResourceSummary : hotResourceSummaryList) {
+                summary.appendNestedSummary(hotResourceSummary);
+            }
 
-      // reset the variables
-      counter = 0;
-      hasUnhealthyFlowUnit = false;
-      //check if the current node is data node. If it is the data node
-      //then HotNodeRca is the top level RCA on this node and we want to persist summaries in flowunit.
-      boolean isDataNode = !instanceDetails.getIsMaster();
-      return new ResourceFlowUnit<>(System.currentTimeMillis(), context, summary, isDataNode);
-    } else {
-      return new ResourceFlowUnit<>(System.currentTimeMillis());
+            if (hasUnhealthyFlowUnit) {
+                context = new ResourceContext(Resources.State.UNHEALTHY);
+            } else {
+                context = new ResourceContext(Resources.State.HEALTHY);
+            }
+
+            // reset the variables
+            counter = 0;
+            hasUnhealthyFlowUnit = false;
+            // check if the current node is data node. If it is the data node
+            // then HotNodeRca is the top level RCA on this node and we want to persist summaries in
+            // flowunit.
+            boolean isDataNode = !instanceDetails.getIsMaster();
+            return new ResourceFlowUnit<>(System.currentTimeMillis(), context, summary, isDataNode);
+        } else {
+            return new ResourceFlowUnit<>(System.currentTimeMillis());
+        }
     }
-  }
 
-  @Override
-  public void generateFlowUnitListFromWire(FlowUnitOperationArgWrapper args) {
-    final List<FlowUnitMessage> flowUnitMessages =
-        args.getWireHopper().readFromWire(args.getNode());
-    List<ResourceFlowUnit<HotNodeSummary>> flowUnitList = new ArrayList<>();
-    LOG.debug("rca: Executing fromWire: {}", this.getClass().getSimpleName());
-    for (FlowUnitMessage flowUnitMessage : flowUnitMessages) {
-      flowUnitList.add(ResourceFlowUnit.buildFlowUnitFromWrapper(flowUnitMessage));
+    @Override
+    public void generateFlowUnitListFromWire(FlowUnitOperationArgWrapper args) {
+        final List<FlowUnitMessage> flowUnitMessages =
+                args.getWireHopper().readFromWire(args.getNode());
+        List<ResourceFlowUnit<HotNodeSummary>> flowUnitList = new ArrayList<>();
+        LOG.debug("rca: Executing fromWire: {}", this.getClass().getSimpleName());
+        for (FlowUnitMessage flowUnitMessage : flowUnitMessages) {
+            flowUnitList.add(ResourceFlowUnit.buildFlowUnitFromWrapper(flowUnitMessage));
+        }
+        setFlowUnits(flowUnitList);
     }
-    setFlowUnits(flowUnitList);
-  }
 }

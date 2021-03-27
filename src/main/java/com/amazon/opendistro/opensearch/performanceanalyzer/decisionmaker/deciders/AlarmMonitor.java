@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -22,21 +22,22 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.decid
  */
 public interface AlarmMonitor {
 
-  /**
-   * Invoked whenever an issue needs to be recorded with the monitor
-   * @param timeStamp Issue timestamp in millis
-   * @param value Issues can be recorded with an intensity value
-   */
-  void recordIssue(long timeStamp, double value);
+    /**
+     * Invoked whenever an issue needs to be recorded with the monitor
+     *
+     * @param timeStamp Issue timestamp in millis
+     * @param value Issues can be recorded with an intensity value
+     */
+    void recordIssue(long timeStamp, double value);
 
-  default void recordIssue() {
-    recordIssue(System.currentTimeMillis(), 1);
-  }
+    default void recordIssue() {
+        recordIssue(System.currentTimeMillis(), 1);
+    }
 
-  /**
-   * State of the alarm
-   * @return true if alarm is in healthy state, false otherwise
-   */
-  boolean isHealthy();
-
+    /**
+     * State of the alarm
+     *
+     * @return true if alarm is in healthy state, false otherwise
+     */
+    boolean isHealthy();
 }

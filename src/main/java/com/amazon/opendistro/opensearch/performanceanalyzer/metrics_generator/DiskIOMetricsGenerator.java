@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -17,23 +17,23 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.metrics_generator;
 
 public interface DiskIOMetricsGenerator {
 
-  // This method will be called before all following get methods
-  // to make sure that all information exists for a thread id
-  boolean hasDiskIOMetrics(String threadId);
+    // This method will be called before all following get methods
+    // to make sure that all information exists for a thread id
+    boolean hasDiskIOMetrics(String threadId);
 
-  // these metrics include page cache activity;
-  // only explicit syscalls: NO mmaps (majflts include mmaps)
-  double getAvgReadThroughputBps(String threadId);
+    // these metrics include page cache activity;
+    // only explicit syscalls: NO mmaps (majflts include mmaps)
+    double getAvgReadThroughputBps(String threadId);
 
-  double getAvgWriteThroughputBps(String threadId);
+    double getAvgWriteThroughputBps(String threadId);
 
-  double getAvgTotalThroughputBps(String threadId);
+    double getAvgTotalThroughputBps(String threadId);
 
-  double getAvgReadSyscallRate(String threadId);
+    double getAvgReadSyscallRate(String threadId);
 
-  double getAvgWriteSyscallRate(String threadId);
+    double getAvgWriteSyscallRate(String threadId);
 
-  double getAvgTotalSyscallRate(String threadId);
+    double getAvgTotalSyscallRate(String threadId);
 
-  void addSample();
+    void addSample();
 }

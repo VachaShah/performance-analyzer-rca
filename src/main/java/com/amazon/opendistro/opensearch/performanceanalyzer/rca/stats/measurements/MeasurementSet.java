@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,29 +15,30 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.measurements;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.Statistics;
 import java.util.List;
 
 /** This is a marker interface to bring all measurement sets under one type. */
 public interface MeasurementSet {
-  /**
-   * The statistics that should be calculated for this measurement
-   *
-   * @return The list of statistics to be calculated for this measurement.
-   */
-  List<Statistics> getStatsList();
+    /**
+     * The statistics that should be calculated for this measurement
+     *
+     * @return The list of statistics to be calculated for this measurement.
+     */
+    List<Statistics> getStatsList();
 
-  /**
-   * The name of the measurement.
-   *
-   * @return The name of the measurement.
-   */
-  String getName();
+    /**
+     * The name of the measurement.
+     *
+     * @return The name of the measurement.
+     */
+    String getName();
 
-  /**
-   * The unit of measurement. This is not used for calculation but just for reference.
-   *
-   * @return The string representation of the unit.
-   */
-  String getUnit();
+    /**
+     * The unit of measurement. This is not used for calculation but just for reference.
+     *
+     * @return The string representation of the unit.
+     */
+    String getUnit();
 }

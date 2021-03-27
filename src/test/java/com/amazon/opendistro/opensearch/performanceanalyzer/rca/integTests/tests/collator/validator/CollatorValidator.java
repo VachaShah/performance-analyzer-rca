@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -30,30 +30,34 @@ import org.apache.logging.log4j.Logger;
 
 public class CollatorValidator implements IValidator {
 
-  private static final Logger LOG = LogManager.getLogger(CollatorValidator.class);
-  protected AppContext appContext;
-  protected long startTime;
+    private static final Logger LOG = LogManager.getLogger(CollatorValidator.class);
+    protected AppContext appContext;
+    protected long startTime;
 
-  public CollatorValidator() {
-    this.appContext = new AppContext();
-    this.startTime = System.currentTimeMillis();
-  }
-
-  @Override
-  public boolean checkJsonResp(JsonElement response) {
-    JsonArray array = response.getAsJsonObject().get(QueryActionRequestHandler.ACTION_SET_JSON_NAME).getAsJsonArray();
-    if (array.size() == 0) {
-      return false;
+    public CollatorValidator() {
+        this.appContext = new AppContext();
+        this.startTime = System.currentTimeMillis();
     }
 
-    assertEquals(1, array.size());
-    JsonObject obj = array.get(0).getAsJsonObject();
+    @Override
+    public boolean checkJsonResp(JsonElement response) {
+        JsonArray array =
+                response.getAsJsonObject()
+                        .get(QueryActionRequestHandler.ACTION_SET_JSON_NAME)
+                        .getAsJsonArray();
+        if (array.size() == 0) {
+            return false;
+        }
 
-    if (!obj.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTION_COL_NAME).getAsString().equals(
-        HeapSizeIncreaseAction.NAME)) {
-      return false;
+        assertEquals(1, array.size());
+        JsonObject obj = array.get(0).getAsJsonObject();
+
+        if (!obj.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTION_COL_NAME)
+                .getAsString()
+                .equals(HeapSizeIncreaseAction.NAME)) {
+            return false;
+        }
+
+        return obj.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTIONABLE_NAME).getAsBoolean();
     }
-
-    return obj.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTIONABLE_NAME).getAsBoolean();
-  }
 }

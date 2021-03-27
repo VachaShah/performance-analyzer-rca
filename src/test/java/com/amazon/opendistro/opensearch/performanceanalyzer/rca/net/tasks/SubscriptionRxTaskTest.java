@@ -38,48 +38,47 @@ import org.mockito.Mock;
 @Category(GradleTaskForRca.class)
 public class SubscriptionRxTaskTest {
 
-  private static final String TEST_GRAPH_NODE = "testGraphNode";
-  private static final String TEST_HOST_ADDRESS = "testHostAddress";
-  private static final String TEST_LOCUS = "testLocus";
-  private SubscriptionRxTask testSubscriptionRxTask;
+    private static final String TEST_GRAPH_NODE = "testGraphNode";
+    private static final String TEST_HOST_ADDRESS = "testHostAddress";
+    private static final String TEST_LOCUS = "testLocus";
+    private SubscriptionRxTask testSubscriptionRxTask;
 
-  @Mock
-  private SubscriptionManager mockSubscriptionManager;
+    @Mock private SubscriptionManager mockSubscriptionManager;
 
-  @Mock
-  private CompositeSubscribeRequest mockRequest;
+    @Mock private CompositeSubscribeRequest mockRequest;
 
-  @Mock
-  private StreamObserver<SubscribeResponse> mockResponseStream;
+    @Mock private StreamObserver<SubscribeResponse> mockResponseStream;
 
-  @Captor
-  private ArgumentCaptor<SubscribeResponse> argCaptor;
+    @Captor private ArgumentCaptor<SubscribeResponse> argCaptor;
 
-  @Before
-  public void setUp() {
-    initMocks(this);
-    testSubscriptionRxTask = new SubscriptionRxTask(mockSubscriptionManager, mockRequest);
-  }
+    @Before
+    public void setUp() {
+        initMocks(this);
+        testSubscriptionRxTask = new SubscriptionRxTask(mockSubscriptionManager, mockRequest);
+    }
 
-  @Test
-  public void testSubscribeSuccess() {
-    when(mockRequest.getSubscribeMessage()).thenReturn(buildTestSubscribeMessage());
-    when(mockSubscriptionManager.addSubscriber(TEST_GRAPH_NODE, new InstanceDetails.Id(TEST_HOST_ADDRESS), TEST_LOCUS))
-        .thenReturn(SubscribeResponse.SubscriptionStatus.SUCCESS);
-    when(mockRequest.getSubscribeResponseStream()).thenReturn(mockResponseStream);
+    @Test
+    public void testSubscribeSuccess() {
+        when(mockRequest.getSubscribeMessage()).thenReturn(buildTestSubscribeMessage());
+        when(mockSubscriptionManager.addSubscriber(
+                        TEST_GRAPH_NODE, new InstanceDetails.Id(TEST_HOST_ADDRESS), TEST_LOCUS))
+                .thenReturn(SubscribeResponse.SubscriptionStatus.SUCCESS);
+        when(mockRequest.getSubscribeResponseStream()).thenReturn(mockResponseStream);
 
-    testSubscriptionRxTask.run();
-    verify(mockResponseStream, times(1)).onNext(argCaptor.capture());
-    verify(mockResponseStream, times(1)).onCompleted();
+        testSubscriptionRxTask.run();
+        verify(mockResponseStream, times(1)).onNext(argCaptor.capture());
+        verify(mockResponseStream, times(1)).onCompleted();
 
-    Assert.assertEquals(SubscribeResponse.SubscriptionStatus.SUCCESS, argCaptor.getValue().getSubscriptionStatus());
-  }
+        Assert.assertEquals(
+                SubscribeResponse.SubscriptionStatus.SUCCESS,
+                argCaptor.getValue().getSubscriptionStatus());
+    }
 
-  private SubscribeMessage buildTestSubscribeMessage() {
-    return SubscribeMessage.newBuilder()
-                           .setDestinationGraphNode(TEST_GRAPH_NODE)
-                           .putTags("locus", TEST_LOCUS)
-                           .putTags("requester", TEST_HOST_ADDRESS)
-                           .build();
-  }
+    private SubscribeMessage buildTestSubscribeMessage() {
+        return SubscribeMessage.newBuilder()
+                .setDestinationGraphNode(TEST_GRAPH_NODE)
+                .putTags("locus", TEST_LOCUS)
+                .putTags("requester", TEST_HOST_ADDRESS)
+                .build();
+    }
 }

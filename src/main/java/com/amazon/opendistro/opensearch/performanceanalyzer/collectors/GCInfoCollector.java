@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.collectors;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.jvm.GarbageCollectorInfo;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.GCInfoDimension;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.MetricsConfiguration;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.MetricsProcessor;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -29,64 +29,64 @@ import java.util.function.Supplier;
  * A collector that collects info about the current garbage collectors for various regions in the
  * heap.
  */
-public class GCInfoCollector extends PerformanceAnalyzerMetricsCollector implements
-    MetricsProcessor {
+public class GCInfoCollector extends PerformanceAnalyzerMetricsCollector
+        implements MetricsProcessor {
 
-  private static final int SAMPLING_TIME_INTERVAL =
-      MetricsConfiguration.CONFIG_MAP.get(GCInfoCollector.class).samplingInterval;
-  private static final int EXPECTED_KEYS_PATH_LENGTH = 0;
+    private static final int SAMPLING_TIME_INTERVAL =
+            MetricsConfiguration.CONFIG_MAP.get(GCInfoCollector.class).samplingInterval;
+    private static final int EXPECTED_KEYS_PATH_LENGTH = 0;
 
-  public GCInfoCollector() {
-    super(SAMPLING_TIME_INTERVAL, "GCInfo");
-  }
-
-  @Override
-  void collectMetrics(long startTime) {
-    // Zero the string builder
-    value.setLength(0);
-
-    // first line is the timestamp
-    value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
-         .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
-
-    for (Map.Entry<String, Supplier<String>> entry :
-        GarbageCollectorInfo.getGcSuppliers().entrySet()) {
-      value.append(new GCInfo(entry.getKey(), entry.getValue().get()).serialize())
-           .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+    public GCInfoCollector() {
+        super(SAMPLING_TIME_INTERVAL, "GCInfo");
     }
 
-    saveMetricValues(value.toString(), startTime);
-  }
+    @Override
+    void collectMetrics(long startTime) {
+        // Zero the string builder
+        value.setLength(0);
 
-  @Override
-  public String getMetricsPath(long startTime, String... keysPath) {
-    if (keysPath != null && keysPath.length != EXPECTED_KEYS_PATH_LENGTH) {
-      throw new RuntimeException("keys length should be " + EXPECTED_KEYS_PATH_LENGTH);
+        // first line is the timestamp
+        value.append(PerformanceAnalyzerMetrics.getJsonCurrentMilliSeconds())
+                .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+
+        for (Map.Entry<String, Supplier<String>> entry :
+                GarbageCollectorInfo.getGcSuppliers().entrySet()) {
+            value.append(new GCInfo(entry.getKey(), entry.getValue().get()).serialize())
+                    .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor);
+        }
+
+        saveMetricValues(value.toString(), startTime);
     }
 
-    return PerformanceAnalyzerMetrics.generatePath(startTime,
-        PerformanceAnalyzerMetrics.sGcInfoPath);
-  }
+    @Override
+    public String getMetricsPath(long startTime, String... keysPath) {
+        if (keysPath != null && keysPath.length != EXPECTED_KEYS_PATH_LENGTH) {
+            throw new RuntimeException("keys length should be " + EXPECTED_KEYS_PATH_LENGTH);
+        }
 
-  public static class GCInfo extends MetricStatus {
-    private String memoryPool;
-    private String collectorName;
-
-    public GCInfo() {}
-
-    public GCInfo(final String memoryPool, final String collectorName) {
-      this.memoryPool = memoryPool;
-      this.collectorName = collectorName;
+        return PerformanceAnalyzerMetrics.generatePath(
+                startTime, PerformanceAnalyzerMetrics.sGcInfoPath);
     }
 
-    @JsonProperty(GCInfoDimension.Constants.MEMORY_POOL_VALUE)
-    public String getMemoryPool() {
-      return memoryPool;
-    }
+    public static class GCInfo extends MetricStatus {
+        private String memoryPool;
+        private String collectorName;
 
-    @JsonProperty(GCInfoDimension.Constants.COLLECTOR_NAME_VALUE)
-    public String getCollectorName() {
-      return collectorName;
+        public GCInfo() {}
+
+        public GCInfo(final String memoryPool, final String collectorName) {
+            this.memoryPool = memoryPool;
+            this.collectorName = collectorName;
+        }
+
+        @JsonProperty(GCInfoDimension.Constants.MEMORY_POOL_VALUE)
+        public String getMemoryPool() {
+            return memoryPool;
+        }
+
+        @JsonProperty(GCInfoDimension.Constants.COLLECTOR_NAME_VALUE)
+        public String getCollectorName() {
+            return collectorName;
+        }
     }
-  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.config.overrides;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * POJO for config overrides. The class contains two sets of overrides, one for enabling and one
- * for disabling.
+ * POJO for config overrides. The class contains two sets of overrides, one for enabling and one for
+ * disabling.
  */
 public class ConfigOverrides {
     private Overrides enable;
@@ -49,8 +50,8 @@ public class ConfigOverrides {
 
     /**
      * Class containing the overridable attributes of the system. Currently, overriding the
-     * enabled/disabled state for RCAs, deciders, actions and collectors are supported. More attributes can
-     * be added as needed.
+     * enabled/disabled state for RCAs, deciders, actions and collectors are supported. More
+     * attributes can be added as needed.
      */
     public static class Overrides {
         private List<String> rcas;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,40 +15,40 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.impl;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.Statistics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.impl.vals.AggregateValue;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Count implements IStatistic<AggregateValue> {
-  private AtomicLong counter;
-  private boolean empty;
+    private AtomicLong counter;
+    private boolean empty;
 
-  public Count() {
-    counter = new AtomicLong(0L);
-    empty = true;
-  }
+    public Count() {
+        counter = new AtomicLong(0L);
+        empty = true;
+    }
 
-  @Override
-  public Statistics type() {
-    return Statistics.COUNT;
-  }
+    @Override
+    public Statistics type() {
+        return Statistics.COUNT;
+    }
 
-  @Override
-  public void calculate(String key, Number value) {
-    counter.incrementAndGet();
-    empty = false;
-  }
+    @Override
+    public void calculate(String key, Number value) {
+        counter.incrementAndGet();
+        empty = false;
+    }
 
-  @Override
-  public List<AggregateValue> get() {
-    return Collections.singletonList(new AggregateValue(counter, type()));
-  }
+    @Override
+    public List<AggregateValue> get() {
+        return Collections.singletonList(new AggregateValue(counter, type()));
+    }
 
-  @Override
-  public boolean isEmpty() {
-    return empty;
-  }
+    @Override
+    public boolean isEmpty() {
+        return empty;
+    }
 }

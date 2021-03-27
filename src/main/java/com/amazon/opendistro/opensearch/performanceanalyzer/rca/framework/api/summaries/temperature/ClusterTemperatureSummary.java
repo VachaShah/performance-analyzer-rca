@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.temperature;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.GenericSummary;
@@ -44,9 +45,7 @@ public class ClusterTemperatureSummary extends GenericSummary {
 
     private final ClusterDimensionalSummary[] nodeDimensionalTemperatureSummaries;
 
-    /**
-     * This is the summary of all the nodes in the cluster.
-     */
+    /** This is the summary of all the nodes in the cluster. */
     private final CompactClusterLevelNodeSummary[] nodes;
 
     private int numberOfNodes;
@@ -58,9 +57,10 @@ public class ClusterTemperatureSummary extends GenericSummary {
         this.nodes = new CompactClusterLevelNodeSummary[this.numberOfNodes];
     }
 
-    public void createClusterDimensionalTemperature(TemperatureDimension dimension,
-                                                    TemperatureVector.NormalizedValue mean,
-                                                    double totalUsage) {
+    public void createClusterDimensionalTemperature(
+            TemperatureDimension dimension,
+            TemperatureVector.NormalizedValue mean,
+            double totalUsage) {
         ClusterDimensionalSummary summary = new ClusterDimensionalSummary(dimension);
         summary.setMeanTemperature(mean);
         summary.setTotalUsage(totalUsage);
@@ -68,12 +68,14 @@ public class ClusterTemperatureSummary extends GenericSummary {
     }
 
     // The String key is the node ID.
-    public void addNodesSummaries(Map<String, CompactClusterLevelNodeSummary> nodeTemperatureSummaries) {
+    public void addNodesSummaries(
+            Map<String, CompactClusterLevelNodeSummary> nodeTemperatureSummaries) {
         int i = 0;
         for (CompactClusterLevelNodeSummary nodeTemperatureSummaryVal :
                 nodeTemperatureSummaries.values()) {
             for (TemperatureDimension dimension : TemperatureDimension.values()) {
-                nodeDimensionalTemperatureSummaries[dimension.ordinal()].addNodeToZone(nodeTemperatureSummaryVal);
+                nodeDimensionalTemperatureSummaries[dimension.ordinal()].addNodeToZone(
+                        nodeTemperatureSummaryVal);
             }
             nodes[i] = nodeTemperatureSummaryVal;
             i++;
@@ -171,12 +173,13 @@ public class ClusterTemperatureSummary extends GenericSummary {
      * @param context The Database connection context.
      * @return The Summary object with other nested objects.
      */
-    public static ClusterTemperatureSummary buildSummaryFromDatabase(Result<Record> records,
-                                                                     DSLContext context) {
+    public static ClusterTemperatureSummary buildSummaryFromDatabase(
+            Result<Record> records, DSLContext context) {
         int numNodes = -1;
 
         if (records.size() > 1) {
-            throw new IllegalArgumentException("Only 1 ClusterTemperatureSummary expected." + records);
+            throw new IllegalArgumentException(
+                    "Only 1 ClusterTemperatureSummary expected." + records);
         }
 
         Record record = records.get(0);
@@ -189,12 +192,14 @@ public class ClusterTemperatureSummary extends GenericSummary {
         int clusterTemperatureID =
                 record.get(SQLiteQueryUtils.getPrimaryKeyColumnName(TABLE_NAME), Integer.class);
 
-        Field<Integer> foreignKeyForDimensionalTable = DSL.field(
-                SQLiteQueryUtils.getPrimaryKeyColumnName(TABLE_NAME), Integer.class);
+        Field<Integer> foreignKeyForDimensionalTable =
+                DSL.field(SQLiteQueryUtils.getPrimaryKeyColumnName(TABLE_NAME), Integer.class);
 
-
-        SelectJoinStep<Record> rcaQuery = SQLiteQueryUtils
-                .buildSummaryQuery(context, dimensionalTablename, clusterTemperatureID,
+        SelectJoinStep<Record> rcaQuery =
+                SQLiteQueryUtils.buildSummaryQuery(
+                        context,
+                        dimensionalTablename,
+                        clusterTemperatureID,
                         foreignKeyForDimensionalTable);
 
         Result<Record> recordList = rcaQuery.fetch();
@@ -203,18 +208,23 @@ public class ClusterTemperatureSummary extends GenericSummary {
             ClusterDimensionalSummary dimSummary =
                     ClusterDimensionalSummary.build(record1, context);
 
-            summary.nodeDimensionalTemperatureSummaries[dimSummary.getProfileForDimension().ordinal()] = dimSummary;
+            summary.nodeDimensionalTemperatureSummaries[
+                            dimSummary.getProfileForDimension().ordinal()] =
+                    dimSummary;
         }
 
-        rcaQuery = SQLiteQueryUtils
-                .buildSummaryQuery(context, CompactClusterLevelNodeSummary.class.getSimpleName(),
+        rcaQuery =
+                SQLiteQueryUtils.buildSummaryQuery(
+                        context,
+                        CompactClusterLevelNodeSummary.class.getSimpleName(),
                         clusterTemperatureID,
                         foreignKeyForDimensionalTable);
 
         recordList = rcaQuery.fetch();
         List<CompactClusterLevelNodeSummary> nodeSummaries = new ArrayList<>();
         for (Record record1 : recordList) {
-            CompactClusterLevelNodeSummary nodeSummary = CompactClusterLevelNodeSummary.build(record1);
+            CompactClusterLevelNodeSummary nodeSummary =
+                    CompactClusterLevelNodeSummary.build(record1);
             nodeSummaries.add(nodeSummary);
         }
         summary.addNodeSummaries(nodeSummaries);

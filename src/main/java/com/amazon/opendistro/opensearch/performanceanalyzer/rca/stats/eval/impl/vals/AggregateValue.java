@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,50 +15,50 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.impl.vals;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.Statistics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.format.Formatter;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.measurements.MeasurementSet;
-
 import java.util.Objects;
 
 public class AggregateValue extends Value {
-  private Statistics aggregationType;
+    private Statistics aggregationType;
 
-  public AggregateValue(Number value, Statistics type) {
-    super(value);
-    this.aggregationType = type;
-  }
-
-  public void format(Formatter formatter, MeasurementSet measurementSet, Statistics stats) {
-    formatter.formatAggregatedValue(measurementSet, stats, value);
-  }
-
-  public Statistics getAggregationType() {
-    return aggregationType;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    public AggregateValue(Number value, Statistics type) {
+        super(value);
+        this.aggregationType = type;
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-    AggregateValue that = (AggregateValue) o;
-    return aggregationType == that.aggregationType;
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), aggregationType);
-  }
+    public void format(Formatter formatter, MeasurementSet measurementSet, Statistics stats) {
+        formatter.formatAggregatedValue(measurementSet, stats, value);
+    }
 
-  @Override
-  public String toString() {
-    return "AggregateValue{" + "aggregationType=" + aggregationType + ", value=" + value + '}';
-  }
+    public Statistics getAggregationType() {
+        return aggregationType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        AggregateValue that = (AggregateValue) o;
+        return aggregationType == that.aggregationType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), aggregationType);
+    }
+
+    @Override
+    public String toString() {
+        return "AggregateValue{" + "aggregationType=" + aggregationType + ", value=" + value + '}';
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.metrics;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.Metric;
 
 public class Cache_Request_Eviction extends Metric {
-  public static final String NAME = AllMetrics.ShardStatsValue.CACHE_REQUEST_EVICTION.toString();
+    public static final String NAME = AllMetrics.ShardStatsValue.CACHE_REQUEST_EVICTION.toString();
 
-  public Cache_Request_Eviction(long evaluationIntervalSeconds) {
-    super(NAME, evaluationIntervalSeconds);
-  }
+    public Cache_Request_Eviction(long evaluationIntervalSeconds) {
+        super(NAME, evaluationIntervalSeconds);
+    }
 }

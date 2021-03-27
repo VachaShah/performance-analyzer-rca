@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.overrides;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.ClientServers;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
@@ -29,86 +30,90 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.scheduler.RCASch
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.scheduler.RcaSchedulerState;
 import com.amazon.opendistro.opensearch.performanceanalyzer.threads.ThreadProvider;
 import com.amazon.opendistro.opensearch.performanceanalyzer.util.WaitFor;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class RcaControllerIt extends RcaController {
-  private final String rcaPath;
-  private List<ConnectedComponent> rcaGraphComponents;
-  private RcaItMetricsDBProvider rcaItMetricsDBProvider;
+    private final String rcaPath;
+    private List<ConnectedComponent> rcaGraphComponents;
+    private RcaItMetricsDBProvider rcaItMetricsDBProvider;
 
-  public RcaControllerIt(ThreadProvider threadProvider,
-                         ScheduledExecutorService netOpsExecutorService,
-                         GRPCConnectionManager grpcConnectionManager,
-                         ClientServers clientServers,
-                         String rca_enabled_conf_location,
-                         long rcaStateCheckIntervalMillis,
-                         long nodeRoleCheckPeriodicityMillis,
-                         AllMetrics.NodeRole nodeRole,
-                         final AppContext appContext,
-                         final Queryable dbProvider) {
-    super(threadProvider,
-        netOpsExecutorService,
-        grpcConnectionManager,
-        clientServers,
-        rca_enabled_conf_location,
-        rcaStateCheckIntervalMillis,
-        nodeRoleCheckPeriodicityMillis,
-        appContext,
-        dbProvider);
-    this.currentRole = nodeRole;
-    this.rcaPath = rca_enabled_conf_location;
-  }
-
-  @Override
-  protected List<ConnectedComponent> getRcaGraphComponents(RcaConf rcaConf) throws
-      ClassNotFoundException,
-      NoSuchMethodException,
-      InvocationTargetException,
-      InstantiationException,
-      IllegalAccessException {
-    if (rcaGraphComponents != null) {
-      return rcaGraphComponents;
-    } else {
-      return super.getRcaGraphComponents(rcaConf);
+    public RcaControllerIt(
+            ThreadProvider threadProvider,
+            ScheduledExecutorService netOpsExecutorService,
+            GRPCConnectionManager grpcConnectionManager,
+            ClientServers clientServers,
+            String rca_enabled_conf_location,
+            long rcaStateCheckIntervalMillis,
+            long nodeRoleCheckPeriodicityMillis,
+            AllMetrics.NodeRole nodeRole,
+            final AppContext appContext,
+            final Queryable dbProvider) {
+        super(
+                threadProvider,
+                netOpsExecutorService,
+                grpcConnectionManager,
+                clientServers,
+                rca_enabled_conf_location,
+                rcaStateCheckIntervalMillis,
+                nodeRoleCheckPeriodicityMillis,
+                appContext,
+                dbProvider);
+        this.currentRole = nodeRole;
+        this.rcaPath = rca_enabled_conf_location;
     }
-  }
 
-  @Override
-  protected RcaConf getRcaConfForMyRole(AllMetrics.NodeRole nodeRole) {
-    RcaConfIt rcaConfIt = new RcaConfIt(super.getRcaConfForMyRole(nodeRole));
-    rcaConfIt.setRcaDataStorePath(rcaPath);
-    return rcaConfIt;
-  }
-
-  public void setDbProvider(final RcaItMetricsDBProvider db) throws InterruptedException {
-    dbProvider = db;
-    rcaItMetricsDBProvider = db;
-    RCAScheduler sched = getRcaScheduler();
-
-    // The change is optional and only happens in the next line if the scheduler is already running.
-    // If the scheduler is not running at the moment, then it will pick up the new DB when it starts
-    // next.
-    if (sched != null) {
-      sched.setQueryable(db);
+    @Override
+    protected List<ConnectedComponent> getRcaGraphComponents(RcaConf rcaConf)
+            throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+                    InstantiationException, IllegalAccessException {
+        if (rcaGraphComponents != null) {
+            return rcaGraphComponents;
+        } else {
+            return super.getRcaGraphComponents(rcaConf);
+        }
     }
-  }
 
-  public RcaItMetricsDBProvider getDbProvider() {
-    return rcaItMetricsDBProvider;
-  }
+    @Override
+    protected RcaConf getRcaConfForMyRole(AllMetrics.NodeRole nodeRole) {
+        RcaConfIt rcaConfIt = new RcaConfIt(super.getRcaConfForMyRole(nodeRole));
+        rcaConfIt.setRcaDataStorePath(rcaPath);
+        return rcaConfIt;
+    }
 
-  public void setRcaGraphComponents(Class rcaGraphClass)
-      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-    AnalysisGraph graphObject =
-        (AnalysisGraph) rcaGraphClass.getDeclaredConstructor().newInstance();
-    this.rcaGraphComponents = RcaUtil.getAnalysisGraphComponents(graphObject);
-  }
+    public void setDbProvider(final RcaItMetricsDBProvider db) throws InterruptedException {
+        dbProvider = db;
+        rcaItMetricsDBProvider = db;
+        RCAScheduler sched = getRcaScheduler();
 
-  public void waitForRcaState(RcaSchedulerState state) throws Exception {
-    WaitFor.waitFor(() -> getRcaScheduler() != null && getRcaScheduler().getState() == state, 20, TimeUnit.SECONDS);
-  }
+        // The change is optional and only happens in the next line if the scheduler is already
+        // running.
+        // If the scheduler is not running at the moment, then it will pick up the new DB when it
+        // starts
+        // next.
+        if (sched != null) {
+            sched.setQueryable(db);
+        }
+    }
+
+    public RcaItMetricsDBProvider getDbProvider() {
+        return rcaItMetricsDBProvider;
+    }
+
+    public void setRcaGraphComponents(Class rcaGraphClass)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+                    InstantiationException {
+        AnalysisGraph graphObject =
+                (AnalysisGraph) rcaGraphClass.getDeclaredConstructor().newInstance();
+        this.rcaGraphComponents = RcaUtil.getAnalysisGraphComponents(graphObject);
+    }
+
+    public void waitForRcaState(RcaSchedulerState state) throws Exception {
+        WaitFor.waitFor(
+                () -> getRcaScheduler() != null && getRcaScheduler().getState() == state,
+                20,
+                TimeUnit.SECONDS);
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared.Event;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -26,7 +26,6 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableMap;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.BatchBindStep;
@@ -37,7 +36,8 @@ public class ShardStateMetricsProcessor implements EventProcessor {
     private ShardStateMetricsSnapshot shardStateMetricsSnapshot;
     private BatchBindStep handle;
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final TypeReference<HashMap<String, String>> TYPE_REF = new TypeReference<HashMap<String, String>>() {};
+    private static final TypeReference<HashMap<String, String>> TYPE_REF =
+            new TypeReference<HashMap<String, String>>() {};
     private long startTime;
     private long endTime;
 
@@ -48,9 +48,9 @@ public class ShardStateMetricsProcessor implements EventProcessor {
     static ShardStateMetricsProcessor buildShardStateMetricEventsProcessor(
             long currWindowStartTime,
             Connection conn,
-            NavigableMap<Long,
-                ShardStateMetricsSnapshot> shardStateEventMetricsMap) {
-        ShardStateMetricsSnapshot shardStateSnap = shardStateEventMetricsMap.get(currWindowStartTime);
+            NavigableMap<Long, ShardStateMetricsSnapshot> shardStateEventMetricsMap) {
+        ShardStateMetricsSnapshot shardStateSnap =
+                shardStateEventMetricsMap.get(currWindowStartTime);
         if (shardStateSnap == null) {
             shardStateSnap = new ShardStateMetricsSnapshot(conn, currWindowStartTime);
             shardStateEventMetricsMap.put(currWindowStartTime, shardStateSnap);
@@ -74,10 +74,7 @@ public class ShardStateMetricsProcessor implements EventProcessor {
     }
 
     /**
-     * Sample event :
-     * ^shard_state_metrics
-     * {"current_time":1600677426860}
-     * {IndexName:"pmc"}
+     * Sample event : ^shard_state_metrics {"current_time":1600677426860} {IndexName:"pmc"}
      * {"ShardID":2,"ShardType":"p","NodeName":"elasticsearch2","Shard_State":"Unassigned"}
      * {"ShardID":2,"ShardType":"r","NodeName":"elasticsearch2","Shard_State:"Initializing"}
      * {IndexName:"pmc1"}
@@ -98,7 +95,8 @@ public class ShardStateMetricsProcessor implements EventProcessor {
                             shardStateMap.get(AllMetrics.ShardStateDimension.SHARD_ID.toString()),
                             shardStateMap.get(AllMetrics.ShardStateDimension.SHARD_TYPE.toString()),
                             shardStateMap.get(AllMetrics.ShardStateDimension.NODE_NAME.toString()),
-                            shardStateMap.get(AllMetrics.ShardStateDimension.SHARD_STATE.toString()));
+                            shardStateMap.get(
+                                    AllMetrics.ShardStateDimension.SHARD_STATE.toString()));
                 }
             }
         }

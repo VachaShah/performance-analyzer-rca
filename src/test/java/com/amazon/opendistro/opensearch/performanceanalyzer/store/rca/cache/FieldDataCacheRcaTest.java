@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.store.rca.cache;
 import static java.time.Instant.ofEpochMilli;
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
+import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.GradleTaskForRca;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units.ResourceFlowUnit;
@@ -29,15 +30,12 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.I
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cache.FieldDataCacheRca;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster.NodeKey;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.ClusterDetailsEventProcessor;
-
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,16 +55,29 @@ public class FieldDataCacheRcaTest {
         fieldDataCacheEvictions = new MetricTestHelper(5);
         fieldDataCacheWeight = new MetricTestHelper(5);
         fieldDataCacheRca = new FieldDataCacheRca(1, fieldDataCacheEvictions, fieldDataCacheWeight);
-        columnName = Arrays.asList(AllMetrics.ShardStatsDerivedDimension.INDEX_NAME.toString(), AllMetrics.ShardStatsDerivedDimension.SHARD_ID.toString(), MetricsDB.SUM, MetricsDB.MAX);
+        columnName =
+                Arrays.asList(
+                        AllMetrics.ShardStatsDerivedDimension.INDEX_NAME.toString(),
+                        AllMetrics.ShardStatsDerivedDimension.SHARD_ID.toString(),
+                        MetricsDB.SUM,
+                        MetricsDB.MAX);
 
-        ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
         ClusterDetailsEventProcessor.NodeDetails node =
-                new ClusterDetailsEventProcessor.NodeDetails(AllMetrics.NodeRole.DATA, "node1", "127.0.0.1", false);
+                new ClusterDetailsEventProcessor.NodeDetails(
+                        AllMetrics.NodeRole.DATA, "node1", "127.0.0.1", false);
         clusterDetailsEventProcessor.setNodesDetails(Collections.singletonList(node));
         appContext = new AppContext();
         appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
-        appContext.getNodeConfigCache().put(new NodeKey(new InstanceDetails.Id("node1"), new InstanceDetails.Ip("127.0.0.1")),
-                ResourceUtil.FIELD_DATA_CACHE_MAX_SIZE, 5.0);
+        appContext
+                .getNodeConfigCache()
+                .put(
+                        new NodeKey(
+                                new InstanceDetails.Id("node1"),
+                                new InstanceDetails.Ip("127.0.0.1")),
+                        ResourceUtil.FIELD_DATA_CACHE_MAX_SIZE,
+                        5.0);
         fieldDataCacheRca.setAppContext(appContext);
     }
 
@@ -74,15 +85,20 @@ public class FieldDataCacheRcaTest {
      * generate flowunit and bind the flowunit to metrics, sample record:
      *
      * <p>Eg:| IndexName | ShardID | SUM | AVG | MIN | MAX |
-     *      -------------------------------------------------
-     *       | .kibana_1 | 0       | 15.0 | 8.0 | 2.0 | 9.0 |
-     *
+     * ------------------------------------------------- | .kibana_1 | 0 | 15.0 | 8.0 | 2.0 | 9.0 |
      */
     private void mockFlowUnits(int cacheEvictionCnt, double cacheWeight) {
-        fieldDataCacheEvictions.createTestFlowUnits(columnName,
-                Arrays.asList("index_1", "0", String.valueOf(cacheEvictionCnt), String.valueOf(cacheEvictionCnt)));
-        fieldDataCacheWeight.createTestFlowUnits(columnName,
-                Arrays.asList("index_1", "0", String.valueOf(cacheWeight), String.valueOf(cacheWeight)));
+        fieldDataCacheEvictions.createTestFlowUnits(
+                columnName,
+                Arrays.asList(
+                        "index_1",
+                        "0",
+                        String.valueOf(cacheEvictionCnt),
+                        String.valueOf(cacheEvictionCnt)));
+        fieldDataCacheWeight.createTestFlowUnits(
+                columnName,
+                Arrays.asList(
+                        "index_1", "0", String.valueOf(cacheWeight), String.valueOf(cacheWeight)));
     }
 
     @Test

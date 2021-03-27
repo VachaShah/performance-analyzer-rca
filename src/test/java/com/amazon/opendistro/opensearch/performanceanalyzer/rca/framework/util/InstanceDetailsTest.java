@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.ClusterDetailsEventProcessor;
 import org.junit.Assert;
@@ -32,13 +33,16 @@ public class InstanceDetailsTest {
         boolean isMaster = true;
         int grpcPort = 123;
 
-        InstanceDetails instanceDetails1 = new InstanceDetails(nodeRole, id, ip, isMaster, grpcPort);
+        InstanceDetails instanceDetails1 =
+                new InstanceDetails(nodeRole, id, ip, isMaster, grpcPort);
         ClusterDetailsEventProcessor.NodeDetails nodeDetails =
-                new ClusterDetailsEventProcessor.NodeDetails(nodeRole, id2.toString(), ip2.toString(), isMaster, grpcPort);
+                new ClusterDetailsEventProcessor.NodeDetails(
+                        nodeRole, id2.toString(), ip2.toString(), isMaster, grpcPort);
         InstanceDetails instanceDetails2 = new InstanceDetails(nodeDetails);
 
         Assert.assertEquals(instanceDetails1, instanceDetails2);
-        Assert.assertEquals(id.toString() + "::" + ip.toString() + "::" + nodeRole + "::" + grpcPort,
+        Assert.assertEquals(
+                id.toString() + "::" + ip.toString() + "::" + nodeRole + "::" + grpcPort,
                 instanceDetails1.toString());
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,24 +15,30 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.configs;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.RcaConf;
 
 public class QueueRejectionRcaConfig {
-  private Integer rejectionTimePeriodInSeconds;
-  public static final int DEFAULT_REJECTION_TIME_PERIOD_IN_SECONDS = 300;
-  public static final String CONFIG_NAME = "queue-rejection-rca";
+    private Integer rejectionTimePeriodInSeconds;
+    public static final int DEFAULT_REJECTION_TIME_PERIOD_IN_SECONDS = 300;
+    public static final String CONFIG_NAME = "queue-rejection-rca";
 
-  public QueueRejectionRcaConfig(final RcaConf rcaConf) {
-    rejectionTimePeriodInSeconds = rcaConf.readRcaConfig(
-        CONFIG_NAME, RCA_CONF_KEY_CONSTANTS.REJECTION_TIME_PERIOD_IN_SECONDS,
-        DEFAULT_REJECTION_TIME_PERIOD_IN_SECONDS, (s) -> (s > 0), Integer.class);
-  }
+    public QueueRejectionRcaConfig(final RcaConf rcaConf) {
+        rejectionTimePeriodInSeconds =
+                rcaConf.readRcaConfig(
+                        CONFIG_NAME,
+                        RCA_CONF_KEY_CONSTANTS.REJECTION_TIME_PERIOD_IN_SECONDS,
+                        DEFAULT_REJECTION_TIME_PERIOD_IN_SECONDS,
+                        (s) -> (s > 0),
+                        Integer.class);
+    }
 
-  public int getRejectionTimePeriodInSeconds() {
-    return rejectionTimePeriodInSeconds;
-  }
+    public int getRejectionTimePeriodInSeconds() {
+        return rejectionTimePeriodInSeconds;
+    }
 
-  public static class RCA_CONF_KEY_CONSTANTS {
-    public static final String REJECTION_TIME_PERIOD_IN_SECONDS = "rejection-time-period-in-seconds";
-  }
+    public static class RCA_CONF_KEY_CONSTANTS {
+        public static final String REJECTION_TIME_PERIOD_IN_SECONDS =
+                "rejection-time-period-in-seconds";
+    }
 }

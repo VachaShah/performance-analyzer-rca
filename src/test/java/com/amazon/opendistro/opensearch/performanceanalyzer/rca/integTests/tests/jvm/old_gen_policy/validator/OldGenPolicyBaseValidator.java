@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.tests.jvm.old_gen_policy.validator;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions.CacheClearAction;
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions.ModifyCacheMaxSizeAction;
@@ -30,89 +31,101 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class OldGenPolicyBaseValidator implements IValidator {
-  private static final Logger LOG = LogManager.getLogger(OldGenPolicyBaseValidator.class);
-  private Gson gson;
+    private static final Logger LOG = LogManager.getLogger(OldGenPolicyBaseValidator.class);
+    private Gson gson;
 
-  public OldGenPolicyBaseValidator() {
-    gson = new Gson();
-  }
-
-  @Override
-  public boolean checkJsonResp(JsonElement response) {
-    JsonArray array = response.getAsJsonObject().get(QueryActionRequestHandler.ACTION_SET_JSON_NAME).getAsJsonArray();
-    if (array.size() == 0) {
-      return false;
+    public OldGenPolicyBaseValidator() {
+        gson = new Gson();
     }
 
-    return checkPersistedActions(array);
-  }
+    @Override
+    public boolean checkJsonResp(JsonElement response) {
+        JsonArray array =
+                response.getAsJsonObject()
+                        .get(QueryActionRequestHandler.ACTION_SET_JSON_NAME)
+                        .getAsJsonArray();
+        if (array.size() == 0) {
+            return false;
+        }
 
-  abstract boolean checkPersistedActions(JsonArray actionJsonArray);
+        return checkPersistedActions(array);
+    }
 
-  protected boolean checkModifyQueueAction(JsonArray array, ResourceEnum threadpool) {
-    for (int i = 0; i < array.size(); i++) {
-      JsonObject object = array.get(i).getAsJsonObject();
-      if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTION_COL_NAME).getAsString().equals(
-          ModifyQueueCapacityAction.NAME)) {
-        continue;
-      }
-      if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTIONABLE_NAME).getAsBoolean()) {
-        continue;
-      }
-      JsonObject summaryObj = object.getAsJsonObject(PersistedAction.SQL_SCHEMA_CONSTANTS.SUMMARY_NAME);
-      if (summaryObj != null) {
-        try {
-          ModifyQueueCapacityAction.Summary summary = gson.fromJson(summaryObj, ModifyQueueCapacityAction.Summary.class);
-          if (summary.getResource() == threadpool) {
+    abstract boolean checkPersistedActions(JsonArray actionJsonArray);
+
+    protected boolean checkModifyQueueAction(JsonArray array, ResourceEnum threadpool) {
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject object = array.get(i).getAsJsonObject();
+            if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTION_COL_NAME)
+                    .getAsString()
+                    .equals(ModifyQueueCapacityAction.NAME)) {
+                continue;
+            }
+            if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTIONABLE_NAME).getAsBoolean()) {
+                continue;
+            }
+            JsonObject summaryObj =
+                    object.getAsJsonObject(PersistedAction.SQL_SCHEMA_CONSTANTS.SUMMARY_NAME);
+            if (summaryObj != null) {
+                try {
+                    ModifyQueueCapacityAction.Summary summary =
+                            gson.fromJson(summaryObj, ModifyQueueCapacityAction.Summary.class);
+                    if (summary.getResource() == threadpool) {
+                        return true;
+                    }
+                } catch (Exception e) {
+                    LOG.warn(
+                            "Json syntax error, parsing summary object : {}",
+                            summaryObj.toString());
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean checkModifyCacheAction(JsonArray array, ResourceEnum cacheType) {
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject object = array.get(i).getAsJsonObject();
+            if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTION_COL_NAME)
+                    .getAsString()
+                    .equals(ModifyCacheMaxSizeAction.NAME)) {
+                continue;
+            }
+            if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTIONABLE_NAME).getAsBoolean()) {
+                continue;
+            }
+            JsonObject summaryObj =
+                    object.getAsJsonObject(PersistedAction.SQL_SCHEMA_CONSTANTS.SUMMARY_NAME);
+            if (summaryObj != null) {
+                try {
+                    ModifyCacheMaxSizeAction.Summary summary =
+                            gson.fromJson(summaryObj, ModifyCacheMaxSizeAction.Summary.class);
+                    if (summary.getResource() == cacheType) {
+                        return true;
+                    }
+                } catch (Exception e) {
+                    LOG.warn(
+                            "Json syntax error, parsing summary object : {}",
+                            summaryObj.toString());
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean checkCacheClearAction(JsonArray array) {
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject object = array.get(i).getAsJsonObject();
+            if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTION_COL_NAME)
+                    .getAsString()
+                    .equals(CacheClearAction.NAME)) {
+                continue;
+            }
+            if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTIONABLE_NAME).getAsBoolean()) {
+                continue;
+            }
             return true;
-          }
         }
-        catch (Exception e) {
-          LOG.warn("Json syntax error, parsing summary object : {}", summaryObj.toString());
-        }
-      }
+        return false;
     }
-    return false;
-  }
-
-  protected boolean checkModifyCacheAction(JsonArray array, ResourceEnum cacheType) {
-    for (int i = 0; i < array.size(); i++) {
-      JsonObject object = array.get(i).getAsJsonObject();
-      if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTION_COL_NAME).getAsString().equals(
-          ModifyCacheMaxSizeAction.NAME)) {
-        continue;
-      }
-      if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTIONABLE_NAME).getAsBoolean()) {
-        continue;
-      }
-      JsonObject summaryObj = object.getAsJsonObject(PersistedAction.SQL_SCHEMA_CONSTANTS.SUMMARY_NAME);
-      if (summaryObj != null) {
-        try {
-          ModifyCacheMaxSizeAction.Summary summary = gson.fromJson(summaryObj, ModifyCacheMaxSizeAction.Summary.class);
-          if (summary.getResource() == cacheType) {
-            return true;
-          }
-        }
-        catch (Exception e) {
-          LOG.warn("Json syntax error, parsing summary object : {}", summaryObj.toString());
-        }
-      }
-    }
-    return false;
-  }
-
-  protected boolean checkCacheClearAction(JsonArray array) {
-    for (int i = 0; i < array.size(); i++) {
-      JsonObject object = array.get(i).getAsJsonObject();
-      if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTION_COL_NAME).getAsString().equals(
-          CacheClearAction.NAME)) {
-        continue;
-      }
-      if (!object.get(PersistedAction.SQL_SCHEMA_CONSTANTS.ACTIONABLE_NAME).getAsBoolean()) {
-        continue;
-      }
-      return true;
-    }
-    return false;
-  }
 }

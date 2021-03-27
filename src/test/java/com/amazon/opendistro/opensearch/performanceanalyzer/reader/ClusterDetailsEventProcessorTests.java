@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -36,85 +36,88 @@ import org.mockito.Mock;
 
 public class ClusterDetailsEventProcessorTests {
 
-  @Mock
-  ConfigOverridesApplier mockOverridesApplier;
+    @Mock ConfigOverridesApplier mockOverridesApplier;
 
-  @Captor
-  ArgumentCaptor<String> overridesCaptor;
+    @Captor ArgumentCaptor<String> overridesCaptor;
 
-  private ClusterDetailsEventProcessor testClusterDetailsEventProcessor;
-  private ConfigOverrides testOverrides;
-  private String nodeId1 = "s7gDCVnCSiuBgHoYLji1gw";
-  private String address1 = "10.212.49.140";
+    private ClusterDetailsEventProcessor testClusterDetailsEventProcessor;
+    private ConfigOverrides testOverrides;
+    private String nodeId1 = "s7gDCVnCSiuBgHoYLji1gw";
+    private String address1 = "10.212.49.140";
 
-  private String nodeId2 = "Zn1QcSUGT--DciD1Em5wRg";
-  private String address2 = "10.212.52.241";
+    private String nodeId2 = "Zn1QcSUGT--DciD1Em5wRg";
+    private String address2 = "10.212.52.241";
 
-  private String disabledDecider = "disabled decider";
+    private String disabledDecider = "disabled decider";
 
-  @Before
-  public void setup() {
-    initMocks(this);
+    @Before
+    public void setup() {
+        initMocks(this);
 
-    testOverrides = new ConfigOverrides();
-    ConfigOverrides.Overrides disabled = new ConfigOverrides.Overrides();
-    disabled.setDeciders(Collections.singletonList(disabledDecider));
-    testOverrides.setDisable(disabled);
+        testOverrides = new ConfigOverrides();
+        ConfigOverrides.Overrides disabled = new ConfigOverrides.Overrides();
+        disabled.setDeciders(Collections.singletonList(disabledDecider));
+        testOverrides.setDisable(disabled);
 
-    testClusterDetailsEventProcessor = new ClusterDetailsEventProcessor(mockOverridesApplier);
-  }
-
-  @Test
-  public void testProcessEvent() throws Exception {
-
-    boolean isMasterNode1 = true;
-
-    boolean isMasterNode2 = false;
-
-    ClusterDetailsEventProcessor clusterDetailsEventProcessor;
-    try {
-      ClusterDetailsEventProcessorTestHelper clusterDetailsEventProcessorTestHelper = new ClusterDetailsEventProcessorTestHelper();
-      clusterDetailsEventProcessorTestHelper.addNodeDetails(nodeId1, address1, isMasterNode1);
-      clusterDetailsEventProcessorTestHelper.addNodeDetails(nodeId2, address2, isMasterNode2);
-      clusterDetailsEventProcessor = clusterDetailsEventProcessorTestHelper.generateClusterDetailsEvent();
-    } catch (Exception e) {
-      Assert.assertTrue("got exception when generating cluster details event", false);
-      return;
+        testClusterDetailsEventProcessor = new ClusterDetailsEventProcessor(mockOverridesApplier);
     }
 
-    List<ClusterDetailsEventProcessor.NodeDetails> nodes = clusterDetailsEventProcessor.getNodesDetails();
+    @Test
+    public void testProcessEvent() throws Exception {
 
-    assertEquals(nodeId1, nodes.get(0).getId());
-    assertEquals(address1, nodes.get(0).getHostAddress());
-    assertEquals(isMasterNode1, nodes.get(0).getIsMasterNode());
+        boolean isMasterNode1 = true;
 
-    assertEquals(nodeId2, nodes.get(1).getId());
-    assertEquals(address2, nodes.get(1).getHostAddress());
-    assertEquals(isMasterNode2, nodes.get(1).getIsMasterNode());
-  }
+        boolean isMasterNode2 = false;
 
-  @Test
-  public void testApplyOverrides()
-      throws Exception {
-    ClusterDetailsEventProcessorTestHelper clusterDetailsEventProcessorTestHelper = new ClusterDetailsEventProcessorTestHelper();
-    clusterDetailsEventProcessorTestHelper.addNodeDetails(nodeId1, address1, true);
-    clusterDetailsEventProcessorTestHelper.addNodeDetails(nodeId2, address2, false);
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor;
+        try {
+            ClusterDetailsEventProcessorTestHelper clusterDetailsEventProcessorTestHelper =
+                    new ClusterDetailsEventProcessorTestHelper();
+            clusterDetailsEventProcessorTestHelper.addNodeDetails(nodeId1, address1, isMasterNode1);
+            clusterDetailsEventProcessorTestHelper.addNodeDetails(nodeId2, address2, isMasterNode2);
+            clusterDetailsEventProcessor =
+                    clusterDetailsEventProcessorTestHelper.generateClusterDetailsEvent();
+        } catch (Exception e) {
+            Assert.assertTrue("got exception when generating cluster details event", false);
+            return;
+        }
 
-    Event testEvent = clusterDetailsEventProcessorTestHelper
-        .generateTestEventWithOverrides(testOverrides);
+        List<ClusterDetailsEventProcessor.NodeDetails> nodes =
+                clusterDetailsEventProcessor.getNodesDetails();
 
-    testClusterDetailsEventProcessor.processEvent(testEvent);
+        assertEquals(nodeId1, nodes.get(0).getId());
+        assertEquals(address1, nodes.get(0).getHostAddress());
+        assertEquals(isMasterNode1, nodes.get(0).getIsMasterNode());
 
-    verify(mockOverridesApplier).applyOverride(overridesCaptor.capture(), anyString());
+        assertEquals(nodeId2, nodes.get(1).getId());
+        assertEquals(address2, nodes.get(1).getHostAddress());
+        assertEquals(isMasterNode2, nodes.get(1).getIsMasterNode());
+    }
 
-    ObjectMapper mapper = new ObjectMapper();
-    ConfigOverrides capturedOverride = mapper.readValue(overridesCaptor.getValue(),
-        ConfigOverrides.class);
+    @Test
+    public void testApplyOverrides() throws Exception {
+        ClusterDetailsEventProcessorTestHelper clusterDetailsEventProcessorTestHelper =
+                new ClusterDetailsEventProcessorTestHelper();
+        clusterDetailsEventProcessorTestHelper.addNodeDetails(nodeId1, address1, true);
+        clusterDetailsEventProcessorTestHelper.addNodeDetails(nodeId2, address2, false);
 
-    assertNotNull(capturedOverride.getDisable());
-    assertNotNull(capturedOverride.getDisable().getDeciders());
-    assertEquals(testOverrides.getDisable().getDeciders().size(),
-        capturedOverride.getDisable().getDeciders().size());
-    assertEquals(disabledDecider, capturedOverride.getDisable().getDeciders().get(0));
-  }
+        Event testEvent =
+                clusterDetailsEventProcessorTestHelper.generateTestEventWithOverrides(
+                        testOverrides);
+
+        testClusterDetailsEventProcessor.processEvent(testEvent);
+
+        verify(mockOverridesApplier).applyOverride(overridesCaptor.capture(), anyString());
+
+        ObjectMapper mapper = new ObjectMapper();
+        ConfigOverrides capturedOverride =
+                mapper.readValue(overridesCaptor.getValue(), ConfigOverrides.class);
+
+        assertNotNull(capturedOverride.getDisable());
+        assertNotNull(capturedOverride.getDisable().getDeciders());
+        assertEquals(
+                testOverrides.getDisable().getDeciders().size(),
+                capturedOverride.getDisable().getDeciders().size());
+        assertEquals(disabledDecider, capturedOverride.getDisable().getDeciders().get(0));
+    }
 }

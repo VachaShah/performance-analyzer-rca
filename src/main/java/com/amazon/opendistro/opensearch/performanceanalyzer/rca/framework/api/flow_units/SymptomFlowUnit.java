@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,59 +15,58 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.contexts.SymptomContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.GenericFlowUnit;
-
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
-
 import java.util.List;
 
 public class SymptomFlowUnit extends GenericFlowUnit {
 
-  private SymptomContext context = null;
-  private List<List<String>> data;
+    private SymptomContext context = null;
+    private List<List<String>> data;
 
-  public SymptomFlowUnit(long timeStamp) {
-    super(timeStamp);
-  }
+    public SymptomFlowUnit(long timeStamp) {
+        super(timeStamp);
+    }
 
-  public SymptomFlowUnit(long timeStamp, SymptomContext context) {
-    super(timeStamp);
-    this.context = context;
-  }
+    public SymptomFlowUnit(long timeStamp, SymptomContext context) {
+        super(timeStamp);
+        this.context = context;
+    }
 
-  public SymptomFlowUnit(long timeStamp, List<List<String>> data, SymptomContext context) {
-    super(timeStamp);
-    this.context = context;
-    this.data = data;
-  }
+    public SymptomFlowUnit(long timeStamp, List<List<String>> data, SymptomContext context) {
+        super(timeStamp);
+        this.context = context;
+        this.data = data;
+    }
 
+    public SymptomContext getContext() {
+        return this.context;
+    }
 
-  public SymptomContext getContext() {
-    return this.context;
-  }
+    public List<List<String>> getData() {
+        return this.data;
+    }
 
-  public List<List<String>> getData() {
-    return this.data;
-  }
+    public static SymptomFlowUnit generic() {
+        return new SymptomFlowUnit(System.currentTimeMillis());
+    }
 
-  public static SymptomFlowUnit generic() {
-    return new SymptomFlowUnit(System.currentTimeMillis());
-  }
+    public FlowUnitMessage buildFlowUnitMessage(
+            final String graphNode, final InstanceDetails.Id esNode) {
+        final FlowUnitMessage.Builder messageBuilder = FlowUnitMessage.newBuilder();
+        messageBuilder.setGraphNode(graphNode);
+        messageBuilder.setEsNode(esNode.toString());
 
-  public FlowUnitMessage buildFlowUnitMessage(final String graphNode, final InstanceDetails.Id esNode) {
-    final FlowUnitMessage.Builder messageBuilder = FlowUnitMessage.newBuilder();
-    messageBuilder.setGraphNode(graphNode);
-    messageBuilder.setEsNode(esNode.toString());
+        messageBuilder.setTimeStamp(System.currentTimeMillis());
 
-    messageBuilder.setTimeStamp(System.currentTimeMillis());
+        return messageBuilder.build();
+    }
 
-    return messageBuilder.build();
-  }
-
-  @Override
-  public String toString() {
-    return String.format("%d", this.getTimeStamp());
-  }
+    @Override
+    public String toString() {
+        return String.format("%d", this.getTimeStamp());
+    }
 }

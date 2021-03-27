@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -16,18 +16,18 @@
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared;
 
 public class Event {
-  public String key;
-  public String value;
-  public long epoch;
+    public String key;
+    public String value;
+    public long epoch;
 
-  public Event(String key, String value, long epoch) {
-    this.key = key;
-    this.value = value;
-    this.epoch = epoch;
-  }
+    public Event(String key, String value, long epoch) {
+        this.key = key;
+        this.value = value;
+        this.epoch = epoch;
+    }
 
-  @Override
-  public String toString() {
-    return String.format("%s:%d::%s", key, epoch, value);
-  }
+    @Override
+    public String toString() {
+        return String.format("%s:%d::%s", key, epoch, value);
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -30,14 +30,12 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.I
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cache.ShardRequestCacheRca;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster.NodeKey;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader.ClusterDetailsEventProcessor;
-
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,18 +56,35 @@ public class ShardRequestCacheRcaTest {
         shardRequestCacheEvictions = new MetricTestHelper(5);
         shardRequestCacheHits = new MetricTestHelper(5);
         shardRequestCacheSize = new MetricTestHelper(5);
-        shardRequestCacheRca = new ShardRequestCacheRca(
-                1, shardRequestCacheEvictions, shardRequestCacheHits, shardRequestCacheSize);
-        columnName = Arrays.asList(AllMetrics.ShardStatsDerivedDimension.INDEX_NAME.toString(), AllMetrics.ShardStatsDerivedDimension.SHARD_ID.toString(), MetricsDB.SUM, MetricsDB.MAX);
+        shardRequestCacheRca =
+                new ShardRequestCacheRca(
+                        1,
+                        shardRequestCacheEvictions,
+                        shardRequestCacheHits,
+                        shardRequestCacheSize);
+        columnName =
+                Arrays.asList(
+                        AllMetrics.ShardStatsDerivedDimension.INDEX_NAME.toString(),
+                        AllMetrics.ShardStatsDerivedDimension.SHARD_ID.toString(),
+                        MetricsDB.SUM,
+                        MetricsDB.MAX);
 
-        ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
         ClusterDetailsEventProcessor.NodeDetails node =
-                new ClusterDetailsEventProcessor.NodeDetails(AllMetrics.NodeRole.DATA, "node1", "127.0.0.1", false);
+                new ClusterDetailsEventProcessor.NodeDetails(
+                        AllMetrics.NodeRole.DATA, "node1", "127.0.0.1", false);
         clusterDetailsEventProcessor.setNodesDetails(Collections.singletonList(node));
         appContext = new AppContext();
         appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
-        appContext.getNodeConfigCache().put(new NodeKey(new InstanceDetails.Id("node1"), new InstanceDetails.Ip("127.0.0.1")),
-                ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE, 0.0);
+        appContext
+                .getNodeConfigCache()
+                .put(
+                        new NodeKey(
+                                new InstanceDetails.Id("node1"),
+                                new InstanceDetails.Ip("127.0.0.1")),
+                        ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,
+                        0.0);
         shardRequestCacheRca.setAppContext(appContext);
     }
 
@@ -77,17 +92,24 @@ public class ShardRequestCacheRcaTest {
      * generate flowunit and bind the flowunit to metrics, sample record:
      *
      * <p>Eg:| IndexName | ShardID | SUM | AVG | MIN | MAX |
-     *      -------------------------------------------------
-     *       | .kibana_1 | 0       | 15.0 | 8.0 | 2.0 | 9.0 |
-     *
+     * ------------------------------------------------- | .kibana_1 | 0 | 15.0 | 8.0 | 2.0 | 9.0 |
      */
     private void mockFlowUnits(int cacheEvictionCnt, int cacheHitCnt, double cacheSize) {
-        shardRequestCacheEvictions.createTestFlowUnits(columnName,
-                Arrays.asList("index_1", "0", String.valueOf(cacheEvictionCnt), String.valueOf(cacheEvictionCnt)));
-        shardRequestCacheHits.createTestFlowUnits(columnName,
-                Arrays.asList("index_1", "0", String.valueOf(cacheHitCnt), String.valueOf(cacheHitCnt)));
-        shardRequestCacheSize.createTestFlowUnits(columnName,
-                Arrays.asList("index_1", "0", String.valueOf(cacheSize), String.valueOf(cacheSize)));
+        shardRequestCacheEvictions.createTestFlowUnits(
+                columnName,
+                Arrays.asList(
+                        "index_1",
+                        "0",
+                        String.valueOf(cacheEvictionCnt),
+                        String.valueOf(cacheEvictionCnt)));
+        shardRequestCacheHits.createTestFlowUnits(
+                columnName,
+                Arrays.asList(
+                        "index_1", "0", String.valueOf(cacheHitCnt), String.valueOf(cacheHitCnt)));
+        shardRequestCacheSize.createTestFlowUnits(
+                columnName,
+                Arrays.asList(
+                        "index_1", "0", String.valueOf(cacheSize), String.valueOf(cacheSize)));
     }
 
     @Test
@@ -101,29 +123,46 @@ public class ShardRequestCacheRcaTest {
         flowUnit = shardRequestCacheRca.operate();
         Assert.assertFalse(flowUnit.getResourceContext().isUnhealthy());
 
-
-        appContext.getNodeConfigCache().put(new NodeKey(new InstanceDetails.Id("node1"), new InstanceDetails.Ip("127.0.0.1")),
-                ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,3.0);
+        appContext
+                .getNodeConfigCache()
+                .put(
+                        new NodeKey(
+                                new InstanceDetails.Id("node1"),
+                                new InstanceDetails.Ip("127.0.0.1")),
+                        ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,
+                        3.0);
         mockFlowUnits(0, 0, 4.0);
         shardRequestCacheRca.setClock(Clock.offset(constantClock, Duration.ofMinutes(3)));
         flowUnit = shardRequestCacheRca.operate();
         Assert.assertFalse(flowUnit.getResourceContext().isUnhealthy());
 
-        mockFlowUnits(1, 0,4.0);
+        mockFlowUnits(1, 0, 4.0);
         shardRequestCacheRca.setClock(Clock.offset(constantClock, Duration.ofMinutes(4)));
         flowUnit = shardRequestCacheRca.operate();
         Assert.assertFalse(flowUnit.getResourceContext().isUnhealthy());
 
         // TimeWindow 2 of size 300sec
-        appContext.getNodeConfigCache().put(new NodeKey(new InstanceDetails.Id("node1"), new InstanceDetails.Ip("127.0.0.1")),
-                ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,0.0);
+        appContext
+                .getNodeConfigCache()
+                .put(
+                        new NodeKey(
+                                new InstanceDetails.Id("node1"),
+                                new InstanceDetails.Ip("127.0.0.1")),
+                        ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,
+                        0.0);
         mockFlowUnits(1, 1, 0.0);
         shardRequestCacheRca.setClock(Clock.offset(constantClock, Duration.ofMinutes(7)));
         flowUnit = shardRequestCacheRca.operate();
         Assert.assertFalse(flowUnit.getResourceContext().isUnhealthy());
 
-        appContext.getNodeConfigCache().put(new NodeKey(new InstanceDetails.Id("node1"), new InstanceDetails.Ip("127.0.0.1")),
-                ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,3.0);
+        appContext
+                .getNodeConfigCache()
+                .put(
+                        new NodeKey(
+                                new InstanceDetails.Id("node1"),
+                                new InstanceDetails.Ip("127.0.0.1")),
+                        ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,
+                        3.0);
         mockFlowUnits(1, 1, 4.0);
         shardRequestCacheRca.setClock(Clock.offset(constantClock, Duration.ofMinutes(10)));
         flowUnit = shardRequestCacheRca.operate();
@@ -146,8 +185,14 @@ public class ShardRequestCacheRcaTest {
         Assert.assertFalse(flowUnit.getResourceContext().isUnhealthy());
 
         // TimeWindow 4 of size 300sec
-        appContext.getNodeConfigCache().put(new NodeKey(new InstanceDetails.Id("node1"), new InstanceDetails.Ip("127.0.0.1")),
-                ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,0.0);
+        appContext
+                .getNodeConfigCache()
+                .put(
+                        new NodeKey(
+                                new InstanceDetails.Id("node1"),
+                                new InstanceDetails.Ip("127.0.0.1")),
+                        ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,
+                        0.0);
         mockFlowUnits(0, 1, 0.0);
         shardRequestCacheRca.setClock(Clock.offset(constantClock, Duration.ofMinutes(17)));
         flowUnit = shardRequestCacheRca.operate();
@@ -158,8 +203,14 @@ public class ShardRequestCacheRcaTest {
         flowUnit = shardRequestCacheRca.operate();
         Assert.assertFalse(flowUnit.getResourceContext().isUnhealthy());
 
-        appContext.getNodeConfigCache().put(new NodeKey(new InstanceDetails.Id("node1"), new InstanceDetails.Ip("127.0.0.1")),
-                ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,3.0);
+        appContext
+                .getNodeConfigCache()
+                .put(
+                        new NodeKey(
+                                new InstanceDetails.Id("node1"),
+                                new InstanceDetails.Ip("127.0.0.1")),
+                        ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE,
+                        3.0);
         mockFlowUnits(1, 1, 4.0);
         shardRequestCacheRca.setClock(Clock.offset(constantClock, Duration.ofMinutes(20)));
         flowUnit = shardRequestCacheRca.operate();
@@ -181,7 +232,8 @@ public class ShardRequestCacheRcaTest {
         Assert.assertEquals(1, nodeSummary.getNestedSummaryList().size());
         Assert.assertEquals(1, nodeSummary.getHotResourceSummaryList().size());
         HotResourceSummary resourceSummary = nodeSummary.getHotResourceSummaryList().get(0);
-        Assert.assertEquals(ResourceUtil.SHARD_REQUEST_CACHE_EVICTION, resourceSummary.getResource());
+        Assert.assertEquals(
+                ResourceUtil.SHARD_REQUEST_CACHE_EVICTION, resourceSummary.getResource());
         Assert.assertEquals(0.01, 6.0, resourceSummary.getValue());
 
         // TimeWindow 5 of size 300sec

@@ -15,85 +15,87 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.metrics;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.Statistics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.measurements.MeasurementSet;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public enum ReaderMetrics implements MeasurementSet {
 
-    /**
-     * Size of generated metricsdb files.
-     */
-    METRICSDB_FILE_SIZE("MetricsdbFileSize", "bytes", Arrays.asList(Statistics.MAX, Statistics.MEAN)),
+    /** Size of generated metricsdb files. */
+    METRICSDB_FILE_SIZE(
+            "MetricsdbFileSize", "bytes", Arrays.asList(Statistics.MAX, Statistics.MEAN)),
 
-    /**
-     * Number of compressed and uncompressed metricsdb files.
-     */
+    /** Number of compressed and uncompressed metricsdb files. */
     METRICSDB_NUM_FILES("MetricsdbNumFiles", "count", Statistics.SAMPLE),
 
-    /**
-     * Size of compressed and uncompressed metricsdb files.
-     */
+    /** Size of compressed and uncompressed metricsdb files. */
     METRICSDB_SIZE_FILES("MetricsdbSizeFiles", "bytes", Statistics.SAMPLE),
 
-    /**
-     * Number of uncompressed metricsdb files.
-     */
+    /** Number of uncompressed metricsdb files. */
     METRICSDB_NUM_UNCOMPRESSED_FILES("MetricsdbNumUncompressedFiles", "count", Statistics.SAMPLE),
 
-    /**
-     * Size of uncompressed metricsdb files.
-     */
+    /** Size of uncompressed metricsdb files. */
     METRICSDB_SIZE_UNCOMPRESSED_FILES("MetricsdbSizeUncompressedFiles", "bytes", Statistics.SAMPLE),
 
-    /**
-     * Whether or not batch metrics is enabled (0 for enabled, 1 for disabled).
-     */
+    /** Whether or not batch metrics is enabled (0 for enabled, 1 for disabled). */
     BATCH_METRICS_ENABLED("BatchMetricsEnabled", "count", Statistics.SAMPLE),
 
-    /**
-     * Number of http requests where the client gave a bad request.
-     */
+    /** Number of http requests where the client gave a bad request. */
     BATCH_METRICS_HTTP_CLIENT_ERROR("BatchMetricsHttpClientError", "count", Statistics.COUNT),
 
-    /**
-     * Number of http requests where the host could not generate a correct response.
-     */
+    /** Number of http requests where the host could not generate a correct response. */
     BATCH_METRICS_HTTP_HOST_ERROR("BatchMetricsHttpHostError", "count", Statistics.COUNT),
 
-    /**
-     * Number of successful queries.
-     */
+    /** Number of successful queries. */
     BATCH_METRICS_HTTP_SUCCESS("BatchMetricsHttpSuccess", "count", Statistics.COUNT),
 
     /**
-     * Number of times a query for batch metrics exceeded the maximum number of requestable datapoints.
+     * Number of times a query for batch metrics exceeded the maximum number of requestable
+     * datapoints.
      */
-    BATCH_METRICS_EXCEEDED_MAX_DATAPOINTS("ExceededBatchMetricsMaxDatapoints", "count", Statistics.COUNT),
+    BATCH_METRICS_EXCEEDED_MAX_DATAPOINTS(
+            "ExceededBatchMetricsMaxDatapoints", "count", Statistics.COUNT),
 
-    /**
-     * Amount of time required to process valid batch metrics requests.
-     */
-    BATCH_METRICS_QUERY_PROCESSING_TIME("BatchMetricsQueryProcessingTime", "millis",
-        Arrays.asList(Statistics.MAX, Statistics.MEAN, Statistics.SUM)),
+    /** Amount of time required to process valid batch metrics requests. */
+    BATCH_METRICS_QUERY_PROCESSING_TIME(
+            "BatchMetricsQueryProcessingTime",
+            "millis",
+            Arrays.asList(Statistics.MAX, Statistics.MEAN, Statistics.SUM)),
 
-    /**
-     * Amount of time taken to emit Shard State metrics.
-     */
-    SHARD_STATE_EMITTER_EXECUTION_TIME("ShardStateEmitterExecutionTime", "millis",
-        Arrays.asList(Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
+    /** Amount of time taken to emit Shard State metrics. */
+    SHARD_STATE_EMITTER_EXECUTION_TIME(
+            "ShardStateEmitterExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    /**
-     * Amount of time taken to emit Master throttling metrics.
-     */
-    MASTER_THROTTLING_EMITTER_EXECUTION_TIME("MasterThrottlingEmitterExecutionTime", "millis",
-        Arrays.asList(Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
+    /** Amount of time taken to emit Master throttling metrics. */
+    MASTER_THROTTLING_EMITTER_EXECUTION_TIME(
+            "MasterThrottlingEmitterExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    FAULT_DETECTION_METRICS_EMITTER_EXECUTION_TIME("FaultDetectionMetricsEmitterExecutionTime", "millis",
-        Arrays.asList(Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM));
+    FAULT_DETECTION_METRICS_EMITTER_EXECUTION_TIME(
+            "FaultDetectionMetricsEmitterExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM));
     /** What we want to appear as the metric name. */
     private String name;
 

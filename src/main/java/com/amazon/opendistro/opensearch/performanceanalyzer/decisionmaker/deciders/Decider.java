@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.deciders;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.NonLeafNode;
@@ -40,67 +41,69 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class Decider extends NonLeafNode<Decision> {
 
-  private static final Logger LOG = LogManager.getLogger(Decider.class);
-  protected final int decisionFrequency; // Measured in terms of number of evaluationIntervalPeriods
-  protected RcaConf rcaConf;
+    private static final Logger LOG = LogManager.getLogger(Decider.class);
+    protected final int
+            decisionFrequency; // Measured in terms of number of evaluationIntervalPeriods
+    protected RcaConf rcaConf;
 
-  public Decider(long evalIntervalSeconds, int decisionFrequency) {
-    super(0, evalIntervalSeconds);
-    this.decisionFrequency = decisionFrequency;
-    this.rcaConf = null;
-  }
-
-  public abstract String name();
-
-  @Override
-  public void generateFlowUnitListFromLocal(FlowUnitOperationArgWrapper args) {
-    LOG.debug("decider: Executing fromLocal: {}", name());
-    long startTime = System.currentTimeMillis();
-
-    Decision decision;
-    try {
-      decision = this.operate();
-    } catch (Exception ex) {
-      LOG.error("decider: Exception in operate", ex);
-      PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
-          ExceptionsAndErrors.EXCEPTION_IN_OPERATE, name(), 1);
-      decision = new Decision(System.currentTimeMillis(), this.name());
+    public Decider(long evalIntervalSeconds, int decisionFrequency) {
+        super(0, evalIntervalSeconds);
+        this.decisionFrequency = decisionFrequency;
+        this.rcaConf = null;
     }
-    long duration = System.currentTimeMillis() - startTime;
 
-    PerformanceAnalyzerApp.RCA_GRAPH_METRICS_AGGREGATOR.updateStat(
-        RcaGraphMetrics.GRAPH_NODE_OPERATE_CALL, this.name(), duration);
+    public abstract String name();
 
-    setLocalFlowUnit(decision);
-  }
+    @Override
+    public void generateFlowUnitListFromLocal(FlowUnitOperationArgWrapper args) {
+        LOG.debug("decider: Executing fromLocal: {}", name());
+        long startTime = System.currentTimeMillis();
 
-  @Override
-  public void persistFlowUnit(FlowUnitOperationArgWrapper args) {
-    // TODO: Persist Decisions taken by deciders to support queryable APIs and general bookkeeping
-    // This is a no-op for now
-    assert true;
-  }
+        Decision decision;
+        try {
+            decision = this.operate();
+        } catch (Exception ex) {
+            LOG.error("decider: Exception in operate", ex);
+            PerformanceAnalyzerApp.ERRORS_AND_EXCEPTIONS_AGGREGATOR.updateStat(
+                    ExceptionsAndErrors.EXCEPTION_IN_OPERATE, name(), 1);
+            decision = new Decision(System.currentTimeMillis(), this.name());
+        }
+        long duration = System.currentTimeMillis() - startTime;
 
-  @Override
-  public void generateFlowUnitListFromWire(FlowUnitOperationArgWrapper args) {
-    throw new IllegalArgumentException(name() + ": not expected to be called over the wire");
-  }
+        PerformanceAnalyzerApp.RCA_GRAPH_METRICS_AGGREGATOR.updateStat(
+                RcaGraphMetrics.GRAPH_NODE_OPERATE_CALL, this.name(), duration);
 
-  @Override
-  public void handleNodeMuted() {
-    setLocalFlowUnit(new Decision(System.currentTimeMillis(), this.name()));
-  }
+        setLocalFlowUnit(decision);
+    }
 
-  @Override
-  public abstract Decision operate();
+    @Override
+    public void persistFlowUnit(FlowUnitOperationArgWrapper args) {
+        // TODO: Persist Decisions taken by deciders to support queryable APIs and general
+        // bookkeeping
+        // This is a no-op for now
+        assert true;
+    }
 
-  /**
-   * read threshold values from rca.conf
-   *
-   * @param conf RcaConf object
-   */
-  @Override
-  public void readRcaConf(RcaConf conf) {
-    rcaConf = conf;
-  }
+    @Override
+    public void generateFlowUnitListFromWire(FlowUnitOperationArgWrapper args) {
+        throw new IllegalArgumentException(name() + ": not expected to be called over the wire");
+    }
+
+    @Override
+    public void handleNodeMuted() {
+        setLocalFlowUnit(new Decision(System.currentTimeMillis(), this.name()));
+    }
+
+    @Override
+    public abstract Decision operate();
+
+    /**
+     * read threshold values from rca.conf
+     *
+     * @param conf RcaConf object
+     */
+    @Override
+    public void readRcaConf(RcaConf conf) {
+        rcaConf = conf;
+    }
 }

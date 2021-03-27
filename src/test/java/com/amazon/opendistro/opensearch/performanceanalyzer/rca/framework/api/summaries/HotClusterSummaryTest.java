@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.FlowUnitMessage;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.GenericSummary;
@@ -38,8 +39,7 @@ public class HotClusterSummaryTest {
     private static final String NODE_ADDRESS = "127.0.0.1";
     private static HotClusterSummary uut;
 
-    @Mock
-    private Record testRecord;
+    @Mock private Record testRecord;
 
     @BeforeClass
     public static void setup() {
@@ -61,7 +61,9 @@ public class HotClusterSummaryTest {
 
     @Test
     public void testToString() {
-        Assert.assertEquals(NUM_OF_NODES + " " + NUM_UNHEALTHY + " " + uut.getNestedSummaryList(), uut.toString());
+        Assert.assertEquals(
+                NUM_OF_NODES + " " + NUM_UNHEALTHY + " " + uut.getNestedSummaryList(),
+                uut.toString());
     }
 
     @Test
@@ -73,8 +75,11 @@ public class HotClusterSummaryTest {
     public void testGetSqlSchema() {
         List<Field<?>> schema = uut.getSqlSchema();
         Assert.assertEquals(2, schema.size());
-        Assert.assertEquals(HotClusterSummary.ClusterSummaryField.NUM_OF_NODES_FIELD.getField(), schema.get(0));
-        Assert.assertEquals(HotClusterSummary.ClusterSummaryField.NUM_OF_UNHEALTHY_NODES_FIELD.getField(), schema.get(1));
+        Assert.assertEquals(
+                HotClusterSummary.ClusterSummaryField.NUM_OF_NODES_FIELD.getField(), schema.get(0));
+        Assert.assertEquals(
+                HotClusterSummary.ClusterSummaryField.NUM_OF_UNHEALTHY_NODES_FIELD.getField(),
+                schema.get(1));
     }
 
     @Test
@@ -87,27 +92,46 @@ public class HotClusterSummaryTest {
 
     @Test
     public void testToJson() {
-        HotNodeSummary nodeSummary = new HotNodeSummary(new InstanceDetails.Id(NODE_ID), new InstanceDetails.Ip(NODE_ADDRESS));
+        HotNodeSummary nodeSummary =
+                new HotNodeSummary(
+                        new InstanceDetails.Id(NODE_ID), new InstanceDetails.Ip(NODE_ADDRESS));
         uut.appendNestedSummary(nodeSummary);
         JsonElement elem = uut.toJson();
         Assert.assertTrue(elem.isJsonObject());
         JsonObject json = ((JsonObject) elem);
-        Assert.assertEquals(NUM_OF_NODES, json.get(HotClusterSummary.SQL_SCHEMA_CONSTANTS.NUM_OF_NODES_COL_NAME).getAsInt());
-        Assert.assertEquals(NUM_UNHEALTHY, json.get(HotClusterSummary.SQL_SCHEMA_CONSTANTS.NUM_OF_UNHEALTHY_NODES_COL_NAME).getAsInt());
+        Assert.assertEquals(
+                NUM_OF_NODES,
+                json.get(HotClusterSummary.SQL_SCHEMA_CONSTANTS.NUM_OF_NODES_COL_NAME).getAsInt());
+        Assert.assertEquals(
+                NUM_UNHEALTHY,
+                json.get(HotClusterSummary.SQL_SCHEMA_CONSTANTS.NUM_OF_UNHEALTHY_NODES_COL_NAME)
+                        .getAsInt());
         String tableName = uut.getHotNodeSummaryList().get(0).getTableName();
         JsonObject nodeJson = json.get(tableName).getAsJsonArray().get(0).getAsJsonObject();
-        Assert.assertEquals(NODE_ID, nodeJson.get(HotNodeSummary.SQL_SCHEMA_CONSTANTS.NODE_ID_COL_NAME).getAsString());
-        Assert.assertEquals(NODE_ADDRESS, nodeJson.get(HotNodeSummary.SQL_SCHEMA_CONSTANTS.HOST_IP_ADDRESS_COL_NAME).getAsString());
+        Assert.assertEquals(
+                NODE_ID,
+                nodeJson.get(HotNodeSummary.SQL_SCHEMA_CONSTANTS.NODE_ID_COL_NAME).getAsString());
+        Assert.assertEquals(
+                NODE_ADDRESS,
+                nodeJson.get(HotNodeSummary.SQL_SCHEMA_CONSTANTS.HOST_IP_ADDRESS_COL_NAME)
+                        .getAsString());
     }
 
     @Test
     public void testBuildSummary() {
         Assert.assertNull(HotClusterSummary.buildSummary(null));
         MockitoAnnotations.initMocks(this);
-        Mockito.when(testRecord.get(HotClusterSummary.ClusterSummaryField.NUM_OF_NODES_FIELD.getField(), Integer.class))
+        Mockito.when(
+                        testRecord.get(
+                                HotClusterSummary.ClusterSummaryField.NUM_OF_NODES_FIELD.getField(),
+                                Integer.class))
                 .thenReturn(NUM_OF_NODES);
-        Mockito.when(testRecord.get(
-                HotClusterSummary.ClusterSummaryField.NUM_OF_UNHEALTHY_NODES_FIELD.getField(), Integer.class)).thenReturn(NUM_UNHEALTHY);
+        Mockito.when(
+                        testRecord.get(
+                                HotClusterSummary.ClusterSummaryField.NUM_OF_UNHEALTHY_NODES_FIELD
+                                        .getField(),
+                                Integer.class))
+                .thenReturn(NUM_UNHEALTHY);
         GenericSummary summary = HotClusterSummary.buildSummary(testRecord);
         Assert.assertNotNull(summary);
         Assert.assertTrue(summary instanceof HotClusterSummary);

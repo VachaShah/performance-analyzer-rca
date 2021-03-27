@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -21,20 +21,19 @@ import static org.junit.Assert.assertTrue;
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.decisionmaker.actions.HeapSizeIncreaseAction;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.actions.PersistedAction;
-import org.junit.Assert;
-
 import java.util.concurrent.TimeUnit;
+import org.junit.Assert;
 
 public class HeapSizeIncreaseValidatorCollocatedMaster extends HeapSizeIncreaseValidator {
 
-  @Override
-  public boolean checkPersistedAction(final PersistedAction persistedAction) {
-    assertTrue(persistedAction.isActionable());
-    assertFalse(persistedAction.isMuted());
-    Assert.assertEquals(HeapSizeIncreaseAction.NAME, persistedAction.getActionName());
-    assertEquals(TimeUnit.DAYS.toMillis(3), persistedAction.getCoolOffPeriod());
-    assertEquals("{DATA_0}", persistedAction.getNodeIds());
-    assertEquals("{127.0.0.1}", persistedAction.getNodeIps());
-    return true;
-  }
+    @Override
+    public boolean checkPersistedAction(final PersistedAction persistedAction) {
+        assertTrue(persistedAction.isActionable());
+        assertFalse(persistedAction.isMuted());
+        Assert.assertEquals(HeapSizeIncreaseAction.NAME, persistedAction.getActionName());
+        assertEquals(TimeUnit.DAYS.toMillis(3), persistedAction.getCoolOffPeriod());
+        assertEquals("{DATA_0}", persistedAction.getNodeIds());
+        assertEquals("{127.0.0.1}", persistedAction.getNodeIps());
+        return true;
+    }
 }

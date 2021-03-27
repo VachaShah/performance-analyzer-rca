@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package com.amazon.opendistro.opensearch.performanceanalyzer.config;
 
 public class TroubleshootingConfig {
-  public static final boolean enableDevAssert = false;
+    public static final boolean enableDevAssert = false;
 
-  public static final boolean getEnableDevAssert() {
-    return enableDevAssert;
-  }
+    public static final boolean getEnableDevAssert() {
+        return enableDevAssert;
+    }
 }

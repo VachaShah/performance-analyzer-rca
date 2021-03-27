@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.net;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.CertificateUtils;
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PluginSettings;
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.SubscribeResponse;
@@ -37,14 +38,22 @@ public class SubscriptionManagerTest {
 
     @Before
     public void setup() {
-        oldCertificateFile = PluginSettings.instance().getProperty(CertificateUtils.CERTIFICATE_FILE_PATH);
-        oldPrivateKeyFile = PluginSettings.instance().getProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH);
+        oldCertificateFile =
+                PluginSettings.instance().getProperty(CertificateUtils.CERTIFICATE_FILE_PATH);
+        oldPrivateKeyFile =
+                PluginSettings.instance().getProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH);
 
         ClassLoader classLoader = getClass().getClassLoader();
-        PluginSettings.instance().overrideProperty(CertificateUtils.CERTIFICATE_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/server/localhost.crt")).getFile());
-        PluginSettings.instance().overrideProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH,
-                Objects.requireNonNull(classLoader.getResource("tls/server/localhost.key")).getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.CERTIFICATE_FILE_PATH,
+                        Objects.requireNonNull(classLoader.getResource("tls/server/localhost.crt"))
+                                .getFile());
+        PluginSettings.instance()
+                .overrideProperty(
+                        CertificateUtils.PRIVATE_KEY_FILE_PATH,
+                        Objects.requireNonNull(classLoader.getResource("tls/server/localhost.key"))
+                                .getFile());
 
         grpcConnectionManager = new GRPCConnectionManager(true);
         uut = new SubscriptionManager(grpcConnectionManager);
@@ -53,11 +62,13 @@ public class SubscriptionManagerTest {
     @After
     public void tearDown() {
         if (oldCertificateFile != null) {
-            PluginSettings.instance().overrideProperty(CertificateUtils.CERTIFICATE_FILE_PATH, oldCertificateFile);
+            PluginSettings.instance()
+                    .overrideProperty(CertificateUtils.CERTIFICATE_FILE_PATH, oldCertificateFile);
         }
 
         if (oldPrivateKeyFile != null) {
-            PluginSettings.instance().overrideProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH, oldPrivateKeyFile);
+            PluginSettings.instance()
+                    .overrideProperty(CertificateUtils.PRIVATE_KEY_FILE_PATH, oldPrivateKeyFile);
         }
     }
 
@@ -101,11 +112,12 @@ public class SubscriptionManagerTest {
         Assert.assertTrue(uut.isNodeSubscribed(testNode));
 
         // Add host connections to the grpcConnectionManager
-        grpcConnectionManager.getClientStubForHost(new InstanceDetails(id1,
-                new InstanceDetails.Ip("0.0.0.0"), 9000));
+        grpcConnectionManager.getClientStubForHost(
+                new InstanceDetails(id1, new InstanceDetails.Ip("0.0.0.0"), 9000));
         Assert.assertTrue(grpcConnectionManager.getPerHostChannelMap().containsKey(id1));
         Assert.assertTrue(grpcConnectionManager.getPerHostClientStubMap().containsKey(id1));
-        grpcConnectionManager.getClientStubForHost(new InstanceDetails(id2, new InstanceDetails.Ip("0.0.0.0"), 9000));
+        grpcConnectionManager.getClientStubForHost(
+                new InstanceDetails(id2, new InstanceDetails.Ip("0.0.0.0"), 9000));
         Assert.assertTrue(grpcConnectionManager.getPerHostChannelMap().containsKey(id2));
         Assert.assertTrue(grpcConnectionManager.getPerHostClientStubMap().containsKey(id2));
 
@@ -116,19 +128,23 @@ public class SubscriptionManagerTest {
         Assert.assertFalse(grpcConnectionManager.getPerHostClientStubMap().containsKey(id1));
 
         // Test that unsubscribeAndTerminateConnection properly updates the underlying map
-        grpcConnectionManager.getClientStubForHost(new InstanceDetails(id2, new InstanceDetails.Ip("0.0.0.0"), 9000));
+        grpcConnectionManager.getClientStubForHost(
+                new InstanceDetails(id2, new InstanceDetails.Ip("0.0.0.0"), 9000));
         uut.unsubscribeAndTerminateConnection(testNode, id2);
         Assert.assertEquals(Sets.newHashSet(id1), uut.getSubscribersFor(testNode));
         Assert.assertTrue(uut.isNodeSubscribed(testNode));
         Assert.assertFalse(grpcConnectionManager.getPerHostChannelMap().containsKey(id2));
         Assert.assertFalse(grpcConnectionManager.getPerHostClientStubMap().containsKey(id2));
 
-        // Test that unsubscribeAndTerminateConnection doesn't update the underlying map for non existent addresses
-        uut.unsubscribeAndTerminateConnection(testNode, new InstanceDetails.Id("nonExistentAddress"));
+        // Test that unsubscribeAndTerminateConnection doesn't update the underlying map for non
+        // existent addresses
+        uut.unsubscribeAndTerminateConnection(
+                testNode, new InstanceDetails.Id("nonExistentAddress"));
         Assert.assertEquals(Sets.newHashSet(id1), uut.getSubscribersFor(testNode));
         Assert.assertTrue(uut.isNodeSubscribed(testNode));
 
-        // Test that unsubscribeAndTerminateConnection removes the node from the map once all of its subscriptions are
+        // Test that unsubscribeAndTerminateConnection removes the node from the map once all of its
+        // subscriptions are
         // terminated
         uut.unsubscribeAndTerminateConnection(testNode, id1);
         Assert.assertEquals(Collections.emptySet(), uut.getSubscribersFor(testNode));

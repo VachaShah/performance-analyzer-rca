@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.impl.vals;
 
+
 import java.util.Objects;
 
 /**
@@ -22,39 +23,39 @@ import java.util.Objects;
  * the longest and the how long it took.
  */
 public abstract class NamedValue extends Value {
-  private String name;
+    private String name;
 
-  public NamedValue(String key, Number value) {
-    super(value);
-    this.name = key;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    public NamedValue(String key, Number value) {
+        super(value);
+        this.name = key;
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-    NamedValue that = (NamedValue) o;
-    return Objects.equals(name, that.name);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), name);
-  }
+    public String getName() {
+        return name;
+    }
 
-  @Override
-  public String toString() {
-    return "NamedValue{" + "name='" + name + '\'' + ", value=" + value + '}';
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        NamedValue that = (NamedValue) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), name);
+    }
+
+    @Override
+    public String toString() {
+        return "NamedValue{" + "name='" + name + '\'' + ", value=" + value + '}';
+    }
 }

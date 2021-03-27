@@ -15,13 +15,14 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.byShard;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.temperature.TemperatureDimension;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.metric.temperature.byShard.calculators.AvgShardBasedTemperatureCalculator;
 
-public class HeapAllocRateByShardAvgTemperatureCalculator extends
-    AvgShardBasedTemperatureCalculator {
+public class HeapAllocRateByShardAvgTemperatureCalculator
+        extends AvgShardBasedTemperatureCalculator {
 
-  public HeapAllocRateByShardAvgTemperatureCalculator() {
-    super(TemperatureDimension.Heap_AllocRate);
-  }
+    public HeapAllocRateByShardAvgTemperatureCalculator() {
+        super(TemperatureDimension.Heap_AllocRate);
+    }
 }

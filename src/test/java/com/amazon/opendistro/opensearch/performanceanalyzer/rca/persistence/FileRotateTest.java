@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.RcaTestHelper;
 import java.io.IOException;
@@ -31,110 +32,112 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class FileRotateTest {
-  private Path fileToRotate = null;
-  private static Path testLocation = null;
-  private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-kk-mm-ss");
+    private Path fileToRotate = null;
+    private static Path testLocation = null;
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-kk-mm-ss");
 
-  @BeforeClass
-  public static void cleanupLogs() {
-    RcaTestHelper.cleanUpLogs();
-  }
-
-  @AfterClass
-  public static void cleanup() throws IOException {
-    cleanupLogs();
-    if (testLocation != null) {
-      FileUtils.cleanDirectory(testLocation.toFile());
-    }
-  }
-
-  @Before
-  public void init() throws IOException {
-    String cwd = System.getProperty("user.dir");
-    testLocation = Paths.get(cwd, "src", "test", "resources", "tmp", "file_rotate");
-    Files.createDirectories(testLocation);
-    FileUtils.cleanDirectory(testLocation.toFile());
-    fileToRotate = Paths.get(testLocation.toString(), "fileRotate.test");
-    Files.deleteIfExists(fileToRotate);
-  }
-
-  class TestFileRotate extends FileRotate {
-    TestFileRotate(TimeUnit rotation_time_unit, long rotation_period) {
-      super(fileToRotate, rotation_time_unit, rotation_period, DATE_FORMAT);
+    @BeforeClass
+    public static void cleanupLogs() {
+        RcaTestHelper.cleanUpLogs();
     }
 
-    public void setLastRotated(long value) {
-      lastRotatedMillis = value;
+    @AfterClass
+    public static void cleanup() throws IOException {
+        cleanupLogs();
+        if (testLocation != null) {
+            FileUtils.cleanDirectory(testLocation.toFile());
+        }
     }
 
-    @Override
-    public Path rotate(long millis) throws IOException {
-      return super.rotate(millis);
+    @Before
+    public void init() throws IOException {
+        String cwd = System.getProperty("user.dir");
+        testLocation = Paths.get(cwd, "src", "test", "resources", "tmp", "file_rotate");
+        Files.createDirectories(testLocation);
+        FileUtils.cleanDirectory(testLocation.toFile());
+        fileToRotate = Paths.get(testLocation.toString(), "fileRotate.test");
+        Files.deleteIfExists(fileToRotate);
     }
 
-    @Override
-    public boolean shouldRotate(long currentTimeMillis) {
-      return super.shouldRotate(currentTimeMillis);
-    }
-  }
+    class TestFileRotate extends FileRotate {
+        TestFileRotate(TimeUnit rotation_time_unit, long rotation_period) {
+            super(fileToRotate, rotation_time_unit, rotation_period, DATE_FORMAT);
+        }
 
-  @Test
-  public void shouldRotate() throws InterruptedException, IOException {
-    TestFileRotate fileRotate = new TestFileRotate(TimeUnit.MILLISECONDS, 100);
-    Thread.sleep(100);
-    Assert.assertTrue(fileRotate.shouldRotate(System.currentTimeMillis()));
-    fileRotate.setLastRotated(System.currentTimeMillis());
-    Assert.assertFalse(fileRotate.shouldRotate(System.currentTimeMillis()));
-  }
+        public void setLastRotated(long value) {
+            lastRotatedMillis = value;
+        }
 
-  @Test
-  public void rotate() throws IOException {
-    TestFileRotate fileRotate = new TestFileRotate(TimeUnit.MILLISECONDS, 100);
-    Assert.assertFalse(fileToRotate.toFile().exists());
-    Assert.assertNull(fileRotate.rotate(System.currentTimeMillis()));
+        @Override
+        public Path rotate(long millis) throws IOException {
+            return super.rotate(millis);
+        }
 
-    // Let's create a file and try rotating it.
-    long currentMillis = System.currentTimeMillis();
-
-    Files.createFile(fileToRotate);
-    Assert.assertTrue(fileToRotate.toFile().exists());
-    fileRotate.rotate(currentMillis);
-
-    String formatNow = DATE_FORMAT.format(currentMillis);
-    for (String f : testLocation.toFile().list()) {
-      String prefix = fileToRotate.getFileName() + "." + formatNow;
-      Assert.assertTrue(
-          String.format("expected prefix: '%s', found: '%s'", prefix, f), f.startsWith(prefix));
+        @Override
+        public boolean shouldRotate(long currentTimeMillis) {
+            return super.shouldRotate(currentTimeMillis);
+        }
     }
 
-    long lastRotatedMillis = fileRotate.lastRotatedMillis;
-    Assert.assertFalse(fileToRotate.toFile().exists());
-    Files.createFile(fileToRotate);
-    Assert.assertTrue(fileToRotate.toFile().exists());
-    fileRotate.rotate(currentMillis);
-    Assert.assertTrue("File should not rotate if the rotation target already exists",
-            currentMillis == fileRotate.lastRotatedMillis);
-  }
-
-  @Test
-  public void tryRotate() throws IOException {
-    TestFileRotate fileRotate = new TestFileRotate(TimeUnit.MILLISECONDS, 100);
-    long currentMillis = System.currentTimeMillis();
-    fileRotate.setLastRotated(currentMillis - 100);
-
-    Files.createFile(fileToRotate);
-    Assert.assertTrue(fileToRotate.toFile().exists());
-    fileRotate.tryRotate(currentMillis);
-
-    String formatNow = DATE_FORMAT.format(currentMillis);
-    for (String f : testLocation.toFile().list()) {
-      String prefix = fileToRotate.getFileName() + "." + formatNow;
-      Assert.assertTrue(
-              String.format("expected prefix: '%s', found: '%s'", prefix, f), f.startsWith(prefix));
+    @Test
+    public void shouldRotate() throws InterruptedException, IOException {
+        TestFileRotate fileRotate = new TestFileRotate(TimeUnit.MILLISECONDS, 100);
+        Thread.sleep(100);
+        Assert.assertTrue(fileRotate.shouldRotate(System.currentTimeMillis()));
+        fileRotate.setLastRotated(System.currentTimeMillis());
+        Assert.assertFalse(fileRotate.shouldRotate(System.currentTimeMillis()));
     }
-    currentMillis = System.currentTimeMillis();
-    fileRotate.setLastRotated(currentMillis);
-    Assert.assertEquals(null, fileRotate.tryRotate(currentMillis));
 
-  }
+    @Test
+    public void rotate() throws IOException {
+        TestFileRotate fileRotate = new TestFileRotate(TimeUnit.MILLISECONDS, 100);
+        Assert.assertFalse(fileToRotate.toFile().exists());
+        Assert.assertNull(fileRotate.rotate(System.currentTimeMillis()));
+
+        // Let's create a file and try rotating it.
+        long currentMillis = System.currentTimeMillis();
+
+        Files.createFile(fileToRotate);
+        Assert.assertTrue(fileToRotate.toFile().exists());
+        fileRotate.rotate(currentMillis);
+
+        String formatNow = DATE_FORMAT.format(currentMillis);
+        for (String f : testLocation.toFile().list()) {
+            String prefix = fileToRotate.getFileName() + "." + formatNow;
+            Assert.assertTrue(
+                    String.format("expected prefix: '%s', found: '%s'", prefix, f),
+                    f.startsWith(prefix));
+        }
+
+        long lastRotatedMillis = fileRotate.lastRotatedMillis;
+        Assert.assertFalse(fileToRotate.toFile().exists());
+        Files.createFile(fileToRotate);
+        Assert.assertTrue(fileToRotate.toFile().exists());
+        fileRotate.rotate(currentMillis);
+        Assert.assertTrue(
+                "File should not rotate if the rotation target already exists",
+                currentMillis == fileRotate.lastRotatedMillis);
+    }
+
+    @Test
+    public void tryRotate() throws IOException {
+        TestFileRotate fileRotate = new TestFileRotate(TimeUnit.MILLISECONDS, 100);
+        long currentMillis = System.currentTimeMillis();
+        fileRotate.setLastRotated(currentMillis - 100);
+
+        Files.createFile(fileToRotate);
+        Assert.assertTrue(fileToRotate.toFile().exists());
+        fileRotate.tryRotate(currentMillis);
+
+        String formatNow = DATE_FORMAT.format(currentMillis);
+        for (String f : testLocation.toFile().list()) {
+            String prefix = fileToRotate.getFileName() + "." + formatNow;
+            Assert.assertTrue(
+                    String.format("expected prefix: '%s', found: '%s'", prefix, f),
+                    f.startsWith(prefix));
+        }
+        currentMillis = System.currentTimeMillis();
+        fileRotate.setLastRotated(currentMillis);
+        Assert.assertEquals(null, fileRotate.tryRotate(currentMillis));
+    }
 }

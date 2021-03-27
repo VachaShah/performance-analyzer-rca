@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.collectors;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.AppContext;
 import com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerApp;
@@ -46,122 +47,125 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class RcaStatsCollectorTest {
-  class FaultyAnalysisGraph extends AnalysisGraph {
-    @Override
-    public void construct() {
-      Metric cpuUtilization = new CPU_Utilization(1);
-      Metric heapUsed = new Sched_Waittime(1);
-      Metric pageMaj = new Paging_MajfltRate(1);
-      Metric heapAlloc = new Heap_AllocRate(1);
+    class FaultyAnalysisGraph extends AnalysisGraph {
+        @Override
+        public void construct() {
+            Metric cpuUtilization = new CPU_Utilization(1);
+            Metric heapUsed = new Sched_Waittime(1);
+            Metric pageMaj = new Paging_MajfltRate(1);
+            Metric heapAlloc = new Heap_AllocRate(1);
 
-      addLeaf(cpuUtilization);
-      addLeaf(heapUsed);
-      addLeaf(pageMaj);
-      addLeaf(heapAlloc);
+            addLeaf(cpuUtilization);
+            addLeaf(heapUsed);
+            addLeaf(pageMaj);
+            addLeaf(heapAlloc);
 
-      Symptom s1 = new HighCpuSymptom(1, cpuUtilization, heapUsed);
-      s1.addAllUpstreams(Arrays.asList(cpuUtilization, heapUsed));
+            Symptom s1 = new HighCpuSymptom(1, cpuUtilization, heapUsed);
+            s1.addAllUpstreams(Arrays.asList(cpuUtilization, heapUsed));
 
-      System.out.println(this.getClass().getName() + " graph constructed..");
+            System.out.println(this.getClass().getName() + " graph constructed..");
+        }
+
+        class HighCpuSymptom extends Symptom {
+            Metric cpu;
+            Metric heapUsed;
+
+            public HighCpuSymptom(long evaluationIntervalSeconds, Metric cpu, Metric heapUsed) {
+                super(evaluationIntervalSeconds);
+                this.cpu = cpu;
+                this.heapUsed = heapUsed;
+            }
+
+            @Override
+            public SymptomFlowUnit operate() {
+                int x = 5 / 0;
+                return new SymptomFlowUnit(0L);
+            }
+        }
     }
 
-    class HighCpuSymptom extends Symptom {
-      Metric cpu;
-      Metric heapUsed;
+    @Test
+    public void rcaGraphMetrics() throws Exception {
+        RcaTestHelper.cleanUpLogs();
 
-      public HighCpuSymptom(long evaluationIntervalSeconds, Metric cpu, Metric heapUsed) {
-        super(evaluationIntervalSeconds);
-        this.cpu = cpu;
-        this.heapUsed = heapUsed;
-      }
+        RcaGraphMetrics graphMetrics[] = {
+            RcaGraphMetrics.GRAPH_NODE_OPERATE_CALL,
+            RcaGraphMetrics.METRIC_GATHER_CALL,
+            RcaGraphMetrics.NUM_GRAPH_NODES,
+            RcaGraphMetrics.NUM_NODES_EXECUTED_LOCALLY,
+        };
 
-      @Override
-      public SymptomFlowUnit operate() {
-        int x = 5 / 0;
-        return new SymptomFlowUnit(0L);
-      }
+        JvmMetrics jvmMetrics[] = {
+            JvmMetrics.JVM_FREE_MEM_SAMPLER, JvmMetrics.JVM_TOTAL_MEM_SAMPLER
+        };
+
+        List<ConnectedComponent> connectedComponents =
+                RcaUtil.getAnalysisGraphComponents(new FaultyAnalysisGraph());
+        RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
+
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
+        clusterDetailsEventProcessor.setNodesDetails(
+                Collections.singletonList(
+                        new ClusterDetailsEventProcessor.NodeDetails(
+                                AllMetrics.NodeRole.UNKNOWN, "node1", "127.0.0.1", false)));
+        AppContext appContext = new AppContext();
+        appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
+
+        RCASchedulerTask rcaSchedulerTask =
+                new RCASchedulerTask(
+                        1000,
+                        Executors.newFixedThreadPool(2),
+                        connectedComponents,
+                        new MetricsDBProviderTestHelper(true),
+                        null,
+                        rcaConf,
+                        null,
+                        appContext);
+        rcaSchedulerTask.run();
+        StatsCollector statsCollector = new StatsCollector("test-stats", 0, new HashMap<>());
+
+        for (RcaGraphMetrics metricToCheck : graphMetrics) {
+            Assert.assertTrue(verify(metricToCheck));
+        }
+        for (JvmMetrics jvmMetrics1 : jvmMetrics) {
+            if (!verify(jvmMetrics1)) {
+                PerformanceAnalyzerApp.PERIODIC_SAMPLERS =
+                        new PeriodicSamplers(
+                                PerformanceAnalyzerApp.PERIODIC_SAMPLE_AGGREGATOR,
+                                PerformanceAnalyzerApp.getAllSamplers(appContext),
+                                (MetricsConfiguration.CONFIG_MAP.get(StatsCollector.class)
+                                                .samplingInterval)
+                                        / 2,
+                                TimeUnit.MILLISECONDS);
+
+                PerformanceAnalyzerApp.PERIODIC_SAMPLERS.run();
+            }
+            Assert.assertTrue(verify(jvmMetrics1));
+        }
+        statsCollector.collectMetrics(0);
     }
-  }
 
-  @Test
-  public void rcaGraphMetrics() throws Exception {
-    RcaTestHelper.cleanUpLogs();
-
-    RcaGraphMetrics graphMetrics[] = {
-      RcaGraphMetrics.GRAPH_NODE_OPERATE_CALL,
-      RcaGraphMetrics.METRIC_GATHER_CALL,
-      RcaGraphMetrics.NUM_GRAPH_NODES,
-      RcaGraphMetrics.NUM_NODES_EXECUTED_LOCALLY,
-    };
-
-    JvmMetrics jvmMetrics[] = {JvmMetrics.JVM_FREE_MEM_SAMPLER, JvmMetrics.JVM_TOTAL_MEM_SAMPLER};
-
-    List<ConnectedComponent> connectedComponents =
-        RcaUtil.getAnalysisGraphComponents(new FaultyAnalysisGraph());
-    RcaConf rcaConf = new RcaConf(Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca.conf").toString());
-
-    ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
-    clusterDetailsEventProcessor.setNodesDetails(
-        Collections.singletonList(new ClusterDetailsEventProcessor.NodeDetails(
-            AllMetrics.NodeRole.UNKNOWN,
-            "node1",
-            "127.0.0.1",
-            false))
-    );
-    AppContext appContext = new AppContext();
-    appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
-
-    RCASchedulerTask rcaSchedulerTask =
-        new RCASchedulerTask(
-            1000,
-            Executors.newFixedThreadPool(2),
-            connectedComponents,
-            new MetricsDBProviderTestHelper(true),
-            null,
-            rcaConf,
-            null,
-            appContext);
-    rcaSchedulerTask.run();
-    StatsCollector statsCollector = new StatsCollector("test-stats", 0, new HashMap<>());
-
-    for (RcaGraphMetrics metricToCheck : graphMetrics) {
-      Assert.assertTrue(verify(metricToCheck));
+    private boolean verify(MeasurementSet measurementSet) throws InterruptedException {
+        final int MAX_TIME_TO_WAIT_MILLIS = 10_000;
+        int waited_for_millis = 0;
+        while (waited_for_millis++ < MAX_TIME_TO_WAIT_MILLIS) {
+            if (PerformanceAnalyzerApp.RCA_STATS_REPORTER.isMeasurementCollected(measurementSet)) {
+                return true;
+            }
+            Thread.sleep(1);
+        }
+        System.out.println("Could not find measurement " + measurementSet);
+        return false;
     }
-    for (JvmMetrics jvmMetrics1: jvmMetrics) {
-      if (!verify(jvmMetrics1)) {
-        PerformanceAnalyzerApp.PERIODIC_SAMPLERS = new PeriodicSamplers(PerformanceAnalyzerApp.PERIODIC_SAMPLE_AGGREGATOR,
-            PerformanceAnalyzerApp.getAllSamplers(appContext),
-                (MetricsConfiguration.CONFIG_MAP.get(StatsCollector.class).samplingInterval) / 2,
-                TimeUnit.MILLISECONDS);
 
-        PerformanceAnalyzerApp.PERIODIC_SAMPLERS.run();
-      }
-      Assert.assertTrue(verify(jvmMetrics1));
+    @After
+    public void cleanup() {
+        RcaTestHelper.cleanUpLogs();
     }
-    statsCollector.collectMetrics(0);
-  }
-
-  private boolean verify(MeasurementSet measurementSet) throws InterruptedException {
-    final int MAX_TIME_TO_WAIT_MILLIS = 10_000;
-    int waited_for_millis = 0;
-    while (waited_for_millis++ < MAX_TIME_TO_WAIT_MILLIS) {
-      if (PerformanceAnalyzerApp.RCA_STATS_REPORTER.isMeasurementCollected(measurementSet)) {
-        return true;
-      }
-      Thread.sleep(1);
-    }
-    System.out.println("Could not find measurement " + measurementSet);
-    return false;
-  }
-
-  @After
-  public void cleanup() {
-    RcaTestHelper.cleanUpLogs();
-  }
 }

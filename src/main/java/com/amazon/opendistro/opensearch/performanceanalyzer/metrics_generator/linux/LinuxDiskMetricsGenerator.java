@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.metrics_generator.linux;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.DiskMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.hwnet.Disks;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics_generator.DiskMetricsGenerator;
@@ -23,38 +24,38 @@ import java.util.Set;
 
 public class LinuxDiskMetricsGenerator implements DiskMetricsGenerator {
 
-  private Map<String, DiskMetrics> diskMetricsMap;
+    private Map<String, DiskMetrics> diskMetricsMap;
 
-  @Override
-  public Set<String> getAllDisks() {
-    return diskMetricsMap.keySet();
-  }
+    @Override
+    public Set<String> getAllDisks() {
+        return diskMetricsMap.keySet();
+    }
 
-  @Override
-  public double getDiskUtilization(final String disk) {
+    @Override
+    public double getDiskUtilization(final String disk) {
 
-    return diskMetricsMap.get(disk).utilization;
-  }
+        return diskMetricsMap.get(disk).utilization;
+    }
 
-  @Override
-  public double getAwait(final String disk) {
+    @Override
+    public double getAwait(final String disk) {
 
-    return diskMetricsMap.get(disk).await;
-  }
+        return diskMetricsMap.get(disk).await;
+    }
 
-  @Override
-  public double getServiceRate(final String disk) {
+    @Override
+    public double getServiceRate(final String disk) {
 
-    return diskMetricsMap.get(disk).serviceRate;
-  }
+        return diskMetricsMap.get(disk).serviceRate;
+    }
 
-  @Override
-  public void addSample() {
-    Disks.addSample();
-  }
+    @Override
+    public void addSample() {
+        Disks.addSample();
+    }
 
-  public void setDiskMetricsMap(final Map<String, DiskMetrics> map) {
+    public void setDiskMetricsMap(final Map<String, DiskMetrics> map) {
 
-    diskMetricsMap = map;
-  }
+        diskMetricsMap = map;
+    }
 }

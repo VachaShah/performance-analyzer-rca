@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.log;
 
+
 import java.util.Collection;
 import java.util.Objects;
 import org.apache.logging.log4j.Level;
@@ -29,55 +30,62 @@ import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuild
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 public class AppenderHelper {
-  public static Configuration addMemoryAppenderToRootLogger() {
-    Configuration oldConfiguration = LoggerContext.getContext().getConfiguration();
+    public static Configuration addMemoryAppenderToRootLogger() {
+        Configuration oldConfiguration = LoggerContext.getContext().getConfiguration();
 
-    ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
-    builder.setStatusLevel(Level.INFO);
-    builder.setConfigurationName("RcaItLogger");
-    builder.setPackages("com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.integTests.framework.log");
-    RootLoggerComponentBuilder rootLogger = builder.newRootLogger(Level.INFO);
+        ConfigurationBuilder<BuiltConfiguration> builder =
+                ConfigurationBuilderFactory.newConfigurationBuilder();
+        builder.setStatusLevel(Level.INFO);
+        builder.setConfigurationName("RcaItLogger");
+        builder.setPackages(
+                "com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.integTests.framework.log");
+        RootLoggerComponentBuilder rootLogger = builder.newRootLogger(Level.INFO);
 
-    addRcaItInMemoryAppender(builder, rootLogger);
-    addConsoleAppender(builder, rootLogger);
+        addRcaItInMemoryAppender(builder, rootLogger);
+        addConsoleAppender(builder, rootLogger);
 
-    builder.add(rootLogger);
-    Configuration configuration = builder.build();
-    Configurator.reconfigure(configuration);
-    return oldConfiguration;
-  }
+        builder.add(rootLogger);
+        Configuration configuration = builder.build();
+        Configurator.reconfigure(configuration);
+        return oldConfiguration;
+    }
 
-  private static void addRcaItInMemoryAppender(ConfigurationBuilder builder, RootLoggerComponentBuilder rootLogger) {
-    AppenderComponentBuilder appenderBuilder = builder.newAppender(RcaItInMemoryAppender.NAME, RcaItInMemoryAppender.NAME);
-    addLogPattern(builder, appenderBuilder);
-    rootLogger.add(builder.newAppenderRef(RcaItInMemoryAppender.NAME));
-    builder.add(appenderBuilder);
+    private static void addRcaItInMemoryAppender(
+            ConfigurationBuilder builder, RootLoggerComponentBuilder rootLogger) {
+        AppenderComponentBuilder appenderBuilder =
+                builder.newAppender(RcaItInMemoryAppender.NAME, RcaItInMemoryAppender.NAME);
+        addLogPattern(builder, appenderBuilder);
+        rootLogger.add(builder.newAppenderRef(RcaItInMemoryAppender.NAME));
+        builder.add(appenderBuilder);
+    }
 
-  }
+    private static void addConsoleAppender(
+            ConfigurationBuilder builder, RootLoggerComponentBuilder rootLogger) {
+        AppenderComponentBuilder appenderBuilder =
+                builder.newAppender("Console", "CONSOLE")
+                        .addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT);
+        addLogPattern(builder, appenderBuilder);
+        rootLogger.add(builder.newAppenderRef("Console"));
+        builder.add(appenderBuilder);
+    }
 
-  private static void addConsoleAppender(ConfigurationBuilder builder, RootLoggerComponentBuilder rootLogger) {
-    AppenderComponentBuilder appenderBuilder = builder.newAppender("Console", "CONSOLE").addAttribute("target",
-        ConsoleAppender.Target.SYSTEM_OUT);
-    addLogPattern(builder, appenderBuilder);
-    rootLogger.add(builder.newAppenderRef("Console"));
-    builder.add(appenderBuilder);
-  }
+    private static void addLogPattern(
+            ConfigurationBuilder builder, AppenderComponentBuilder appenderBuilder) {
+        appenderBuilder.add(
+                builder.newLayout("PatternLayout")
+                        .addAttribute("pattern", RcaItInMemoryAppender.PATTERN));
+    }
 
-  private static void addLogPattern(ConfigurationBuilder builder, AppenderComponentBuilder appenderBuilder) {
-    appenderBuilder.add(
-        builder.newLayout("PatternLayout").addAttribute("pattern", RcaItInMemoryAppender.PATTERN));
-  }
+    public static void setLoggerConfiguration(Configuration configuration) {
+        Objects.requireNonNull(configuration);
+        Configurator.reconfigure(configuration);
+    }
 
-  public static void setLoggerConfiguration(Configuration configuration) {
-    Objects.requireNonNull(configuration);
-    Configurator.reconfigure(configuration);
-  }
+    public static Collection<String> getAllErrorsInLog() throws IllegalStateException {
+        return RcaItInMemoryAppender.self().getAllErrors();
+    }
 
-  public static Collection<String> getAllErrorsInLog() throws IllegalStateException {
-    return RcaItInMemoryAppender.self().getAllErrors();
-  }
-
-  public static void resetErrors() {
-    RcaItInMemoryAppender.self().reset();
-  }
+    public static void resetErrors() {
+        RcaItInMemoryAppender.self().reset();
+    }
 }

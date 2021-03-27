@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  */
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.collectors;
+
 
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.Statistics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.impl.Count;
@@ -51,176 +52,181 @@ import org.apache.logging.log4j.Logger;
  */
 public class SampleAggregator {
 
-  private static final Logger LOG = LogManager.getLogger(SampleAggregator.class);
-  /** The set of measurements its in charge of aggregating. */
-  private final MeasurementSet[] recognizedSet;
-  /**
-   * The idea is to be able to calculate multiple statistics for each measurement.
-   *
-   * <ul>
-   *   <li>key: Measurement are anything that we want to sample, say graphNodeExecution.
-   *   <li>value: The list of objects that calculates various metrics, say an object implementing
-   *       mean and another one implementing Max.
-   * </ul>
-   */
-  private ImmutableMap<MeasurementSet, Set<IStatistic>> statMap;
-  /** When was the first updateStat was called since the last reset. */
-  private AtomicLong startTimeMillis;
+    private static final Logger LOG = LogManager.getLogger(SampleAggregator.class);
+    /** The set of measurements its in charge of aggregating. */
+    private final MeasurementSet[] recognizedSet;
+    /**
+     * The idea is to be able to calculate multiple statistics for each measurement.
+     *
+     * <ul>
+     *   <li>key: Measurement are anything that we want to sample, say graphNodeExecution.
+     *   <li>value: The list of objects that calculates various metrics, say an object implementing
+     *       mean and another one implementing Max.
+     * </ul>
+     */
+    private ImmutableMap<MeasurementSet, Set<IStatistic>> statMap;
+    /** When was the first updateStat was called since the last reset. */
+    private AtomicLong startTimeMillis;
 
-  /** Listeners for the occurrence of a metric being emitted. */
-  private final IListener listener;
+    /** Listeners for the occurrence of a metric being emitted. */
+    private final IListener listener;
 
-  /** List of measurements being listened to. */
-  private final Set<MeasurementSet> listenedMeasurements;
+    /** List of measurements being listened to. */
+    private final Set<MeasurementSet> listenedMeasurements;
 
-  public SampleAggregator(MeasurementSet[] measurementSet) {
-    this(Collections.EMPTY_SET, null, measurementSet);
-  }
+    public SampleAggregator(MeasurementSet[] measurementSet) {
+        this(Collections.EMPTY_SET, null, measurementSet);
+    }
 
-  public SampleAggregator(
-      final Set<MeasurementSet> listenedMeasurements,
-      final IListener listener,
-      final MeasurementSet[] measurementSet) {
-    Objects.requireNonNull(listenedMeasurements);
-    this.listenedMeasurements = listenedMeasurements;
-    this.listener = listener;
-    this.recognizedSet = measurementSet;
-    init();
-  }
+    public SampleAggregator(
+            final Set<MeasurementSet> listenedMeasurements,
+            final IListener listener,
+            final MeasurementSet[] measurementSet) {
+        Objects.requireNonNull(listenedMeasurements);
+        this.listenedMeasurements = listenedMeasurements;
+        this.listener = listener;
+        this.recognizedSet = measurementSet;
+        init();
+    }
 
-  private void init() {
-    startTimeMillis = new AtomicLong(0L);
-    Map<MeasurementSet, Set<IStatistic>> initializer = new ConcurrentHashMap<>();
+    private void init() {
+        startTimeMillis = new AtomicLong(0L);
+        Map<MeasurementSet, Set<IStatistic>> initializer = new ConcurrentHashMap<>();
 
-    for (MeasurementSet elem : recognizedSet) {
-      Set<IStatistic> impls = new HashSet<>();
-      for (Statistics stats : elem.getStatsList()) {
-        switch (stats) {
-          case COUNT:
-            impls.add(new Count());
-            break;
-          case MAX:
-            impls.add(new Max());
-            break;
-          case MEAN:
-            impls.add(new Mean());
-            break;
-          case MIN:
-            impls.add(new Min());
-            break;
-          case NAMED_COUNTERS:
-            impls.add(new NamedCounter());
-            break;
-          case SAMPLE:
-            impls.add(new Sample());
-            break;
-          case SUM:
-            impls.add(new Sum());
-            break;
-          default:
-            throw new IllegalArgumentException("Unimplemented stat: " + stats);
+        for (MeasurementSet elem : recognizedSet) {
+            Set<IStatistic> impls = new HashSet<>();
+            for (Statistics stats : elem.getStatsList()) {
+                switch (stats) {
+                    case COUNT:
+                        impls.add(new Count());
+                        break;
+                    case MAX:
+                        impls.add(new Max());
+                        break;
+                    case MEAN:
+                        impls.add(new Mean());
+                        break;
+                    case MIN:
+                        impls.add(new Min());
+                        break;
+                    case NAMED_COUNTERS:
+                        impls.add(new NamedCounter());
+                        break;
+                    case SAMPLE:
+                        impls.add(new Sample());
+                        break;
+                    case SUM:
+                        impls.add(new Sum());
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unimplemented stat: " + stats);
+                }
+            }
+            initializer.put(elem, impls);
         }
-      }
-      initializer.put(elem, impls);
-    }
-    this.statMap = ImmutableMap.copyOf(initializer);
-  }
-
-  /**
-   * This is called whenever the framework hits a measurement of interest. This is thread safe.
-   *
-   * @param metric Determined by the Enum MeasurementType
-   * @param key multiple points in the code can emit the same measurement, say RCA1 and RCA2, both
-   *     will emit a measurement how long each of them took and then this metric will determine
-   *     which of the two took the longest(Max).
-   * @param value The actual value of the measurement.
-   * @param <V> The Type of value
-   */
-  public <V extends Number> void updateStat(MeasurementSet metric, String key, V value) {
-    Set<IStatistic> statistics = statMap.get(metric);
-    if (statistics == null) {
-      LOG.error(
-          "'{}' asked to be aggregated, when known types are only: {}", metric, recognizedSet);
-      return;
+        this.statMap = ImmutableMap.copyOf(initializer);
     }
 
-    if (startTimeMillis.get() == 0L) {
-      // The CAS operations are expensive compared to primitive type checks. Therefore, we only
-      // resort to CAS if we even stand a chance of modifying the variable. The startTime is only
-      // set by the first thread that tries to update a metric. So, we don't want all the
-      // subsequent threads to pay the price of a CAS.
-      startTimeMillis.compareAndSet(0L, System.currentTimeMillis());
-    }
-
-    for (IStatistic s : statistics) {
-      s.calculate(key, value);
-    }
-
-    if (listenedMeasurements.contains(metric)) {
-      listener.onOccurrence(metric, value, key);
-    }
-  }
-
-  /**
-   * This gets the current set of Measurements collected and re-initiates the objects for the next
-   * iteration.
-   *
-   * @param formatter An class that knows how to format a map of enum and lists.
-   */
-  public void fillValuesAndReset(Formatter formatter) {
-    synchronized (this) {
-      fill(formatter);
-      init();
-    }
-  }
-
-  /**
-   * Be advised that the statMap is filled in just once in the constructor. Ever since no new
-   * elements are added just existing elements are modified. Therefore, some of the statistics that
-   * have already been added at initialization might not ever be calculated, if <code>updateStat()
-   * </code> is never called on it. Therefore, it such values are not desired, then the same can be
-   * checked using the <code>calculatedAtLeastOnce()</code> flag.
-   *
-   * @param formatter Used to convert the map into a desired format.
-   */
-  public void fill(Formatter formatter) {
-    long endTime = System.currentTimeMillis();
-    formatter.setStartAndEndTime(startTimeMillis.get(), endTime);
-
-    for (Map.Entry<MeasurementSet, Set<IStatistic>> entry : statMap.entrySet()) {
-      MeasurementSet measurement = entry.getKey();
-      for (IStatistic statValues : entry.getValue()) {
-        if (!statValues.isEmpty()) {
-          Statistics stat = statValues.type();
-          Collection<Value> values = statValues.get();
-          for (Value value : values) {
-            value.format(formatter, measurement, stat);
-          }
+    /**
+     * This is called whenever the framework hits a measurement of interest. This is thread safe.
+     *
+     * @param metric Determined by the Enum MeasurementType
+     * @param key multiple points in the code can emit the same measurement, say RCA1 and RCA2, both
+     *     will emit a measurement how long each of them took and then this metric will determine
+     *     which of the two took the longest(Max).
+     * @param value The actual value of the measurement.
+     * @param <V> The Type of value
+     */
+    public <V extends Number> void updateStat(MeasurementSet metric, String key, V value) {
+        Set<IStatistic> statistics = statMap.get(metric);
+        if (statistics == null) {
+            LOG.error(
+                    "'{}' asked to be aggregated, when known types are only: {}",
+                    metric,
+                    recognizedSet);
+            return;
         }
-      }
-    }
-  }
 
-  @VisibleForTesting
-  public boolean isMeasurementObserved(MeasurementSet toFind) {
-    Set<IStatistic> statistics = statMap.get(toFind);
-    if (statistics == null) {
-      return false;
-    }
-    for (IStatistic statistic : statMap.get(toFind)) {
-      if (statistic != null && !statistic.isEmpty()) {
-        return true;
-      }
-    }
-    return false;
-  }
+        if (startTimeMillis.get() == 0L) {
+            // The CAS operations are expensive compared to primitive type checks. Therefore, we
+            // only
+            // resort to CAS if we even stand a chance of modifying the variable. The startTime is
+            // only
+            // set by the first thread that tries to update a metric. So, we don't want all the
+            // subsequent threads to pay the price of a CAS.
+            startTimeMillis.compareAndSet(0L, System.currentTimeMillis());
+        }
 
-  @VisibleForTesting
-  public Collection<IStatistic> getValues(MeasurementSet toFind) {
-    Set<IStatistic> statistics = statMap.get(toFind);
-    if (statistics == null) {
-      return Collections.EMPTY_LIST;
+        for (IStatistic s : statistics) {
+            s.calculate(key, value);
+        }
+
+        if (listenedMeasurements.contains(metric)) {
+            listener.onOccurrence(metric, value, key);
+        }
     }
-    return statMap.get(toFind);
-  }
+
+    /**
+     * This gets the current set of Measurements collected and re-initiates the objects for the next
+     * iteration.
+     *
+     * @param formatter An class that knows how to format a map of enum and lists.
+     */
+    public void fillValuesAndReset(Formatter formatter) {
+        synchronized (this) {
+            fill(formatter);
+            init();
+        }
+    }
+
+    /**
+     * Be advised that the statMap is filled in just once in the constructor. Ever since no new
+     * elements are added just existing elements are modified. Therefore, some of the statistics
+     * that have already been added at initialization might not ever be calculated, if <code>
+     * updateStat()
+     * </code> is never called on it. Therefore, it such values are not desired, then the same can
+     * be checked using the <code>calculatedAtLeastOnce()</code> flag.
+     *
+     * @param formatter Used to convert the map into a desired format.
+     */
+    public void fill(Formatter formatter) {
+        long endTime = System.currentTimeMillis();
+        formatter.setStartAndEndTime(startTimeMillis.get(), endTime);
+
+        for (Map.Entry<MeasurementSet, Set<IStatistic>> entry : statMap.entrySet()) {
+            MeasurementSet measurement = entry.getKey();
+            for (IStatistic statValues : entry.getValue()) {
+                if (!statValues.isEmpty()) {
+                    Statistics stat = statValues.type();
+                    Collection<Value> values = statValues.get();
+                    for (Value value : values) {
+                        value.format(formatter, measurement, stat);
+                    }
+                }
+            }
+        }
+    }
+
+    @VisibleForTesting
+    public boolean isMeasurementObserved(MeasurementSet toFind) {
+        Set<IStatistic> statistics = statMap.get(toFind);
+        if (statistics == null) {
+            return false;
+        }
+        for (IStatistic statistic : statMap.get(toFind)) {
+            if (statistic != null && !statistic.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @VisibleForTesting
+    public Collection<IStatistic> getValues(MeasurementSet toFind) {
+        Set<IStatistic> statistics = statMap.get(toFind);
+        if (statistics == null) {
+            return Collections.EMPTY_LIST;
+        }
+        return statMap.get(toFind);
+    }
 }

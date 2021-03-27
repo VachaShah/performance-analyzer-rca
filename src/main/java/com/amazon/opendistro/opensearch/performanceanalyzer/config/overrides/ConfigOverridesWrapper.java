@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.config.overrides;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 
-/**
- * Class responsible for holding the latest config overrides across the cluster.
- */
+/** Class responsible for holding the latest config overrides across the cluster. */
 public class ConfigOverridesWrapper {
 
     private volatile ConfigOverrides currentClusterConfigOverrides;
@@ -33,6 +32,7 @@ public class ConfigOverridesWrapper {
 
     /**
      * Ctor used only for unit test purposes.
+     *
      * @param mapper The object mapper instance.
      */
     @VisibleForTesting

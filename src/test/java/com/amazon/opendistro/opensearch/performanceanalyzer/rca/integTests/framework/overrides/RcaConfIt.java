@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,33 +15,33 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.overrides;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.RcaConf;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.RcaConsts;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class RcaConfIt extends RcaConf {
-  private String rcaDataStorePath;
-  private String rcaAnalysisGraph;
+    private String rcaDataStorePath;
+    private String rcaAnalysisGraph;
 
-  public RcaConfIt(RcaConf rcaConf) {
-    super(rcaConf.getConfigFileLoc());
-  }
+    public RcaConfIt(RcaConf rcaConf) {
+        super(rcaConf.getConfigFileLoc());
+    }
 
-  public void setRcaDataStorePath(String dataStorePath) {
-    this.rcaDataStorePath = dataStorePath;
-  }
+    public void setRcaDataStorePath(String dataStorePath) {
+        this.rcaDataStorePath = dataStorePath;
+    }
 
-  @Override
-  public Map<String, String> getDatastore() {
-    Map<String, String> map = new HashMap<>(super.getDatastore());
-    map.put(RcaConsts.DATASTORE_LOC_KEY, rcaDataStorePath);
-    return map;
-  }
+    @Override
+    public Map<String, String> getDatastore() {
+        Map<String, String> map = new HashMap<>(super.getDatastore());
+        map.put(RcaConsts.DATASTORE_LOC_KEY, rcaDataStorePath);
+        return map;
+    }
 
-  @Override
-  public String getAnalysisGraphEntryPoint() {
-    return rcaAnalysisGraph;
-  }
+    @Override
+    public String getAnalysisGraphEntryPoint() {
+        return rcaAnalysisGraph;
+    }
 }

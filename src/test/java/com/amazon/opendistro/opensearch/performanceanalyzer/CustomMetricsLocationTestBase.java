@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,25 +15,25 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PluginSettings;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import org.junit.Before;
 
 public class CustomMetricsLocationTestBase {
 
-  private static final Path METRICS_LOCATION = Paths.get("build/tmp/junit_metrics");
+    private static final Path METRICS_LOCATION = Paths.get("build/tmp/junit_metrics");
 
-  @Before
-  public void setUp() throws Exception {
-    if (!Files.exists(METRICS_LOCATION)) {
-      Files.createDirectories(METRICS_LOCATION.getParent());
-      Files.createDirectory(METRICS_LOCATION);
+    @Before
+    public void setUp() throws Exception {
+        if (!Files.exists(METRICS_LOCATION)) {
+            Files.createDirectories(METRICS_LOCATION.getParent());
+            Files.createDirectory(METRICS_LOCATION);
+        }
+
+        PluginSettings.instance().setMetricsLocation(METRICS_LOCATION + File.separator);
     }
-
-    PluginSettings.instance().setMetricsLocation(METRICS_LOCATION + File.separator);
-  }
 }

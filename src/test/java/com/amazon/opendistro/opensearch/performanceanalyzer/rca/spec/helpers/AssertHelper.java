@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -22,38 +22,38 @@ import java.util.Map;
 import org.jooq.Record;
 
 public class AssertHelper {
-  public static <T extends Comparable> void compareLists(List<T> list1, List<T> list2) {
-    assertEquals(list1.size(), list2.size());
-    for (int i = 0; i < list1.size(); i++) {
-      assertEquals(list1.get(i), list2.get(i));
+    public static <T extends Comparable> void compareLists(List<T> list1, List<T> list2) {
+        assertEquals(list1.size(), list2.size());
+        for (int i = 0; i < list1.size(); i++) {
+            assertEquals(list1.get(i), list2.get(i));
+        }
     }
-  }
 
-  public static <K extends Comparable, V extends Comparable> void compareMaps(
-      Map<K, V> map1, Map<K, V> map2) {
-    assertEquals(map1.size(), map2.size());
-    for (Map.Entry<K, V> entry : map1.entrySet()) {
-      K key = entry.getKey();
-      V value = entry.getValue();
-      V value2 = map2.get(key);
+    public static <K extends Comparable, V extends Comparable> void compareMaps(
+            Map<K, V> map1, Map<K, V> map2) {
+        assertEquals(map1.size(), map2.size());
+        for (Map.Entry<K, V> entry : map1.entrySet()) {
+            K key = entry.getKey();
+            V value = entry.getValue();
+            V value2 = map2.get(key);
 
-      if (value instanceof String) {
-        double vd1 = Double.parseDouble((String) value);
-        double vd2 = Double.parseDouble((String) value2);
-        assertEquals(vd1, vd2, 0.1);
-      } else {
-        assertEquals(value, value2);
-      }
+            if (value instanceof String) {
+                double vd1 = Double.parseDouble((String) value);
+                double vd2 = Double.parseDouble((String) value2);
+                assertEquals(vd1, vd2, 0.1);
+            } else {
+                assertEquals(value, value2);
+            }
+        }
     }
-  }
 
-  public static void compareRecord(List<String> fieldName, List<String> valName, Record record) {
-    int sz = record.size();
-    assertEquals(fieldName.size(), sz);
-    assertEquals(valName.size(), sz);
-    for (int i = 0; i < sz; i++) {
-      assertEquals(fieldName.get(i), record.field(i).getName());
-      assertEquals(valName.get(i), record.getValue(i, String.class));
+    public static void compareRecord(List<String> fieldName, List<String> valName, Record record) {
+        int sz = record.size();
+        assertEquals(fieldName.size(), sz);
+        assertEquals(valName.size(), sz);
+        for (int i = 0; i < sz; i++) {
+            assertEquals(fieldName.get(i), record.field(i).getName());
+            assertEquals(valName.get(i), record.getValue(i, String.class));
+        }
     }
-  }
 }

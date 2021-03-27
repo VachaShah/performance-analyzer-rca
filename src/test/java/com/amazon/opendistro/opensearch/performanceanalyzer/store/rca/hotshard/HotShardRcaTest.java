@@ -35,7 +35,6 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,23 +59,23 @@ public class HotShardRcaTest {
         cpuUtilization = new MetricTestHelper(5);
         ioTotThroughput = new MetricTestHelper(5);
         ioTotSyscallRate = new MetricTestHelper(5);
-        hotShardRcaX = new HotShardRcaX(5, 1,
-                cpuUtilization, ioTotThroughput, ioTotSyscallRate);
-        columnName = Arrays.asList(AllMetrics.CommonDimension.INDEX_NAME.toString(), AllMetrics.CommonDimension.SHARD_ID.toString(), MetricsDB.SUM);
+        hotShardRcaX = new HotShardRcaX(5, 1, cpuUtilization, ioTotThroughput, ioTotSyscallRate);
+        columnName =
+                Arrays.asList(
+                        AllMetrics.CommonDimension.INDEX_NAME.toString(),
+                        AllMetrics.CommonDimension.SHARD_ID.toString(),
+                        MetricsDB.SUM);
 
-        ClusterDetailsEventProcessor clusterDetailsEventProcessor = new ClusterDetailsEventProcessor();
+        ClusterDetailsEventProcessor clusterDetailsEventProcessor =
+                new ClusterDetailsEventProcessor();
         clusterDetailsEventProcessor.setNodesDetails(
-            Collections.singletonList(new ClusterDetailsEventProcessor.NodeDetails(
-                AllMetrics.NodeRole.DATA,
-                "node1",
-                "127.0.0.1",
-                false))
-        );
+                Collections.singletonList(
+                        new ClusterDetailsEventProcessor.NodeDetails(
+                                AllMetrics.NodeRole.DATA, "node1", "127.0.0.1", false)));
         AppContext appContext = new AppContext();
         appContext.setClusterDetailsEventProcessor(clusterDetailsEventProcessor);
         hotShardRcaX.setAppContext(appContext);
     }
-
 
     // 1. No Flow Units received
     @Test
@@ -106,38 +105,41 @@ public class HotShardRcaTest {
         Clock constantClock = Clock.fixed(ofEpochMilli(0), ZoneId.systemDefault());
 
         // ts = 0
-        // index = index_1, shard = shard_1, cpuUtilization = 0, ioTotThroughput = 0, ioTotSyscallRate = 0
-        cpuUtilization.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "1", String.valueOf(0)));
-        ioTotThroughput.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "1", String.valueOf(0)));
-        ioTotSyscallRate.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "1", String.valueOf(0)));
+        // index = index_1, shard = shard_1, cpuUtilization = 0, ioTotThroughput = 0,
+        // ioTotSyscallRate = 0
+        cpuUtilization.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "1", String.valueOf(0)));
+        ioTotThroughput.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "1", String.valueOf(0)));
+        ioTotSyscallRate.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "1", String.valueOf(0)));
         hotShardRcaX.setClock(constantClock);
         ResourceFlowUnit flowUnit = hotShardRcaX.operate();
         Assert.assertFalse(flowUnit.getResourceContext().isUnhealthy());
 
         // ts = 1
-        // index = index_1, shard = shard_1, cpuUtilization = 0.005, ioTotThroughput = 200000, ioTotSyscallRate = 0.005
-        cpuUtilization.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "1", String.valueOf(0.005)));
-        ioTotThroughput.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "1", String.valueOf(200000)));
-        ioTotSyscallRate.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "1", String.valueOf(0.005)));
+        // index = index_1, shard = shard_1, cpuUtilization = 0.005, ioTotThroughput = 200000,
+        // ioTotSyscallRate = 0.005
+        cpuUtilization.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "1", String.valueOf(0.005)));
+        ioTotThroughput.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "1", String.valueOf(200000)));
+        ioTotSyscallRate.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "1", String.valueOf(0.005)));
 
         hotShardRcaX.setClock(Clock.offset(constantClock, Duration.ofSeconds(1)));
         flowUnit = hotShardRcaX.operate();
         Assert.assertFalse(flowUnit.getResourceContext().isUnhealthy());
 
-        //ts = 2
-        // index = index_1, shard = shard_1, cpuUtilization = 0.75, ioTotThroughput = 200000, ioTotSyscallRate = 0.005
-        cpuUtilization.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "1", String.valueOf(0.75)));
-        ioTotThroughput.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "1", String.valueOf(200000)));
-        ioTotSyscallRate.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "1", String.valueOf(0.005)));
+        // ts = 2
+        // index = index_1, shard = shard_1, cpuUtilization = 0.75, ioTotThroughput = 200000,
+        // ioTotSyscallRate = 0.005
+        cpuUtilization.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "1", String.valueOf(0.75)));
+        ioTotThroughput.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "1", String.valueOf(200000)));
+        ioTotSyscallRate.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "1", String.valueOf(0.005)));
 
         hotShardRcaX.setClock(Clock.offset(constantClock, Duration.ofSeconds(2)));
         flowUnit = hotShardRcaX.operate();
@@ -153,27 +155,31 @@ public class HotShardRcaTest {
         Assert.assertEquals("node1", hotShardSummary1.getNodeId());
 
         // ts = 3
-        // index = index_1, shard = shard_2, cpuUtilization = 0.75, ioTotThroughput = 400000, ioTotSyscallRate = 0.10
+        // index = index_1, shard = shard_2, cpuUtilization = 0.75, ioTotThroughput = 400000,
+        // ioTotSyscallRate = 0.10
         //
         // and
         // ts = 4
-        // index = index_1, shard = shard_2, cpuUtilization = 0.25, ioTotThroughput = 100000, ioTotSyscallRate = 0.10
-        cpuUtilization.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "2", String.valueOf(0.75)));
-        ioTotThroughput.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "2", String.valueOf(400000)));
-        ioTotSyscallRate.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "2", String.valueOf(0.10)));;
+        // index = index_1, shard = shard_2, cpuUtilization = 0.25, ioTotThroughput = 100000,
+        // ioTotSyscallRate = 0.10
+        cpuUtilization.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "2", String.valueOf(0.75)));
+        ioTotThroughput.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "2", String.valueOf(400000)));
+        ioTotSyscallRate.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "2", String.valueOf(0.10)));
+        ;
 
         hotShardRcaX.setClock(Clock.offset(constantClock, Duration.ofSeconds(3)));
         flowUnit = hotShardRcaX.operate();
 
-        cpuUtilization.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "2", String.valueOf(0.25)));
-        ioTotThroughput.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "2", String.valueOf(100000)));
-        ioTotSyscallRate.createTestFlowUnits(columnName,
-                Arrays.asList(index.index_1.toString(), "2", String.valueOf(0.10)));;
+        cpuUtilization.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "2", String.valueOf(0.25)));
+        ioTotThroughput.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "2", String.valueOf(100000)));
+        ioTotSyscallRate.createTestFlowUnits(
+                columnName, Arrays.asList(index.index_1.toString(), "2", String.valueOf(0.10)));
+        ;
 
         hotShardRcaX.setClock(Clock.offset(constantClock, Duration.ofSeconds(4)));
         flowUnit = hotShardRcaX.operate();
@@ -194,9 +200,18 @@ public class HotShardRcaTest {
     }
 
     private static class HotShardRcaX extends HotShardRca {
-        public <M extends Metric> HotShardRcaX(final long evaluationIntervalSeconds, final int rcaPeriod,
-                                               final M cpuUtilization, final M ioTotThroughput, final M ioTotSyscallRate) {
-          super(evaluationIntervalSeconds, rcaPeriod, cpuUtilization, ioTotThroughput,ioTotSyscallRate);
+        public <M extends Metric> HotShardRcaX(
+                final long evaluationIntervalSeconds,
+                final int rcaPeriod,
+                final M cpuUtilization,
+                final M ioTotThroughput,
+                final M ioTotSyscallRate) {
+            super(
+                    evaluationIntervalSeconds,
+                    rcaPeriod,
+                    cpuUtilization,
+                    ioTotThroughput,
+                    ioTotSyscallRate);
         }
 
         public void setClock(Clock clock) {

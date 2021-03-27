@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,34 +15,36 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.configs;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.core.RcaConf;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.RcaConsts;
 import java.nio.file.Paths;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class QueueRejectionRcaConfigTest {
 
-  private RcaConf rcaConf;
-  private RcaConf rcaOldConf;
+    private RcaConf rcaConf;
+    private RcaConf rcaOldConf;
 
-  @Before
-  public void init() {
-    String rcaConfPath = Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca_elected_master.conf").toString();
-    String rcaOldConfPath = Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca_master.conf").toString();
-    rcaConf = new RcaConf(rcaConfPath);
-    rcaOldConf = new RcaConf(rcaOldConfPath);
-  }
+    @Before
+    public void init() {
+        String rcaConfPath =
+                Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca_elected_master.conf").toString();
+        String rcaOldConfPath = Paths.get(RcaConsts.TEST_CONFIG_PATH, "rca_master.conf").toString();
+        rcaConf = new RcaConf(rcaConfPath);
+        rcaOldConf = new RcaConf(rcaOldConfPath);
+    }
 
-  @Test
-  public void testReadConfig() {
-    QueueRejectionRcaConfig config = new QueueRejectionRcaConfig(rcaConf);
-    Assert.assertEquals(400, config.getRejectionTimePeriodInSeconds());
+    @Test
+    public void testReadConfig() {
+        QueueRejectionRcaConfig config = new QueueRejectionRcaConfig(rcaConf);
+        Assert.assertEquals(400, config.getRejectionTimePeriodInSeconds());
 
-    QueueRejectionRcaConfig oldConfig = new QueueRejectionRcaConfig(rcaOldConf);
-    Assert.assertEquals(QueueRejectionRcaConfig.DEFAULT_REJECTION_TIME_PERIOD_IN_SECONDS,
-        oldConfig.getRejectionTimePeriodInSeconds());
-  }
+        QueueRejectionRcaConfig oldConfig = new QueueRejectionRcaConfig(rcaOldConf);
+        Assert.assertEquals(
+                QueueRejectionRcaConfig.DEFAULT_REJECTION_TIME_PERIOD_IN_SECONDS,
+                oldConfig.getRejectionTimePeriodInSeconds());
+    }
 }

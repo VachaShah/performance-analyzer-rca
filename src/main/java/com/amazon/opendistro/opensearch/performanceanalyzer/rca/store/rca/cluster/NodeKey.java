@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -15,53 +15,51 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class NodeKey {
-  private final InstanceDetails.Id nodeId;
-  private final InstanceDetails.Ip hostAddress;
+    private final InstanceDetails.Id nodeId;
+    private final InstanceDetails.Ip hostAddress;
 
-  public NodeKey(InstanceDetails.Id nodeId, InstanceDetails.Ip hostAddress) {
-    this.nodeId = nodeId;
-    this.hostAddress = hostAddress;
-  }
-
-  public NodeKey(InstanceDetails instanceDetails) {
-    this(instanceDetails.getInstanceId(), instanceDetails.getInstanceIp());
-  }
-
-  public InstanceDetails.Id getNodeId() {
-    return nodeId;
-  }
-
-  public InstanceDetails.Ip getHostAddress() {
-    return hostAddress;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof NodeKey) {
-      NodeKey key = (NodeKey)obj;
-      return nodeId.equals(key.getNodeId()) && hostAddress.equals(key.getHostAddress());
+    public NodeKey(InstanceDetails.Id nodeId, InstanceDetails.Ip hostAddress) {
+        this.nodeId = nodeId;
+        this.hostAddress = hostAddress;
     }
-    return false;
-  }
 
-  // the reason why we compare both node id and  hostAddress here is because in
-  // newer ES version(6.8 and above), see https://github.com/elastic/elasticsearch/pull/19140.
-  // if es restart, both node id and ip address will remain the same so we can continue add
-  // flowunit into the same row in table before es restart.
-  @Override
-  public int hashCode() {
-    return new HashCodeBuilder(17, 37)
-        .append(nodeId)
-        .append(hostAddress)
-        .toHashCode();
-  }
+    public NodeKey(InstanceDetails instanceDetails) {
+        this(instanceDetails.getInstanceId(), instanceDetails.getInstanceIp());
+    }
 
-  @Override
-  public String toString() {
-    return nodeId + " " + hostAddress;
-  }
+    public InstanceDetails.Id getNodeId() {
+        return nodeId;
+    }
+
+    public InstanceDetails.Ip getHostAddress() {
+        return hostAddress;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof NodeKey) {
+            NodeKey key = (NodeKey) obj;
+            return nodeId.equals(key.getNodeId()) && hostAddress.equals(key.getHostAddress());
+        }
+        return false;
+    }
+
+    // the reason why we compare both node id and  hostAddress here is because in
+    // newer ES version(6.8 and above), see https://github.com/elastic/elasticsearch/pull/19140.
+    // if es restart, both node id and ip address will remain the same so we can continue add
+    // flowunit into the same row in table before es restart.
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(nodeId).append(hostAddress).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return nodeId + " " + hostAddress;
+    }
 }

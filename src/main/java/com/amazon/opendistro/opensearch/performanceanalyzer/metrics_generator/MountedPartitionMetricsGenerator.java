@@ -15,18 +15,19 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.metrics_generator;
 
+
 import java.util.Set;
 
 public interface MountedPartitionMetricsGenerator {
-  void addSample();
+    void addSample();
 
-  Set<String> getAllMountPoints();
+    Set<String> getAllMountPoints();
 
-  String getDevicePartition(String mountPoint);
+    String getDevicePartition(String mountPoint);
 
-  long getTotalSpace(String mountPoint);
+    long getTotalSpace(String mountPoint);
 
-  long getFreeSpace(String mountPoint);
+    long getFreeSpace(String mountPoint);
 
-  long getUsableFreeSpace(String mountPoint);
+    long getUsableFreeSpace(String mountPoint);
 }

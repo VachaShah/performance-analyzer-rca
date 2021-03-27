@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -46,31 +46,32 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Field Data Cache RCA is to identify when the cache is unhealthy(thrashing) and otherwise, healthy.
- * The dimension we are using for this analysis is cache eviction count, cache current weight(size) and
- * cache max weight(size) configured.
- * Note : For Field Data Cache, Hit and Miss metrics aren't available.
+ * Field Data Cache RCA is to identify when the cache is unhealthy(thrashing) and otherwise,
+ * healthy. The dimension we are using for this analysis is cache eviction count, cache current
+ * weight(size) and cache max weight(size) configured. Note : For Field Data Cache, Hit and Miss
+ * metrics aren't available.
  *
  * <p>Cache eviction within Elasticsearch happens in following scenarios :
+ *
  * <ol>
  *   <li>Mutation to Cache (Entry Insertion/Promotion and Manual Invalidation)
  *   <li>Explicit call to refresh()
  * </ol>
  *
- * <p>Cache Eviction requires either cache weight exceeds maximum weight OR the entry TTL is expired.
- * For Field Data Cache, no expire setting is present, so only in case of cache_weight exceeding the
- * max_cache_weight, eviction(removal from Cache Map and LRU linked List, entry updated to EVICTED)
- * happens.
+ * <p>Cache Eviction requires either cache weight exceeds maximum weight OR the entry TTL is
+ * expired. For Field Data Cache, no expire setting is present, so only in case of cache_weight
+ * exceeding the max_cache_weight, eviction(removal from Cache Map and LRU linked List, entry
+ * updated to EVICTED) happens.
  *
  * <p>Contrarily, the Cache Invalidation is performed manually on cache clear() and index close()
- * invocation, with removalReason as INVALIDATED and a force eviction is performed to ensure cleanup.
+ * invocation, with removalReason as INVALIDATED and a force eviction is performed to ensure
+ * cleanup.
  *
  * <p>This RCA reads 'fieldDataCacheEvictions', 'fieldDataCacheSizeGroupByOperation' and
- * 'fieldDataCacheMaxSizeGroupByOperation' from upstream metrics and maintains a collector
- * which keeps track of the time window period(tp) where we repeatedly see evictions for the last
- * tp duration. This RCA is marked as unhealthy if tp is above the threshold(300 seconds) and
- * cache size exceeds the max cache size configured.
- *
+ * 'fieldDataCacheMaxSizeGroupByOperation' from upstream metrics and maintains a collector which
+ * keeps track of the time window period(tp) where we repeatedly see evictions for the last tp
+ * duration. This RCA is marked as unhealthy if tp is above the threshold(300 seconds) and cache
+ * size exceeds the max cache size configured.
  */
 public class FieldDataCacheRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
     private static final Logger LOG = LogManager.getLogger(FieldDataCacheRca.class);
@@ -84,10 +85,10 @@ public class FieldDataCacheRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
     protected Clock clock;
     private final CacheEvictionCollector cacheEvictionCollector;
 
-
-    public <M extends Metric> FieldDataCacheRca(final int rcaPeriod,
-                                                final M fieldDataCacheEvictions,
-                                                final M fieldDataCacheSizeGroupByOperation) {
+    public <M extends Metric> FieldDataCacheRca(
+            final int rcaPeriod,
+            final M fieldDataCacheEvictions,
+            final M fieldDataCacheSizeGroupByOperation) {
         super(5);
         this.rcaPeriod = rcaPeriod;
         this.fieldDataCacheEvictions = fieldDataCacheEvictions;
@@ -95,8 +96,11 @@ public class FieldDataCacheRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
         this.counter = 0;
         this.cacheSizeThreshold = FieldDataCacheRcaConfig.DEFAULT_FIELD_DATA_CACHE_SIZE_THRESHOLD;
         this.clock = Clock.systemUTC();
-        this.cacheEvictionCollector = new CacheEvictionCollector(ResourceUtil.FIELD_DATA_CACHE_EVICTION,
-                fieldDataCacheEvictions, FieldDataCacheRcaConfig.DEFAULT_FIELD_DATA_COLLECTOR_TIME_PERIOD_IN_SEC);
+        this.cacheEvictionCollector =
+                new CacheEvictionCollector(
+                        ResourceUtil.FIELD_DATA_CACHE_EVICTION,
+                        fieldDataCacheEvictions,
+                        FieldDataCacheRcaConfig.DEFAULT_FIELD_DATA_COLLECTOR_TIME_PERIOD_IN_SEC);
     }
 
     @VisibleForTesting
@@ -113,23 +117,35 @@ public class FieldDataCacheRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
         if (counter >= rcaPeriod) {
             ResourceContext context;
             InstanceDetails instanceDetails = getInstanceDetails();
-            HotNodeSummary nodeSummary = new HotNodeSummary(instanceDetails.getInstanceId(), instanceDetails.getInstanceIp());
+            HotNodeSummary nodeSummary =
+                    new HotNodeSummary(
+                            instanceDetails.getInstanceId(), instanceDetails.getInstanceIp());
 
-            double fieldDataCacheMaxSizeInBytes = getCacheMaxSize(
-                    getAppContext(), new NodeKey(instanceDetails), ResourceUtil.FIELD_DATA_CACHE_MAX_SIZE);
-            Boolean exceedsSizeThreshold = isSizeThresholdExceeded(
-                    fieldDataCacheSizeGroupByOperation, fieldDataCacheMaxSizeInBytes, cacheSizeThreshold);
+            double fieldDataCacheMaxSizeInBytes =
+                    getCacheMaxSize(
+                            getAppContext(),
+                            new NodeKey(instanceDetails),
+                            ResourceUtil.FIELD_DATA_CACHE_MAX_SIZE);
+            Boolean exceedsSizeThreshold =
+                    isSizeThresholdExceeded(
+                            fieldDataCacheSizeGroupByOperation,
+                            fieldDataCacheMaxSizeInBytes,
+                            cacheSizeThreshold);
             if (cacheEvictionCollector.isUnhealthy(currTimestamp) && exceedsSizeThreshold) {
                 context = new ResourceContext(Resources.State.UNHEALTHY);
-                nodeSummary.appendNestedSummary(cacheEvictionCollector.generateSummary(currTimestamp));
+                nodeSummary.appendNestedSummary(
+                        cacheEvictionCollector.generateSummary(currTimestamp));
                 PerformanceAnalyzerApp.RCA_VERTICES_METRICS_AGGREGATOR.updateStat(
-                        RcaVerticesMetrics.NUM_FIELD_DATA_CACHE_RCA_TRIGGERED, instanceDetails.getInstanceId().toString(), 1);
+                        RcaVerticesMetrics.NUM_FIELD_DATA_CACHE_RCA_TRIGGERED,
+                        instanceDetails.getInstanceId().toString(),
+                        1);
             } else {
                 context = new ResourceContext(Resources.State.HEALTHY);
             }
 
             counter = 0;
-            return new ResourceFlowUnit<>(currTimestamp, context, nodeSummary, !instanceDetails.getIsMaster());
+            return new ResourceFlowUnit<>(
+                    currTimestamp, context, nodeSummary, !instanceDetails.getIsMaster());
         } else {
             return new ResourceFlowUnit<>(currTimestamp);
         }
@@ -161,9 +177,7 @@ public class FieldDataCacheRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
         setFlowUnits(flowUnitList);
     }
 
-    /**
-     * A collector class to collect eviction metrics
-     */
+    /** A collector class to collect eviction metrics */
     private static class CacheEvictionCollector {
         private final Resource cache;
         private final Metric cacheEvictionMetrics;
@@ -171,8 +185,10 @@ public class FieldDataCacheRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
         private long evictionTimestamp;
         private long metricTimePeriodInMillis;
 
-        private CacheEvictionCollector(final Resource cache, final Metric cacheEvictionMetrics,
-                                       final int metricTimePeriodInMillis) {
+        private CacheEvictionCollector(
+                final Resource cache,
+                final Metric cacheEvictionMetrics,
+                final int metricTimePeriodInMillis) {
             this.cache = cache;
             this.cacheEvictionMetrics = cacheEvictionMetrics;
             this.hasEvictions = false;
@@ -190,8 +206,10 @@ public class FieldDataCacheRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
                     continue;
                 }
 
-                double evictionCount = flowUnit.getData().stream().mapToDouble(
-                        record -> record.getValue(MetricsDB.MAX, Double.class)).sum();
+                double evictionCount =
+                        flowUnit.getData().stream()
+                                .mapToDouble(record -> record.getValue(MetricsDB.MAX, Double.class))
+                                .sum();
                 if (!Double.isNaN(evictionCount)) {
                     if (evictionCount > 0) {
                         if (!hasEvictions) {
@@ -212,7 +230,8 @@ public class FieldDataCacheRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
         }
 
         private HotResourceSummary generateSummary(final long currTimestamp) {
-            return new HotResourceSummary(cache,
+            return new HotResourceSummary(
+                    cache,
                     TimeUnit.MILLISECONDS.toSeconds(metricTimePeriodInMillis),
                     TimeUnit.MILLISECONDS.toSeconds(currTimestamp - evictionTimestamp),
                     0);

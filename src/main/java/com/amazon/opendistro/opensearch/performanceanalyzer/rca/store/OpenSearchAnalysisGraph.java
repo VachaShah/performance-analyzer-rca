@@ -110,9 +110,9 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ElasticSearchAnalysisGraph extends AnalysisGraph {
+public class OpenSearchAnalysisGraph extends AnalysisGraph {
 
-    private static final Logger LOG = LogManager.getLogger(ElasticSearchAnalysisGraph.class);
+    private static final Logger LOG = LogManager.getLogger(OpenSearchAnalysisGraph.class);
     private static final int EVALUATION_INTERVAL_SECONDS = 5;
     private static final int SECONDS_IN_MIN = 60;
     // 1 minute. RCA_PERIOD is measured as number of EVALUATION_INTERVAL_SECONDS

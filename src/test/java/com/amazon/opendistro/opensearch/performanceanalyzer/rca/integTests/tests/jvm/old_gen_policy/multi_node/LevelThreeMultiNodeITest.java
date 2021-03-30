@@ -39,7 +39,7 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.frame
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.runners.RcaItNotEncryptedRunner;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.tests.jvm.old_gen_policy.validator.LevelThreeValidator;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.actions.PersistedAction;
-import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.ElasticSearchAnalysisGraph;
+import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.OpenSearchAnalysisGraph;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cache.CacheUtil;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -48,7 +48,7 @@ import org.junit.runner.RunWith;
 @RunWith(RcaItNotEncryptedRunner.class)
 @Category(RcaItMarker.class)
 @AClusterType(ClusterType.MULTI_NODE_CO_LOCATED_MASTER)
-@ARcaGraph(ElasticSearchAnalysisGraph.class)
+@ARcaGraph(OpenSearchAnalysisGraph.class)
 @AMetric(
         name = Heap_Used.class,
         dimensionNames = {AllMetrics.HeapDimension.Constants.TYPE_VALUE},

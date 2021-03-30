@@ -34,7 +34,7 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.frame
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.runners.RcaItNotEncryptedRunner;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.tests.queue_tuning.validator.QueueDeciderValidator;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.persistence.actions.PersistedAction;
-import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.ElasticSearchAnalysisGraph;
+import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.OpenSearchAnalysisGraph;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 @RunWith(RcaItNotEncryptedRunner.class)
 @Category(RcaItMarker.class)
 @AClusterType(ClusterType.MULTI_NODE_DEDICATED_MASTER)
-@ARcaGraph(ElasticSearchAnalysisGraph.class)
+@ARcaGraph(OpenSearchAnalysisGraph.class)
 // specify a custom rca.conf to set the rejection-time-period-in-seconds to 5s to reduce runtime
 @ARcaConf(dataNode = QUEUE_TUNING_RESOURCES_DIR + "rca.conf")
 @AMetric(

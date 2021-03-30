@@ -35,7 +35,7 @@ plugins {
 }
 
 application {
-    mainClassName = 'com.amazon.opendistro.elasticsearch.performanceanalyzer.PerformanceAnalyzerApp'
+    mainClassName = 'com.amazon.opendistro.opensearch.performanceanalyzer.PerformanceAnalyzerApp'
     applicationDefaultJvmArgs = ['-Xms64M',
                                  '-Xmx64M',
                                  '-XX:+UseSerialGC',
@@ -69,7 +69,7 @@ distZip {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'com.amazon.opendistro.elasticsearch'
+            groupId = 'com.amazon.opendistro.opensearch'
             artifactId = 'performanceanalyzer-rca'
             version = '1.13'
             from components.java
@@ -162,12 +162,12 @@ jacocoTestReport {
         classDirectories.from = files(classDirectories.files.collect {
             fileTree(dir: it,
                     include: [
-                            '**/com/amazon/opendistro/elasticsearch/performanceanalyzer/**'
+                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/**'
                     ],
                     exclude: [
-                            '**/com/amazon/opendistro/elasticsearch/performanceanalyzer/grpc/**',
-                            '**/com/amazon/opendistro/elasticsearch/performanceanalyzer/rca/framework/api/metrics/**',
-                            '**/com/amazon/opendistro/elasticsearch/performanceanalyzer/rca/net/requests**'
+                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/grpc/**',
+                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/rca/framework/api/metrics/**',
+                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/rca/net/requests**'
                     ])
         })
     }
@@ -178,11 +178,11 @@ jacocoTestCoverageVerification {
         classDirectories.from = files(classDirectories.files.collect {
             fileTree(dir: it,
                     include: [
-                            '**/com/amazon/opendistro/elasticsearch/performanceanalyzer/rca/**',
-                            '**/com/amazon/opendistro/elasticsearch/performanceanalyzer/reader/**'
+                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/rca/**',
+                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/reader/**'
                     ],
                     exclude: [
-                            '**/com/amazon/opendistro/elasticsearch/performanceanalyzer/grpc/**'])
+                            '**/com/amazon/opendistro/opensearch/performanceanalyzer/grpc/**'])
         })
     }
     violationRules {
@@ -215,7 +215,7 @@ task rcaTest(type: Test) {
         maxRetries = 2
     }
     useJUnit {
-        includeCategories 'com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.GradleTaskForRca'
+        includeCategories 'com.amazon.opendistro.opensearch.performanceanalyzer.rca.GradleTaskForRca'
     }
     testLogging.showStandardStreams = true
 }
@@ -226,7 +226,7 @@ task rcaIt(type: Test) {
         maxRetries = 2
     }
     useJUnit {
-        includeCategories 'com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.integTests.framework.RcaItMarker'
+        includeCategories 'com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.RcaItMarker'
     }
     //testLogging.showStandardStreams = true
 }

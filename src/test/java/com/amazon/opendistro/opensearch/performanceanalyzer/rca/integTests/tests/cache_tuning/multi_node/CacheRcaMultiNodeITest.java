@@ -40,7 +40,7 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.frame
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.runners.RcaItNotEncryptedRunner;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.tests.cache_tuning.validator.FieldDataCacheValidator;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.tests.cache_tuning.validator.ShardRequestCacheValidator;
-import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.ElasticSearchAnalysisGraph;
+import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.OpenSearchAnalysisGraph;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster.FieldDataCacheClusterRca;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.cluster.ShardRequestCacheClusterRca;
 import org.junit.Test;
@@ -50,7 +50,7 @@ import org.junit.runner.RunWith;
 @Category(RcaItMarker.class)
 @RunWith(RcaItNotEncryptedRunner.class)
 @AClusterType(ClusterType.MULTI_NODE_CO_LOCATED_MASTER)
-@ARcaGraph(ElasticSearchAnalysisGraph.class)
+@ARcaGraph(OpenSearchAnalysisGraph.class)
 // specify a custom rca.conf to set the collector time periods to 5s to reduce runtime
 @ARcaConf(dataNode = CACHE_TUNING_RESOURCES_DIR + "rca.conf")
 @AMetric(

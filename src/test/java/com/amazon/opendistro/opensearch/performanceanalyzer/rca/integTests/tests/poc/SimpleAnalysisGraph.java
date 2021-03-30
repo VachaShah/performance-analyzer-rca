@@ -30,13 +30,13 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.su
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.summaries.HotShardSummary;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.InstanceDetails;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.scheduler.FlowUnitOperationArgWrapper;
-import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.ElasticSearchAnalysisGraph;
+import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.OpenSearchAnalysisGraph;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.rca.hotshard.IndexShardKey;
 import java.util.ArrayList;
 import java.util.List;
 import org.jooq.Record;
 
-public class SimpleAnalysisGraph extends ElasticSearchAnalysisGraph {
+public class SimpleAnalysisGraph extends OpenSearchAnalysisGraph {
     public static class NodeRca extends Rca<ResourceFlowUnit<HotNodeSummary>> {
         private final CPU_Utilization cpuUtilization;
 

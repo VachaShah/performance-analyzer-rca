@@ -133,7 +133,7 @@ public class ResourceHeatMapGraphTest {
         }
     }
 
-    private static class AnalysisGraphX extends ElasticSearchAnalysisGraph {
+    private static class AnalysisGraphX extends OpenSearchAnalysisGraph {
         @Override
         public void construct() {
             super.constructResourceHeatMapGraph();
@@ -632,7 +632,7 @@ public class ResourceHeatMapGraphTest {
         System.out.println(Stats.getInstance().getMutedGraphNodes());
     }
 
-    private static class AnalysisGraphHotShard extends ElasticSearchAnalysisGraph {
+    private static class AnalysisGraphHotShard extends OpenSearchAnalysisGraph {
         @Override
         public void construct() {
             Metric cpuUtilization = new CPU_Utilization(1);

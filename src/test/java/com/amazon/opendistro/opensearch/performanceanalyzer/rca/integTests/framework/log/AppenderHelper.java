@@ -38,7 +38,7 @@ public class AppenderHelper {
         builder.setStatusLevel(Level.INFO);
         builder.setConfigurationName("RcaItLogger");
         builder.setPackages(
-                "com.amazon.opendistro.elasticsearch.performanceanalyzer.rca.integTests.framework.log");
+                "com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.log");
         RootLoggerComponentBuilder rootLogger = builder.newRootLogger(Level.INFO);
 
         addRcaItInMemoryAppender(builder, rootLogger);

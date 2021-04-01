@@ -76,7 +76,7 @@ public class NodeConfigFlowUnitTest {
                 flowUnit.buildFlowUnitMessage(graphNode, nodeKey.getNodeId());
         Assert.assertTrue(flowUnitMessage.hasHotNodeSummary());
         Assert.assertFalse(flowUnitMessage.hasHotResourceSummary());
-        Assert.assertEquals(nodeKey.getNodeId().toString(), flowUnitMessage.getEsNode());
+        Assert.assertEquals(nodeKey.getNodeId().toString(), flowUnitMessage.getNode());
         Assert.assertEquals(graphNode, flowUnitMessage.getGraphNode());
 
         HotNodeSummaryMessage nodeSummaryMessage = flowUnitMessage.getHotNodeSummary();

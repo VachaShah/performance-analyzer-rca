@@ -68,7 +68,7 @@ public class FlowUnitTxTask implements Runnable {
     @Override
     public void run() {
         final String sourceGraphNode = dataMsg.getSourceGraphNode();
-        final InstanceDetails esInstanceDetails = appContext.getMyInstanceDetails();
+        final InstanceDetails openSearchInstanceDetails = appContext.getMyInstanceDetails();
 
         if (subscriptionManager.isNodeSubscribed(sourceGraphNode)) {
             final Set<InstanceDetails.Id> downstreamHostIds =
@@ -80,7 +80,7 @@ public class FlowUnitTxTask implements Runnable {
                     client.publish(
                             appContext.getInstanceById(downstreamHostId),
                             flowUnit.buildFlowUnitMessage(
-                                    sourceGraphNode, esInstanceDetails.getInstanceId()),
+                                    sourceGraphNode, openSearchInstanceDetails.getInstanceId()),
                             new StreamObserver<PublishResponse>() {
                                 @Override
                                 public void onNext(final PublishResponse value) {

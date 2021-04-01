@@ -483,7 +483,7 @@ public class RcaController {
         } else {
             // Start the scheduler if all the following conditions are met:
             // 1. rca is enabled
-            // 2. we know the role of this es node
+            // 2. we know the role of this opensearch node
             // 3. scheduler is not stopped due to an exception.
             if (rcaEnabled
                     && AllMetrics.NodeRole.UNKNOWN != currentRole

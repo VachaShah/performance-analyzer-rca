@@ -59,11 +59,11 @@ public abstract class HeapBasedDecider extends Decider {
      * bucketization object in rca.conf. We compare the oldGen usage percent reported by the
      * HighHeapUsage RCA to determine that.
      *
-     * @param esNode The EsNode we are trying to make a decision for.
+     * @param nodeKey The NodeKey we are trying to make a decision for.
      * @return return if the OldGen heap is under-utilized or healthy and yet more can be consumed,
      *     return true; or false otherwise.
      */
-    protected boolean canUseMoreHeap(NodeKey esNode) {
+    protected boolean canUseMoreHeap(NodeKey nodeKey) {
         // we add action only if heap is under-utilized or healthy and yet more can be consumed.
         for (ResourceFlowUnit<HotClusterSummary> clusterSummary :
                 highHeapUsageClusterRca.getFlowUnits()) {
@@ -72,7 +72,7 @@ public abstract class HeapBasedDecider extends Decider {
                         clusterSummary.getSummary().getHotNodeSummaryList()) {
                     NodeKey thisNode =
                             new NodeKey(nodeSummary.getNodeID(), nodeSummary.getHostAddress());
-                    if (thisNode.equals(esNode)) {
+                    if (thisNode.equals(nodeKey)) {
                         for (HotResourceSummary hotResourceSummary :
                                 nodeSummary.getHotResourceSummaryList()) {
                             Resource resource = hotResourceSummary.getResource();

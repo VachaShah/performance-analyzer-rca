@@ -37,7 +37,7 @@ public class ClusterTemperatureFlowUnit extends ResourceFlowUnit<ClusterTemperat
     }
 
     @Override
-    public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id esNode) {
+    public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id node) {
         throw new IllegalStateException(
                 this.getClass().getSimpleName() + " should not be passed " + "over the wire.");
     }

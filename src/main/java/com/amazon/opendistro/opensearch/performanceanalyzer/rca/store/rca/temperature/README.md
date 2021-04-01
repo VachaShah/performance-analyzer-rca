@@ -20,7 +20,7 @@ Temperature along each dimension is contributed by a shard-dependent and a shard
  have shardID as dimension will have a shard contributed factor to the temperature along that
  dimension. But that metric also might have a factor that is shard independent. For example
  , _CPU_utilization_, has a shard dependent components for the CPU that is spent for various
- elasticsearch Operations. But there are other factors such as HttP server and GC that might
+ opensearch Operations. But there are other factors such as HttP server and GC that might
  also consume CPU. The reason we capture both is because the shard dependent part can be affected
  by shard movements but the shard-independent parts might not be affected by shard movements at
  all.

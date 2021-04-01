@@ -39,8 +39,8 @@ import java.util.Map;
  * simultaneously until the capacity of those caches reaches the lower bounds.
  *
  * <p>For field data cache, the lower bound in this bucket is 10% of the heap and for shard request
- * cache / query cache, it will be 2% of the heap(default ES settings). This is to free up excessive
- * heap used by fielddata cache or query cache because JVM decider favors stability over
+ * cache / query cache, it will be 2% of the heap(default OpenSearch settings). This is to free up
+ * excessive heap used by fielddata cache or query cache because JVM decider favors stability over
  * performance.
  */
 public class LevelOneActionBuilder {
@@ -49,25 +49,25 @@ public class LevelOneActionBuilder {
     private final OldGenDecisionPolicyConfig oldGenDecisionPolicyConfig;
     private final LevelOneActionBuilderConfig actionBuilderConfig;
     private final CacheActionConfig cacheActionConfig;
-    private final NodeKey esNode;
+    private final NodeKey nodeKey;
     private final Map<ResourceEnum, ModifyCacheMaxSizeAction> cacheActionMap;
 
     private LevelOneActionBuilder(
-            final NodeKey esNode, final AppContext appContext, final RcaConf rcaConf) {
+            final NodeKey nodeKey, final AppContext appContext, final RcaConf rcaConf) {
         this.appContext = appContext;
         this.rcaConf = rcaConf;
         this.oldGenDecisionPolicyConfig =
                 rcaConf.getDeciderConfig().getOldGenDecisionPolicyConfig();
         this.actionBuilderConfig = this.oldGenDecisionPolicyConfig.levelOneActionBuilderConfig();
         this.cacheActionConfig = rcaConf.getCacheActionConfig();
-        this.esNode = esNode;
+        this.nodeKey = nodeKey;
         this.cacheActionMap = new HashMap<>();
         registerActions();
     }
 
     public static LevelOneActionBuilder newBuilder(
-            final NodeKey esNode, final AppContext appContext, final RcaConf rcaConf) {
-        return new LevelOneActionBuilder(esNode, appContext, rcaConf);
+            final NodeKey nodeKey, final AppContext appContext, final RcaConf rcaConf) {
+        return new LevelOneActionBuilder(nodeKey, appContext, rcaConf);
     }
 
     private void addFieldDataCacheAction() {
@@ -75,7 +75,7 @@ public class LevelOneActionBuilder {
 
         ModifyCacheMaxSizeAction action =
                 ModifyCacheMaxSizeAction.newBuilder(
-                                esNode, ResourceEnum.FIELD_DATA_CACHE, appContext, rcaConf)
+                                nodeKey, ResourceEnum.FIELD_DATA_CACHE, appContext, rcaConf)
                         .increase(false)
                         .stepSizeInPercent(
                                 stepSizeInPercent * actionBuilderConfig.fieldDataCacheStepSize())
@@ -90,7 +90,7 @@ public class LevelOneActionBuilder {
 
         ModifyCacheMaxSizeAction action =
                 ModifyCacheMaxSizeAction.newBuilder(
-                                esNode, ResourceEnum.SHARD_REQUEST_CACHE, appContext, rcaConf)
+                                nodeKey, ResourceEnum.SHARD_REQUEST_CACHE, appContext, rcaConf)
                         .increase(false)
                         .stepSizeInPercent(
                                 stepSizeInPercent * actionBuilderConfig.shardRequestCacheStepSize())

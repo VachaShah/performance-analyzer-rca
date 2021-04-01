@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class AppContext {
     private volatile ClusterDetailsEventProcessor clusterDetailsEventProcessor;
     // initiate a node config cache within each AppContext space
-    // to store node config settings from ES
+    // to store node config settings from OpenSearch
     private final NodeConfigCache nodeConfigCache;
     private volatile Set<String> mutedActions;
 

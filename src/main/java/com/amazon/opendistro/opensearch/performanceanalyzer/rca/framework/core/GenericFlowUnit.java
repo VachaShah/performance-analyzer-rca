@@ -40,5 +40,5 @@ public abstract class GenericFlowUnit {
     }
 
     public abstract FlowUnitMessage buildFlowUnitMessage(
-            final String graphNode, final InstanceDetails.Id esNode);
+            final String graphNode, final InstanceDetails.Id node);
 }

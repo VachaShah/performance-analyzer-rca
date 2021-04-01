@@ -50,9 +50,10 @@ public class NodeKey {
     }
 
     // the reason why we compare both node id and  hostAddress here is because in
-    // newer ES version(6.8 and above), see https://github.com/elastic/elasticsearch/pull/19140.
-    // if es restart, both node id and ip address will remain the same so we can continue add
-    // flowunit into the same row in table before es restart.
+    // newer version (6.8 and above), see https://github.com/elastic/elasticsearch/pull/19140.
+    // if opensearch restart, both node id and ip address will remain the same so we can continue
+    // add
+    // flowunit into the same row in table before opensearch restart.
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37).append(nodeId).append(hostAddress).toHashCode();

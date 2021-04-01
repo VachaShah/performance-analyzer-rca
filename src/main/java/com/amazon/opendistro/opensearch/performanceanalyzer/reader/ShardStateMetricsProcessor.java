@@ -75,10 +75,10 @@ public class ShardStateMetricsProcessor implements EventProcessor {
 
     /**
      * Sample event : ^shard_state_metrics {"current_time":1600677426860} {IndexName:"pmc"}
-     * {"ShardID":2,"ShardType":"p","NodeName":"elasticsearch2","Shard_State":"Unassigned"}
-     * {"ShardID":2,"ShardType":"r","NodeName":"elasticsearch2","Shard_State:"Initializing"}
+     * {"ShardID":2,"ShardType":"p","NodeName":"opensearch2","Shard_State":"Unassigned"}
+     * {"ShardID":2,"ShardType":"r","NodeName":"opensearch2","Shard_State:"Initializing"}
      * {IndexName:"pmc1"}
-     * {"ShardID":2,"ShardType":"primary","NodeName":"elasticsearch2","Shard_State":"Unassigned"}
+     * {"ShardID":2,"ShardType":"primary","NodeName":"opensearch2","Shard_State":"Unassigned"}
      */
     @Override
     public void processEvent(Event event) {

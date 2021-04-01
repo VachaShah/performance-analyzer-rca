@@ -34,18 +34,18 @@ public class HeapSizeIncreaseAction extends SuppressibleAction {
     public static final String NAME = "HeapSizeIncreaseAction";
     private static final String ID_KEY = "Id";
     private static final String IP_KEY = "Ip";
-    private final NodeKey esNode;
+    private final NodeKey node;
     private static final long DEFAULT_COOL_OFF_PERIOD_IN_MILLIS = TimeUnit.DAYS.toMillis(3);
 
     public HeapSizeIncreaseAction(@Nonnull final AppContext appContext) {
         super(appContext);
-        this.esNode = new NodeKey(appContext.getMyInstanceDetails());
+        this.node = new NodeKey(appContext.getMyInstanceDetails());
     }
 
     /** Constructor used when building the action from a summary. */
     public HeapSizeIncreaseAction(final NodeKey nodeKey, final AppContext appContext) {
         super(appContext);
-        this.esNode = nodeKey;
+        this.node = nodeKey;
     }
 
     @Override
@@ -86,8 +86,8 @@ public class HeapSizeIncreaseAction extends SuppressibleAction {
     @Override
     public String summary() {
         JsonObject summaryJson = new JsonObject();
-        summaryJson.addProperty(ID_KEY, esNode.getNodeId().toString());
-        summaryJson.addProperty(IP_KEY, esNode.getHostAddress().toString());
+        summaryJson.addProperty(ID_KEY, node.getNodeId().toString());
+        summaryJson.addProperty(IP_KEY, node.getHostAddress().toString());
 
         return summaryJson.toString();
     }

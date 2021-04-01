@@ -113,8 +113,8 @@ public class ThreadList {
 
     /**
      * This is called from OSMetricsCollector#collectMetrics. So this is not called in the critical
-     * path of ES request handling. Even for the collector thread, we do a timed wait to acquire
-     * this lock and move on if we could not get it.
+     * path of OpenSearch request handling. Even for the collector thread, we do a timed wait to
+     * acquire this lock and move on if we could not get it.
      *
      * @return A hashmap of threadId to threadState.
      */
@@ -145,10 +145,10 @@ public class ThreadList {
      * This method is called from the critical bulk and search paths which PA intercepts. This
      * method used to try to do a thread dump if it could not find the information about the thread
      * in question. The thread dump is an expensive operation and can stall see
-     * VirtualMachineImpl#VirtualMachineImpl() for jdk-11 u06. We don't want the ES threads to pay
-     * the price. We skip this iteration and then hopefully in the next call to getNativeTidMap(),
-     * the OSMetricsCollector#collectMetrics will fill the jTidMap. This transfers the
-     * responsibility from the ES threads to the PA collector threads.
+     * VirtualMachineImpl#VirtualMachineImpl() for jdk-11 u06. We don't want the OpenSearch threads
+     * to pay the price. We skip this iteration and then hopefully in the next call to
+     * getNativeTidMap(), the OSMetricsCollector#collectMetrics will fill the jTidMap. This
+     * transfers the responsibility from the OpenSearch threads to the PA collector threads.
      *
      * @param threadId The threadId of the current thread.
      * @return If we have successfully captured the ThreadState, then we emit it or Null otherwise.

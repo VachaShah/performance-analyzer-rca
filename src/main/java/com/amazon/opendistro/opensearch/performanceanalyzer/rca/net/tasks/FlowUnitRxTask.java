@@ -56,7 +56,7 @@ public class FlowUnitRxTask implements Runnable {
      */
     @Override
     public void run() {
-        final InstanceDetails.Id host = new InstanceDetails.Id(flowUnitMessage.getEsNode());
+        final InstanceDetails.Id host = new InstanceDetails.Id(flowUnitMessage.getNode());
         final String vertex = flowUnitMessage.getGraphNode();
 
         nodeStateManager.updateReceiveTime(host, vertex, System.currentTimeMillis());

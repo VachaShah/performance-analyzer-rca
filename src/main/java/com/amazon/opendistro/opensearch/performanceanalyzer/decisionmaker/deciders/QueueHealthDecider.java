@@ -79,10 +79,10 @@ public class QueueHealthDecider extends HeapBasedDecider {
         }
         HotClusterSummary clusterSummary = flowUnit.getSummary();
         for (HotNodeSummary nodeSummary : clusterSummary.getHotNodeSummaryList()) {
-            NodeKey esNode = new NodeKey(nodeSummary.getNodeID(), nodeSummary.getHostAddress());
+            NodeKey nodeKey = new NodeKey(nodeSummary.getNodeID(), nodeSummary.getHostAddress());
             for (HotResourceSummary resource : nodeSummary.getHotResourceSummaryList()) {
                 decision.addAction(
-                        computeBestAction(esNode, resource.getResource().getResourceEnum()));
+                        computeBestAction(nodeKey, resource.getResource().getResourceEnum()));
             }
         }
         return decision;
@@ -99,11 +99,11 @@ public class QueueHealthDecider extends HeapBasedDecider {
      * <p>Action relevance decided based on user configured priorities for now, this can be modified
      * to consume better signals going forward.
      */
-    private Action computeBestAction(NodeKey esNode, ResourceEnum threadPool) {
+    private Action computeBestAction(NodeKey nodeKey, ResourceEnum threadPool) {
         Action action = null;
-        if (canUseMoreHeap(esNode)) {
+        if (canUseMoreHeap(nodeKey)) {
             for (String actionName : actionsByUserPriority) {
-                action = getAction(actionName, esNode, threadPool, true);
+                action = getAction(actionName, nodeKey, threadPool, true);
                 if (action != null) {
                     break;
                 }
@@ -111,26 +111,26 @@ public class QueueHealthDecider extends HeapBasedDecider {
         } else {
             PerformanceAnalyzerApp.RCA_RUNTIME_METRICS_AGGREGATOR.updateStat(
                     RcaRuntimeMetrics.NO_INCREASE_ACTION_SUGGESTED,
-                    NAME + ":" + esNode.getHostAddress(),
+                    NAME + ":" + nodeKey.getHostAddress(),
                     1);
         }
         return action;
     }
 
     private Action getAction(
-            String actionName, NodeKey esNode, ResourceEnum threadPool, boolean increase) {
+            String actionName, NodeKey nodeKey, ResourceEnum threadPool, boolean increase) {
         switch (actionName) {
             case ModifyQueueCapacityAction.NAME:
-                return configureQueueCapacity(esNode, threadPool, increase);
+                return configureQueueCapacity(nodeKey, threadPool, increase);
             default:
                 return null;
         }
     }
 
     private ModifyQueueCapacityAction configureQueueCapacity(
-            NodeKey esNode, ResourceEnum threadPool, boolean increase) {
+            NodeKey nodeKey, ResourceEnum threadPool, boolean increase) {
         ModifyQueueCapacityAction action =
-                ModifyQueueCapacityAction.newBuilder(esNode, threadPool, getAppContext(), rcaConf)
+                ModifyQueueCapacityAction.newBuilder(nodeKey, threadPool, getAppContext(), rcaConf)
                         .increase(increase)
                         .build();
         if (action != null && action.isActionable()) {

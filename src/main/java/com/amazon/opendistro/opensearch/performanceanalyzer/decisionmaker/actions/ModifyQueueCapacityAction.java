@@ -41,14 +41,14 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
     public static final String NAME = "ModifyQueueCapacity";
 
     private final ResourceEnum threadPool;
-    private final NodeKey esNode;
+    private final NodeKey node;
     private final int desiredCapacity;
     private final int currentCapacity;
     private final long coolOffPeriodInMillis;
     private final boolean canUpdate;
 
     private ModifyQueueCapacityAction(
-            NodeKey esNode,
+            NodeKey node,
             ResourceEnum threadPool,
             AppContext appContext,
             int desiredCapacity,
@@ -56,7 +56,7 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
             long coolOffPeriodInMillis,
             boolean canUpdate) {
         super(appContext);
-        this.esNode = esNode;
+        this.node = node;
         this.threadPool = threadPool;
         this.desiredCapacity = desiredCapacity;
         this.currentCapacity = currentCapacity;
@@ -65,11 +65,11 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
     }
 
     public static Builder newBuilder(
-            NodeKey esNode,
+            NodeKey node,
             ResourceEnum threadPool,
             final AppContext appContext,
             final RcaConf conf) {
-        return new Builder(esNode, threadPool, appContext, conf);
+        return new Builder(node, threadPool, appContext, conf);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
 
     @Override
     public List<NodeKey> impactedNodes() {
-        return Collections.singletonList(esNode);
+        return Collections.singletonList(node);
     }
 
     @Override
@@ -106,15 +106,15 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
                     ImpactVector.Dimension.CPU,
                     ImpactVector.Dimension.NETWORK);
         }
-        return Collections.singletonMap(esNode, impactVector);
+        return Collections.singletonMap(node, impactVector);
     }
 
     @Override
     public String summary() {
         Summary summary =
                 new Summary(
-                        esNode.getNodeId().toString(),
-                        esNode.getHostAddress().toString(),
+                        node.getNodeId().toString(),
+                        node.getHostAddress().toString(),
                         threadPool.getNumber(),
                         desiredCapacity,
                         currentCapacity,
@@ -131,7 +131,7 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
         final JsonObject jsonObject =
                 DecisionMakerConsts.JSON_PARSER.parse(jsonRepr).getAsJsonObject();
 
-        NodeKey esNode =
+        NodeKey node =
                 new NodeKey(
                         new InstanceDetails.Id(jsonObject.get("Id").getAsString()),
                         new InstanceDetails.Ip(jsonObject.get("Ip").getAsString()));
@@ -142,7 +142,7 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
         boolean canUpdate = jsonObject.get("canUpdate").getAsBoolean();
 
         return new ModifyQueueCapacityAction(
-                esNode,
+                node,
                 threadPool,
                 appContext,
                 desiredCapacity,
@@ -178,7 +178,7 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
         private boolean canUpdate;
         private long coolOffPeriodInMillis;
         private final ResourceEnum threadPool;
-        private final NodeKey esNode;
+        private final NodeKey node;
         private final AppContext appContext;
         private final RcaConf rcaConf;
 
@@ -188,11 +188,11 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
         private final int lowerBound;
 
         public Builder(
-                NodeKey esNode,
+                NodeKey node,
                 ResourceEnum threadPool,
                 final AppContext appContext,
                 final RcaConf conf) {
-            this.esNode = esNode;
+            this.node = node;
             this.threadPool = threadPool;
             this.appContext = appContext;
             this.rcaConf = conf;
@@ -202,7 +202,7 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
             this.desiredCapacity = null;
             this.currentCapacity =
                     NodeConfigCacheReaderUtil.readQueueCapacity(
-                            appContext.getNodeConfigCache(), esNode, threadPool);
+                            appContext.getNodeConfigCache(), node, threadPool);
 
             QueueActionConfig queueActionConfig = new QueueActionConfig(rcaConf);
             this.upperBound = queueActionConfig.getThresholdConfig(threadPool).upperBound();
@@ -240,7 +240,7 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
                 LOG.error(
                         "Action: Fail to read queue capacity from node config cache. Return an non-actionable action");
                 return new ModifyQueueCapacityAction(
-                        esNode, threadPool, appContext, -1, -1, coolOffPeriodInMillis, false);
+                        node, threadPool, appContext, -1, -1, coolOffPeriodInMillis, false);
             }
             if (desiredCapacity == null) {
                 desiredCapacity =
@@ -251,7 +251,7 @@ public class ModifyQueueCapacityAction extends SuppressibleAction {
             desiredCapacity = Math.min(desiredCapacity, upperBound);
             desiredCapacity = Math.max(desiredCapacity, lowerBound);
             return new ModifyQueueCapacityAction(
-                    esNode,
+                    node,
                     threadPool,
                     appContext,
                     desiredCapacity,

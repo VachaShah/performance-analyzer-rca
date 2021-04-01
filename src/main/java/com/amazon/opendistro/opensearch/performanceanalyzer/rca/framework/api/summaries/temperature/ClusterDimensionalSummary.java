@@ -306,7 +306,7 @@ public class ClusterDimensionalSummary extends GenericSummary {
         /** The EsNode with the minimum temperature value. */
         CompactClusterLevelNodeSummary minNode;
 
-        /** The ES node with the maximum temperature value. */
+        /** The OpenSearch node with the maximum temperature value. */
         CompactClusterLevelNodeSummary maxNode;
 
         ZoneSummary(HeatZoneAssigner.Zone myZone) {

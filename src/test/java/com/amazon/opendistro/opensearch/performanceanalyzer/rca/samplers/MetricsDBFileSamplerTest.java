@@ -66,7 +66,7 @@ public class MetricsDBFileSamplerTest {
         String[] randomFilenames = {
             "performance_analyzer_agent_stats.log",
             "PerformanceAnalyzer.log",
-            "elasticsearch-10045690226637554248",
+            "opensearch-10045690226637554248",
             "ks-script-56tHfe"
         };
         String[] closeMatchFilenames = {

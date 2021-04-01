@@ -29,17 +29,18 @@ public class Util {
     public static final String METRICS_QUERY_URL = "/_opendistro/_performanceanalyzer/metrics";
     public static final String RCA_QUERY_URL = "/_opendistro/_performanceanalyzer/rca";
     public static final String ACTIONS_QUERY_URL = "/_opendistro/_performanceanalyzer/actions";
-    public static final String ES_HOME = System.getProperty("es.path.home");
+    public static final String OPENSEARCH_HOME = System.getProperty("opensearch.path.home");
     public static final String PLUGIN_LOCATION =
-            ES_HOME
+            OPENSEARCH_HOME
                     + File.separator
                     + "plugins"
                     + File.separator
                     + "opendistro-performance-analyzer"
                     + File.separator;
     public static final String READER_LOCATION =
-            ES_HOME + File.separator + "performance-analyzer-rca" + File.separator;
-    public static final String DATA_DIR = ES_HOME + File.separator + "data" + File.separator;
+            OPENSEARCH_HOME + File.separator + "performance-analyzer-rca" + File.separator;
+    public static final String DATA_DIR =
+            OPENSEARCH_HOME + File.separator + "data" + File.separator;
 
     public static void invokePrivileged(Runnable runner) {
         AccessController.doPrivileged(

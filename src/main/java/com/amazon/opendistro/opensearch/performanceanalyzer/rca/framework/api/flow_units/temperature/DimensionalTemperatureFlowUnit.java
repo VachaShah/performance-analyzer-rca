@@ -24,7 +24,7 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.util.I
 
 /**
  * This is the FlowUnit wrapper over the summary of the given node across all the tracked dimension.
- * The graph nodes, between which this FlowUnit is passed are local to an Elasticsearch node (or in
+ * The graph nodes, between which this FlowUnit is passed are local to an OpenSearch node (or in
  * other words, are not transferred over the wire). Therefore, the protobuf message generation is
  * not really required.
  */
@@ -44,7 +44,7 @@ public class DimensionalTemperatureFlowUnit extends ResourceFlowUnit<NodeLevelDi
 
     // A dimension flow unit never leaves a node. So, we don't need to generate protobuf messages.
     @Override
-    public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id esNode) {
+    public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id node) {
         throw new IllegalStateException(
                 this.getClass().getSimpleName() + " should not be passed " + "over the wire.");
     }

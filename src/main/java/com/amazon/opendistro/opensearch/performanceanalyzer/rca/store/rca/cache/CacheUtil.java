@@ -71,9 +71,9 @@ public class CacheUtil {
     }
 
     public static double getCacheMaxSize(
-            AppContext appContext, NodeKey esNode, Resource cacheResource) {
+            AppContext appContext, NodeKey nodeKey, Resource cacheResource) {
         try {
-            return appContext.getNodeConfigCache().get(esNode, cacheResource);
+            return appContext.getNodeConfigCache().get(nodeKey, cacheResource);
         } catch (IllegalArgumentException e) {
             LOG.error(
                     "error in fetching: {} from Node Config Cache. "

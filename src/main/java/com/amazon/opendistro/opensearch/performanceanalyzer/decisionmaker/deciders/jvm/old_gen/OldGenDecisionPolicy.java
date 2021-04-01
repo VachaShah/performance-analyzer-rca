@@ -72,17 +72,17 @@ public class OldGenDecisionPolicy implements DecisionPolicy {
         }
         HotClusterSummary clusterSummary = flowUnit.getSummary();
         for (HotNodeSummary nodeSummary : clusterSummary.getHotNodeSummaryList()) {
-            NodeKey esNode = new NodeKey(nodeSummary.getNodeID(), nodeSummary.getHostAddress());
+            NodeKey nodeKey = new NodeKey(nodeSummary.getNodeID(), nodeSummary.getHostAddress());
             for (HotResourceSummary resource : nodeSummary.getHotResourceSummaryList()) {
                 if (resource.getResource().equals(ResourceUtil.OLD_GEN_HEAP_USAGE)) {
-                    actions.addAll(evaluate(esNode, resource.getValue()));
+                    actions.addAll(evaluate(nodeKey, resource.getValue()));
                 }
             }
         }
         return actions;
     }
 
-    private List<Action> evaluate(final NodeKey esNode, double oldGenUsage) {
+    private List<Action> evaluate(final NodeKey nodeKey, double oldGenUsage) {
         // rca config / app context will not be null unless there is a bug in RCAScheduler.
         if (rcaConf == null || appContext == null) {
             LOG.error("rca conf/app context is null, return empty action list");
@@ -91,11 +91,11 @@ public class OldGenDecisionPolicy implements DecisionPolicy {
         OldGenDecisionPolicyConfig oldGenDecisionPolicyConfig =
                 rcaConf.getDeciderConfig().getOldGenDecisionPolicyConfig();
         if (oldGenUsage >= oldGenDecisionPolicyConfig.oldGenThresholdLevelThree()) {
-            return LevelThreeActionBuilder.newBuilder(esNode, appContext, rcaConf).build();
+            return LevelThreeActionBuilder.newBuilder(nodeKey, appContext, rcaConf).build();
         } else if (oldGenUsage >= oldGenDecisionPolicyConfig.oldGenThresholdLevelTwo()) {
-            return LevelTwoActionBuilder.newBuilder(esNode, appContext, rcaConf).build();
+            return LevelTwoActionBuilder.newBuilder(nodeKey, appContext, rcaConf).build();
         } else if (oldGenUsage >= oldGenDecisionPolicyConfig.oldGenThresholdLevelOne()) {
-            return LevelOneActionBuilder.newBuilder(esNode, appContext, rcaConf).build();
+            return LevelOneActionBuilder.newBuilder(nodeKey, appContext, rcaConf).build();
         }
         // old gen jvm is healthy. return empty action list.
         else {

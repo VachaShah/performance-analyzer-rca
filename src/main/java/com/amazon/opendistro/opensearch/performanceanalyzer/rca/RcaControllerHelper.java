@@ -81,7 +81,7 @@ public class RcaControllerHelper {
         try {
             LOG.info("Making _cat/master call");
             PerformanceAnalyzerApp.RCA_RUNTIME_METRICS_AGGREGATOR.updateStat(
-                    RcaRuntimeMetrics.ES_APIS_CALLED, "catMaster", 1);
+                    RcaRuntimeMetrics.OPEN_SEARCH_APIS_CALLED, "catMaster", 1);
 
             final URL url = new URL(CAT_MASTER_URL);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();

@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/** a flowunit type to carry ES node configurations (queue/cache capacities, etc.) */
+/** a flowunit type to carry OpenSearch node configurations (queue/cache capacities, etc.) */
 public class NodeConfigFlowUnit extends ResourceFlowUnit<HotNodeSummary> {
 
     private final HashMap<Resource, HotResourceSummary> configMap;
@@ -109,17 +109,17 @@ public class NodeConfigFlowUnit extends ResourceFlowUnit<HotNodeSummary> {
      * the flowunit object to gRPC protobuf message
      *
      * @param graphNode vertex name in RCA graph
-     * @param esNode es node ID
+     * @param node opensearch node ID
      * @return gRPC protobuf message
      */
     @Override
     public FlowUnitMessage buildFlowUnitMessage(
-            final String graphNode, final InstanceDetails.Id esNode) {
+            final String graphNode, final InstanceDetails.Id node) {
         // append resources stored in configMap to HotNodeSummary
         this.configMap
                 .values()
                 .forEach(resourceSummary -> this.getSummary().appendNestedSummary(resourceSummary));
-        return super.buildFlowUnitMessage(graphNode, esNode);
+        return super.buildFlowUnitMessage(graphNode, node);
     }
 
     /** build NodeConfigFlowUnit from the protobuf message */

@@ -76,7 +76,7 @@ public class ClusterDetailsEventProcessor implements EventProcessor {
             // We expect at-least 4 lines as the first line is always timestamp,
             // the second line is the list of overridden rca conf values,
             // the third line is the timestamp of when the last override was set,
-            // and there must be at least one ElasticSearch node in a cluster.
+            // and there must be at least one OpenSearch node in a cluster.
             LOG.error(
                     "ClusterDetails contain less items than expected. " + "Expected 4, found: {}",
                     event.value);

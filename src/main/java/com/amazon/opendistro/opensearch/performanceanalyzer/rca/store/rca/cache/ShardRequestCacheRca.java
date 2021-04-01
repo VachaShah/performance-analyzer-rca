@@ -52,7 +52,7 @@ import org.jooq.Result;
  * healthy. The dimension we are using for this analysis is cache eviction, hit count, cache current
  * weight(size) and cache max weight(size) configured.
  *
- * <p>Cache eviction within Elasticsearch happens in following scenarios:
+ * <p>Cache eviction within OpenSearch happens in following scenarios:
  *
  * <ol>
  *   <li>Mutation to Cache (Entry Insertion/Promotion and Manual Invalidation)

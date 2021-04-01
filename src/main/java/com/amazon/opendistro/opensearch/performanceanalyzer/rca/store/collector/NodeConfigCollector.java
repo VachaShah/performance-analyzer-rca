@@ -19,7 +19,7 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.rca.store.collector
 import com.amazon.opendistro.opensearch.performanceanalyzer.grpc.Resource;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.MetricsDB;
-import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.EsConfigNode;
+import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.OpenSearchConfigNode;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units.MetricFlowUnit;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.flow_units.NodeConfigFlowUnit;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.metrics.Cache_Max_Size;
@@ -33,11 +33,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This is a node level collector in RCA graph which collect the current config settings from ES
- * (queue/cache capacity etc.) And pass them down to Decision Maker for the next round of resource
- * auto-tuning.
+ * This is a node level collector in RCA graph which collect the current config settings from
+ * OpenSearch (queue/cache capacity etc.) And pass them down to Decision Maker for the next round of
+ * resource auto-tuning.
  */
-public class NodeConfigCollector extends EsConfigNode {
+public class NodeConfigCollector extends OpenSearchConfigNode {
 
     private static final Logger LOG = LogManager.getLogger(NodeConfigCollector.class);
     private final ThreadPool_QueueCapacity threadPool_queueCapacity;
@@ -134,9 +134,9 @@ public class NodeConfigCollector extends EsConfigNode {
     private void collectAndPublishMetric(final Resource resource, final double metricValue) {
         if (!Double.isNaN(metricValue)) {
             final NodeConfigCache nodeConfigCache = getAppContext().getNodeConfigCache();
-            final NodeKey esNode = new NodeKey(getAppContext().getMyInstanceDetails());
+            final NodeKey nodeKey = new NodeKey(getAppContext().getMyInstanceDetails());
             configResult.put(resource, metricValue);
-            nodeConfigCache.put(esNode, resource, metricValue);
+            nodeConfigCache.put(nodeKey, resource, metricValue);
         } else {
             LOG.error("Metric value is NaN for resource:" + resource.toString());
         }

@@ -85,7 +85,7 @@ public class RequestEventProcessor implements EventProcessor {
     }
 
     public void processEvent(Event event) {
-        handleESMetrics(event);
+        handleOpenSearchMetrics(event);
         // Flush data to sqlite when batch size is 500
         if (handle.size() == 500) {
             handle.execute();
@@ -101,7 +101,7 @@ public class RequestEventProcessor implements EventProcessor {
         }
     }
 
-    private void handleESMetrics(Event entry) {
+    private void handleOpenSearchMetrics(Event entry) {
         // operation is of the form - shardBulk, shardSearch etc..
         // for (Event entry: dataEntries) {
 

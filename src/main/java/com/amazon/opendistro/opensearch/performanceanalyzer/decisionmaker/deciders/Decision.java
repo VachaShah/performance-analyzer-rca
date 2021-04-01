@@ -66,7 +66,7 @@ public class Decision extends GenericFlowUnit {
     }
 
     @Override
-    public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id esNode) {
+    public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id node) {
         // All deciders run on the master node, (in initial versions), so we dont expect Decisions
         // to be passed over wire.
         throw new IllegalStateException(

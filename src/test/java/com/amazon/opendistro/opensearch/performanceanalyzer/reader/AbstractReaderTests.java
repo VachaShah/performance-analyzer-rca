@@ -39,19 +39,19 @@ import org.jooq.impl.DSL;
 import org.junit.Ignore;
 
 // import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.MasterServiceMetrics.MasterPendingStatus;
+// com.amazon.opendistro.opensearch.performanceanalyzer.collectors.MasterServiceMetrics.MasterPendingStatus;
 // import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.NodeDetailsCollector.NodeDetailsStatus;
+// com.amazon.opendistro.opensearch.performanceanalyzer.collectors.NodeDetailsCollector.NodeDetailsStatus;
 // import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.NodeStatsMetricsCollector;
+// com.amazon.opendistro.opensearch.performanceanalyzer.collectors.NodeStatsMetricsCollector;
 // import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.reader.MetricPropertiesTests.FailureCondition;
+// com.amazon.opendistro.opensearch.performanceanalyzer.reader.MetricPropertiesTests.FailureCondition;
 // import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.MasterServiceMetrics.MasterPendingStatus;
+// com.amazon.opendistro.opensearch.performanceanalyzer.collectors.MasterServiceMetrics.MasterPendingStatus;
 // import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.NodeDetailsCollector.NodeDetailsStatus;
+// com.amazon.opendistro.opensearch.performanceanalyzer.collectors.NodeDetailsCollector.NodeDetailsStatus;
 // import
-// com.amazon.opendistro.elasticsearch.performanceanalyzer.collectors.NodeStatsMetricsCollector;
+// com.amazon.opendistro.opensearch.performanceanalyzer.collectors.NodeStatsMetricsCollector;
 
 @Ignore
 public class AbstractReaderTests extends AbstractTests {

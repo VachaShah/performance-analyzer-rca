@@ -109,13 +109,14 @@ public class CacheHealthDecider extends HeapBasedDecider {
 
             for (final HotNodeSummary hotNodeSummary : clusterSummary) {
                 if (!impactedNodes.contains(hotNodeSummary.getNodeID())) {
-                    final NodeKey esNode =
+                    final NodeKey nodeKey =
                             new NodeKey(
                                     hotNodeSummary.getNodeID(), hotNodeSummary.getHostAddress());
                     for (final HotResourceSummary resource :
                             hotNodeSummary.getHotResourceSummaryList()) {
                         final Action action =
-                                computeBestAction(esNode, resource.getResource().getResourceEnum());
+                                computeBestAction(
+                                        nodeKey, resource.getResource().getResourceEnum());
                         if (action != null) {
                             actions.add(action);
                             impactedNodes.add(hotNodeSummary.getNodeID());
@@ -138,14 +139,14 @@ public class CacheHealthDecider extends HeapBasedDecider {
      * <p>Only ModifyCacheMaxSize Action is used for now, this can be modified to consume better
      * signals going forward.
      */
-    private Action computeBestAction(final NodeKey esNode, final ResourceEnum cacheType) {
+    private Action computeBestAction(final NodeKey nodeKey, final ResourceEnum cacheType) {
         Action action = null;
-        if (canUseMoreHeap(esNode)) {
-            action = getAction(ModifyCacheMaxSizeAction.NAME, esNode, cacheType, true);
+        if (canUseMoreHeap(nodeKey)) {
+            action = getAction(ModifyCacheMaxSizeAction.NAME, nodeKey, cacheType, true);
         } else {
             PerformanceAnalyzerApp.RCA_RUNTIME_METRICS_AGGREGATOR.updateStat(
                     RcaRuntimeMetrics.NO_INCREASE_ACTION_SUGGESTED,
-                    NAME + ":" + esNode.getHostAddress(),
+                    NAME + ":" + nodeKey.getHostAddress(),
                     1);
         }
         return action;
@@ -153,19 +154,19 @@ public class CacheHealthDecider extends HeapBasedDecider {
 
     private Action getAction(
             final String actionName,
-            final NodeKey esNode,
+            final NodeKey nodeKey,
             final ResourceEnum cacheType,
             final boolean increase) {
         if (ModifyCacheMaxSizeAction.NAME.equals(actionName)) {
-            return configureCacheMaxSize(esNode, cacheType, increase);
+            return configureCacheMaxSize(nodeKey, cacheType, increase);
         }
         return null;
     }
 
     private ModifyCacheMaxSizeAction configureCacheMaxSize(
-            final NodeKey esNode, final ResourceEnum cacheType, final boolean increase) {
+            final NodeKey nodeKey, final ResourceEnum cacheType, final boolean increase) {
         final ModifyCacheMaxSizeAction action =
-                ModifyCacheMaxSizeAction.newBuilder(esNode, cacheType, getAppContext(), rcaConf)
+                ModifyCacheMaxSizeAction.newBuilder(nodeKey, cacheType, getAppContext(), rcaConf)
                         .increase(increase)
                         .build();
         if (action.isActionable()) {

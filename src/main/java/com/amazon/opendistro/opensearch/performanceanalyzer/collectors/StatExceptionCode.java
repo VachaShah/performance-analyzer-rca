@@ -25,7 +25,7 @@ public enum StatExceptionCode {
     JVM_ATTACH_ERROR_JAVA_PID_FILE_MISSING("JvmAttachErrorJavaPidFileMissing"),
     // The lock could not be acquired within the timeout.
     JVM_ATTACH_LOCK_ACQUISITION_FAILED("JvmAttachLockAcquisitionFailed"),
-    // ThreadState could not be found for an ES thread in the critical ES path.
+    // ThreadState could not be found for an OpenSearch thread in the critical OpenSearch path.
     NO_THREAD_STATE_INFO("NoThreadStateInfo"),
     // This metric indicates that we successfully completed a thread-dump. Likewise,
     // an omission of this should indicate that the thread taking the dump got stuck.
@@ -55,7 +55,7 @@ public enum StatExceptionCode {
     RCA_CONTROLLER_THREAD_STOPPED("RcaControllerThreadStopped"),
     RCA_SCHEDULER_THREAD_STOPPED("RcaSchedulerThreadStopped"),
     JVM_THREAD_ID_NO_LONGER_EXISTS("JVMThreadIdNoLongerExists"),
-    ES_REQUEST_INTERCEPTOR_ERROR("EsRequestInterceptorError"),
+    OPENSEARCH_REQUEST_INTERCEPTOR_ERROR("OpenSearchRequestInterceptorError"),
     INVALID_OLD_GEN_SIZE("InvalidOldGenSize"),
     MISCONFIGURED_OLD_GEN_RCA_HEAP_MAX_MISSING("MisconfiguredOldGenRcaHeapMaxMissing"),
     MISCONFIGURED_OLD_GEN_RCA_HEAP_USED_MISSING("MisconfiguredOldGenRcaHeapUsedMissing"),

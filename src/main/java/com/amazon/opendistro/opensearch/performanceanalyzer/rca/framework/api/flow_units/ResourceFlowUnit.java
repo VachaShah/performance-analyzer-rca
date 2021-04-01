@@ -105,10 +105,10 @@ public class ResourceFlowUnit<T extends GenericSummary> extends GenericFlowUnit 
 
     @Override
     public FlowUnitMessage buildFlowUnitMessage(
-            final String graphNode, final InstanceDetails.Id esNode) {
+            final String graphNode, final InstanceDetails.Id node) {
         final FlowUnitMessage.Builder messageBuilder = FlowUnitMessage.newBuilder();
         messageBuilder.setGraphNode(graphNode);
-        messageBuilder.setEsNode(esNode.toString());
+        messageBuilder.setNode(node.toString());
         messageBuilder.setTimeStamp(System.currentTimeMillis());
         if (resourceContext != null) {
             messageBuilder.setResourceContext(resourceContext.buildContextMessage());

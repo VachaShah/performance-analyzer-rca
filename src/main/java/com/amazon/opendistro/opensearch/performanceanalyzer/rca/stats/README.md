@@ -41,7 +41,7 @@ These are reported as they were witnessed, the raw numbers. Some of the examples
 
 Emitters emit certain measurements. They can be found in two places - scattered all around the
 code to track execution latencies and the occurrence of errors or call to an expensive
-ElasticSearch API. The second place is the `stats/emitters`. These are fired at every certain
+OpenSearch API. The second place is the `stats/emitters`. These are fired at every certain
 interval.
 
 ## Aggregators

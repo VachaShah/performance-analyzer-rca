@@ -33,10 +33,10 @@ public interface Action {
     /** Time to wait since last recommendation, before suggesting this action again */
     long coolOffPeriodInMillis();
 
-    /** Returns a list of Elasticsearch nodes impacted by this action. */
+    /** Returns a list of nodes impacted by this action. */
     List<NodeKey> impactedNodes();
 
-    /** Returns a map of Elasticsearch nodes to ImpactVector of this action on that node */
+    /** Returns a map of nodes to ImpactVector of this action on that node */
     Map<NodeKey, ImpactVector> impact();
 
     /** Returns action name */

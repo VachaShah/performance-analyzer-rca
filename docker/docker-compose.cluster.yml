@@ -18,17 +18,17 @@
 #
 version: '2.1'
 services:
-  elasticsearch1:
+  opensearch1:
     environment:
-      - node.name=elasticsearch1
-      - discovery.seed_hosts=elasticsearch2
-      - cluster.initial_master_nodes=elasticsearch1
+      - node.name=opensearch1
+      - discovery.seed_hosts=opensearch2
+      - cluster.initial_master_nodes=opensearch1
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-  elasticsearch2:
+      - "OPEN_SEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+  opensearch2:
     environment:
-      - node.name=elasticsearch2
-      - discovery.seed_hosts=elasticsearch1
-      - cluster.initial_master_nodes=elasticsearch1
+      - node.name=opensearch2
+      - discovery.seed_hosts=opensearch1
+      - cluster.initial_master_nodes=opensearch1
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "OPEN_SEARCH_JAVA_OPTS=-Xms512m -Xmx512m"

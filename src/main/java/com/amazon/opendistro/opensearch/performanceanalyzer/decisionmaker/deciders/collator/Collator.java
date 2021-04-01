@@ -36,10 +36,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * Collator collects and prunes the candidate decisions from each decider so that their impacts are
  * aligned.
  *
- * <p>Decisions can increase or decrease pressure on different key resources on an Elasticsearch
- * node. This is encapsulated in each Action via the {@link ImpactVector}. Since each decider
- * independently evaluates its decision, it is possible to have conflicting ImpactVectors from
- * actions across deciders.
+ * <p>Decisions can increase or decrease pressure on different key resources on a node. This is
+ * encapsulated in each Action via the {@link ImpactVector}. Since each decider independently
+ * evaluates its decision, it is possible to have conflicting ImpactVectors from actions across
+ * deciders.
  *
  * <p>The collator prunes them to ensure we only take actions that either increase, or decrease
  * pressure on a particular node's resources. To resolve conflicts, we prefer stability over

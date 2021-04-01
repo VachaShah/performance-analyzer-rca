@@ -20,6 +20,6 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.metrics;
  * values provided by the MetricValue enum. I don't need to hardcode the exact enum name in the
  * parser. The parser only needs to know this enum has a metric's values and use its members as Json
  * key to parse out the concrete metric values. See
- * src/main/java/com/amazon/opendistro/elasticsearch/performanceanalyzer/reader/MetricProperties.java
+ * src/main/java/com/amazon/opendistro/opensearch/performanceanalyzer/reader/MetricProperties.java
  */
 public interface MetricValue {}

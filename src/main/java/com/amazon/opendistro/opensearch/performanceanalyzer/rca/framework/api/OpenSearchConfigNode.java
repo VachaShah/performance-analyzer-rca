@@ -28,12 +28,15 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** this is a base class for node(vertex) in RCA graph that reads configuration settings from ES. */
-public abstract class EsConfigNode extends NonLeafNode<NodeConfigFlowUnit> {
+/**
+ * this is a base class for node(vertex) in RCA graph that reads configuration settings from
+ * OpenSearch.
+ */
+public abstract class OpenSearchConfigNode extends NonLeafNode<NodeConfigFlowUnit> {
 
-    private static final Logger LOG = LogManager.getLogger(EsConfigNode.class);
+    private static final Logger LOG = LogManager.getLogger(OpenSearchConfigNode.class);
 
-    public EsConfigNode() {
+    public OpenSearchConfigNode() {
         super(0, 5);
     }
 
@@ -81,7 +84,7 @@ public abstract class EsConfigNode extends NonLeafNode<NodeConfigFlowUnit> {
     }
 
     /**
-     * EsConfig metrics are not intended to be persisted
+     * OpenSearchConfig metrics are not intended to be persisted
      *
      * @param args FlowUnitOperationArgWrapper
      */

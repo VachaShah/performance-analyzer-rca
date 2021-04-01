@@ -30,7 +30,7 @@ public class NodeConfigCacheReaderUtil {
 
     public static Integer readQueueCapacity(
             final NodeConfigCache nodeConfigCache,
-            final NodeKey esNode,
+            final NodeKey nodeKey,
             final ResourceEnum resourceEnum) {
         final Resource resource =
                 Resource.newBuilder()
@@ -38,7 +38,7 @@ public class NodeConfigCacheReaderUtil {
                         .setMetricEnum(MetricEnum.QUEUE_CAPACITY)
                         .build();
         try {
-            return (int) nodeConfigCache.get(esNode, resource);
+            return (int) nodeConfigCache.get(nodeKey, resource);
         } catch (final IllegalArgumentException e) {
             LOG.error("Exception while reading queue capacity from Node Config Cache", e);
         }
@@ -47,13 +47,13 @@ public class NodeConfigCacheReaderUtil {
 
     public static Long readCacheMaxSizeInBytes(
             final NodeConfigCache nodeConfigCache,
-            final NodeKey esNode,
+            final NodeKey nodeKey,
             final ResourceEnum cacheType) {
         try {
             if (cacheType.equals(ResourceEnum.FIELD_DATA_CACHE)) {
-                return (long) nodeConfigCache.get(esNode, ResourceUtil.FIELD_DATA_CACHE_MAX_SIZE);
+                return (long) nodeConfigCache.get(nodeKey, ResourceUtil.FIELD_DATA_CACHE_MAX_SIZE);
             }
-            return (long) nodeConfigCache.get(esNode, ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE);
+            return (long) nodeConfigCache.get(nodeKey, ResourceUtil.SHARD_REQUEST_CACHE_MAX_SIZE);
         } catch (final IllegalArgumentException e) {
             LOG.error("Exception while reading cache max size from Node Config Cache", e);
         }
@@ -61,9 +61,9 @@ public class NodeConfigCacheReaderUtil {
     }
 
     public static Long readHeapMaxSizeInBytes(
-            final NodeConfigCache nodeConfigCache, final NodeKey esNode) {
+            final NodeConfigCache nodeConfigCache, final NodeKey nodeKey) {
         try {
-            return (long) nodeConfigCache.get(esNode, ResourceUtil.HEAP_MAX_SIZE);
+            return (long) nodeConfigCache.get(nodeKey, ResourceUtil.HEAP_MAX_SIZE);
         } catch (final IllegalArgumentException e) {
             LOG.error("Exception while reading heap max size from Node Config Cache", e);
         }

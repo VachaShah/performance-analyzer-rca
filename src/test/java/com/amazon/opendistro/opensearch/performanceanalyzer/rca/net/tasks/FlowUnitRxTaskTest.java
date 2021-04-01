@@ -35,13 +35,13 @@ import org.mockito.Mock;
 public class FlowUnitRxTaskTest {
 
     private static final String TEST_GRAPH_NODE = "testGraphNode";
-    private static final String TEST_ES_NODE = "testEsNode";
+    private static final String TEST_OPEN_SEARCH_NODE = "testOpenSearchNode";
 
     private FlowUnitRxTask testFlowUnitRxTask;
     private FlowUnitMessage testFlowUnitMessage =
             FlowUnitMessage.newBuilder()
                     .setGraphNode(TEST_GRAPH_NODE)
-                    .setEsNode(TEST_ES_NODE)
+                    .setNode(TEST_OPEN_SEARCH_NODE)
                     .build();
 
     @Mock private NodeStateManager mockNodeStateManager;
@@ -65,6 +65,8 @@ public class FlowUnitRxTaskTest {
 
         verify(mockNodeStateManager)
                 .updateReceiveTime(
-                        eq(new InstanceDetails.Id(TEST_ES_NODE)), eq(TEST_GRAPH_NODE), anyLong());
+                        eq(new InstanceDetails.Id(TEST_OPEN_SEARCH_NODE)),
+                        eq(TEST_GRAPH_NODE),
+                        anyLong());
     }
 }

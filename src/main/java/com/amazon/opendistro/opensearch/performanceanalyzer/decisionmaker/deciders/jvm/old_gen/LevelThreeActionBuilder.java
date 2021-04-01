@@ -43,7 +43,7 @@ import java.util.List;
 public class LevelThreeActionBuilder {
     private final AppContext appContext;
     private final RcaConf rcaConf;
-    private final NodeKey esNode;
+    private final NodeKey nodeKey;
     private final List<Action> actions;
     private final OldGenDecisionPolicyConfig oldGenDecisionPolicyConfig;
     private final LevelThreeActionBuilderConfig actionBuilderConfig;
@@ -51,10 +51,10 @@ public class LevelThreeActionBuilder {
     private final QueueActionConfig queueActionConfig;
 
     private LevelThreeActionBuilder(
-            final NodeKey esNode, final AppContext appContext, final RcaConf rcaConf) {
+            final NodeKey nodeKey, final AppContext appContext, final RcaConf rcaConf) {
         this.appContext = appContext;
         this.rcaConf = rcaConf;
-        this.esNode = esNode;
+        this.nodeKey = nodeKey;
         DeciderConfig deciderConfig = rcaConf.getDeciderConfig();
         this.oldGenDecisionPolicyConfig =
                 rcaConf.getDeciderConfig().getOldGenDecisionPolicyConfig();
@@ -66,15 +66,15 @@ public class LevelThreeActionBuilder {
     }
 
     public static LevelThreeActionBuilder newBuilder(
-            final NodeKey esNode, final AppContext appContext, final RcaConf rcaConf) {
-        return new LevelThreeActionBuilder(esNode, appContext, rcaConf);
+            final NodeKey nodeKey, final AppContext appContext, final RcaConf rcaConf) {
+        return new LevelThreeActionBuilder(nodeKey, appContext, rcaConf);
     }
 
     // downsize field data cache to its lower bound in one shot
     public void addFieldDataCacheAction() {
         ModifyCacheMaxSizeAction action =
                 ModifyCacheMaxSizeAction.newBuilder(
-                                esNode, ResourceEnum.FIELD_DATA_CACHE, appContext, rcaConf)
+                                nodeKey, ResourceEnum.FIELD_DATA_CACHE, appContext, rcaConf)
                         .increase(false)
                         .setDesiredCacheMaxSizeToMin()
                         .build();
@@ -87,7 +87,7 @@ public class LevelThreeActionBuilder {
     public void addShardRequestCacheAction() {
         ModifyCacheMaxSizeAction action =
                 ModifyCacheMaxSizeAction.newBuilder(
-                                esNode, ResourceEnum.SHARD_REQUEST_CACHE, appContext, rcaConf)
+                                nodeKey, ResourceEnum.SHARD_REQUEST_CACHE, appContext, rcaConf)
                         .increase(false)
                         .setDesiredCacheMaxSizeToMin()
                         .build();
@@ -101,7 +101,7 @@ public class LevelThreeActionBuilder {
 
         ModifyQueueCapacityAction action =
                 ModifyQueueCapacityAction.newBuilder(
-                                esNode, ResourceEnum.WRITE_THREADPOOL, appContext, rcaConf)
+                                nodeKey, ResourceEnum.WRITE_THREADPOOL, appContext, rcaConf)
                         .increase(false)
                         .stepSize(stepSize * actionBuilderConfig.writeQueueStepSize())
                         .build();
@@ -115,7 +115,7 @@ public class LevelThreeActionBuilder {
 
         ModifyQueueCapacityAction action =
                 ModifyQueueCapacityAction.newBuilder(
-                                esNode, ResourceEnum.SEARCH_THREADPOOL, appContext, rcaConf)
+                                nodeKey, ResourceEnum.SEARCH_THREADPOOL, appContext, rcaConf)
                         .increase(false)
                         .stepSize(stepSize * actionBuilderConfig.searchQueueStepSize())
                         .build();

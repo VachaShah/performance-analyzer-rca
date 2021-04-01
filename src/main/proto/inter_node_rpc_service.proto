@@ -189,7 +189,7 @@ message NodeTemperatureSummaryMessage {
 */
 message FlowUnitMessage {
     string graphNode = 1;
-    string esNode = 2;
+    string node = 2;
     uint64 timeStamp = 3;
     ResourceContextMessage resourceContext = 4;
     oneof summary_oneof {

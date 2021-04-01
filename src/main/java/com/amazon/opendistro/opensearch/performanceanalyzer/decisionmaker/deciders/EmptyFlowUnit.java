@@ -27,7 +27,7 @@ public class EmptyFlowUnit extends GenericFlowUnit {
     }
 
     @Override
-    public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id esNode) {
+    public FlowUnitMessage buildFlowUnitMessage(String graphNode, InstanceDetails.Id node) {
         throw new IllegalStateException(
                 this.getClass().getSimpleName() + " not expected to be passed over wire");
     }

@@ -58,13 +58,13 @@ public class LevelTwoActionBuilder {
     private final WorkLoadTypeConfig workLoadTypeConfig;
     private final CacheActionConfig cacheActionConfig;
     private final QueueActionConfig queueActionConfig;
-    private final NodeKey esNode;
+    private final NodeKey nodeKey;
     private final Map<ResourceEnum, ModifyCacheMaxSizeAction> cacheActionMap;
     private final Map<ResourceEnum, ModifyQueueCapacityAction> queueActionMap;
     private final Map<ResourceEnum, Boolean> actionFilter;
 
     private LevelTwoActionBuilder(
-            final NodeKey esNode, final AppContext appContext, final RcaConf rcaConf) {
+            final NodeKey nodeKey, final AppContext appContext, final RcaConf rcaConf) {
         this.appContext = appContext;
         this.rcaConf = rcaConf;
         DeciderConfig deciderConfig = rcaConf.getDeciderConfig();
@@ -75,7 +75,7 @@ public class LevelTwoActionBuilder {
         this.workLoadTypeConfig = deciderConfig.getWorkLoadTypeConfig();
         this.cacheActionConfig = rcaConf.getCacheActionConfig();
         this.queueActionConfig = rcaConf.getQueueActionConfig();
-        this.esNode = esNode;
+        this.nodeKey = nodeKey;
         this.cacheActionMap = new HashMap<>();
         this.queueActionMap = new HashMap<>();
         this.actionFilter = new HashMap<>();
@@ -84,8 +84,8 @@ public class LevelTwoActionBuilder {
     }
 
     public static LevelTwoActionBuilder newBuilder(
-            final NodeKey esNode, final AppContext appContext, final RcaConf rcaConf) {
-        return new LevelTwoActionBuilder(esNode, appContext, rcaConf);
+            final NodeKey nodeKey, final AppContext appContext, final RcaConf rcaConf) {
+        return new LevelTwoActionBuilder(nodeKey, appContext, rcaConf);
     }
 
     private void addFieldDataCacheAction() {
@@ -93,7 +93,7 @@ public class LevelTwoActionBuilder {
 
         ModifyCacheMaxSizeAction action =
                 ModifyCacheMaxSizeAction.newBuilder(
-                                esNode, ResourceEnum.FIELD_DATA_CACHE, appContext, rcaConf)
+                                nodeKey, ResourceEnum.FIELD_DATA_CACHE, appContext, rcaConf)
                         .increase(false)
                         .stepSizeInPercent(
                                 stepSizeInPercent * actionBuilderConfig.fieldDataCacheStepSize())
@@ -108,7 +108,7 @@ public class LevelTwoActionBuilder {
 
         ModifyCacheMaxSizeAction action =
                 ModifyCacheMaxSizeAction.newBuilder(
-                                esNode, ResourceEnum.SHARD_REQUEST_CACHE, appContext, rcaConf)
+                                nodeKey, ResourceEnum.SHARD_REQUEST_CACHE, appContext, rcaConf)
                         .increase(false)
                         .stepSizeInPercent(
                                 stepSizeInPercent * actionBuilderConfig.shardRequestCacheStepSize())
@@ -123,7 +123,7 @@ public class LevelTwoActionBuilder {
 
         ModifyQueueCapacityAction action =
                 ModifyQueueCapacityAction.newBuilder(
-                                esNode, ResourceEnum.WRITE_THREADPOOL, appContext, rcaConf)
+                                nodeKey, ResourceEnum.WRITE_THREADPOOL, appContext, rcaConf)
                         .increase(false)
                         .stepSize(stepSize * actionBuilderConfig.writeQueueStepSize())
                         .build();
@@ -137,7 +137,7 @@ public class LevelTwoActionBuilder {
 
         ModifyQueueCapacityAction action =
                 ModifyQueueCapacityAction.newBuilder(
-                                esNode, ResourceEnum.SEARCH_THREADPOOL, appContext, rcaConf)
+                                nodeKey, ResourceEnum.SEARCH_THREADPOOL, appContext, rcaConf)
                         .increase(false)
                         .stepSize(stepSize * actionBuilderConfig.searchQueueStepSize())
                         .build();
@@ -181,10 +181,10 @@ public class LevelTwoActionBuilder {
         NodeConfigCache nodeConfigCache = appContext.getNodeConfigCache();
         Integer writeQueueCapacity =
                 NodeConfigCacheReaderUtil.readQueueCapacity(
-                        nodeConfigCache, esNode, ResourceEnum.WRITE_THREADPOOL);
+                        nodeConfigCache, nodeKey, ResourceEnum.WRITE_THREADPOOL);
         Integer searchQueueCapacity =
                 NodeConfigCacheReaderUtil.readQueueCapacity(
-                        nodeConfigCache, esNode, ResourceEnum.SEARCH_THREADPOOL);
+                        nodeConfigCache, nodeKey, ResourceEnum.SEARCH_THREADPOOL);
         if (writeQueueCapacity == null || searchQueueCapacity == null) {
             return;
         }

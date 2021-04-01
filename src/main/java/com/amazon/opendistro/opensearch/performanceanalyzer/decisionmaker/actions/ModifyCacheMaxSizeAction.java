@@ -44,7 +44,7 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
     private static final Logger LOG = LogManager.getLogger(ModifyCacheMaxSizeAction.class);
     public static final String NAME = "ModifyCacheMaxSize";
 
-    private final NodeKey esNode;
+    private final NodeKey node;
     private final ResourceEnum cacheType;
 
     private final long desiredCacheMaxSizeInBytes;
@@ -53,7 +53,7 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
     private final boolean canUpdate;
 
     public ModifyCacheMaxSizeAction(
-            final NodeKey esNode,
+            final NodeKey node,
             final ResourceEnum cacheType,
             final AppContext appContext,
             final long desiredCacheMaxSizeInBytes,
@@ -61,7 +61,7 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
             final long coolOffPeriodInMillis,
             final boolean canUpdate) {
         super(appContext);
-        this.esNode = esNode;
+        this.node = node;
         this.cacheType = cacheType;
         this.desiredCacheMaxSizeInBytes = desiredCacheMaxSizeInBytes;
         this.currentCacheMaxSizeInBytes = currentCacheMaxSizeInBytes;
@@ -70,11 +70,11 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
     }
 
     public static Builder newBuilder(
-            final NodeKey esNode,
+            final NodeKey node,
             final ResourceEnum cacheType,
             final AppContext appContext,
             final RcaConf conf) {
-        return new Builder(esNode, cacheType, appContext, conf);
+        return new Builder(node, cacheType, appContext, conf);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
 
     @Override
     public List<NodeKey> impactedNodes() {
-        return Collections.singletonList(esNode);
+        return Collections.singletonList(node);
     }
 
     @Override
@@ -105,15 +105,15 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
         } else if (desiredCacheMaxSizeInBytes < currentCacheMaxSizeInBytes) {
             impactVector.decreasesPressure(HEAP);
         }
-        return Collections.singletonMap(esNode, impactVector);
+        return Collections.singletonMap(node, impactVector);
     }
 
     @Override
     public String summary() {
         Summary summary =
                 new Summary(
-                        esNode.getNodeId().toString(),
-                        esNode.getHostAddress().toString(),
+                        node.getNodeId().toString(),
+                        node.getHostAddress().toString(),
                         cacheType.getNumber(),
                         desiredCacheMaxSizeInBytes,
                         currentCacheMaxSizeInBytes,
@@ -127,7 +127,7 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
     // Generates action from summary. Passing in appContext because it contains dynamic settings
     public static ModifyCacheMaxSizeAction fromSummary(String jsonRepr, AppContext appContext) {
         final JsonObject jsonObject = JSON_PARSER.parse(jsonRepr).getAsJsonObject();
-        NodeKey esNode =
+        NodeKey node =
                 new NodeKey(
                         new InstanceDetails.Id(jsonObject.get("Id").getAsString()),
                         new InstanceDetails.Ip(jsonObject.get("Ip").getAsString()));
@@ -138,7 +138,7 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
         boolean canUpdate = jsonObject.get("canUpdate").getAsBoolean();
 
         return new ModifyCacheMaxSizeAction(
-                esNode,
+                node,
                 cacheType,
                 appContext,
                 desiredCacheMaxSizeInBytes,
@@ -174,7 +174,7 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
         public static final boolean DEFAULT_CAN_UPDATE = true;
 
         private final ResourceEnum cacheType;
-        private final NodeKey esNode;
+        private final NodeKey node;
         private final AppContext appContext;
         private final RcaConf rcaConf;
 
@@ -190,11 +190,11 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
         private final long lowerBoundInBytes;
 
         private Builder(
-                final NodeKey esNode,
+                final NodeKey node,
                 final ResourceEnum cacheType,
                 final AppContext appContext,
                 final RcaConf conf) {
-            this.esNode = esNode;
+            this.node = node;
             this.cacheType = cacheType;
             this.appContext = appContext;
             this.rcaConf = conf;
@@ -205,10 +205,10 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
 
             this.currentCacheMaxSizeInBytes =
                     NodeConfigCacheReaderUtil.readCacheMaxSizeInBytes(
-                            appContext.getNodeConfigCache(), esNode, cacheType);
+                            appContext.getNodeConfigCache(), node, cacheType);
             this.heapMaxSizeInBytes =
                     NodeConfigCacheReaderUtil.readHeapMaxSizeInBytes(
-                            appContext.getNodeConfigCache(), esNode);
+                            appContext.getNodeConfigCache(), node);
             this.desiredCacheMaxSizeInBytes = null;
 
             CacheActionConfig cacheActionConfig = new CacheActionConfig(rcaConf);
@@ -260,7 +260,7 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
                         "Action: Fail to read cache max size or heap max size from node config cache. "
                                 + "Return an non-actionable action");
                 return new ModifyCacheMaxSizeAction(
-                        esNode, cacheType, appContext, -1, -1, coolOffPeriodInMillis, false);
+                        node, cacheType, appContext, -1, -1, coolOffPeriodInMillis, false);
             }
             // check if fielddata cache is -1 (unbounded).
             if (currentCacheMaxSizeInBytes == -1) {
@@ -282,7 +282,7 @@ public class ModifyCacheMaxSizeAction extends SuppressibleAction {
                             lowerBoundInBytes);
 
             return new ModifyCacheMaxSizeAction(
-                    esNode,
+                    node,
                     cacheType,
                     appContext,
                     desiredCacheMaxSizeInBytes,

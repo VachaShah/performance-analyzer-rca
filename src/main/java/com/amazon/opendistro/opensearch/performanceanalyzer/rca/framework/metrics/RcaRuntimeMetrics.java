@@ -31,10 +31,11 @@ public enum RcaRuntimeMetrics implements MeasurementSet {
             "RcaRestartedByOperator", "count", Collections.singletonList(Statistics.COUNT)),
 
     /**
-     * ES APIs calls are expensive and we want to keep track of how many we are making. This is a
-     * named counter and therefore we can get a count per ES API.
+     * OpenSearch APIs calls are expensive and we want to keep track of how many we are making. This
+     * is a named counter and therefore we can get a count per OpenSearch API.
      */
-    ES_APIS_CALLED("ESApisCalled", "count", Collections.singletonList(Statistics.NAMED_COUNTERS)),
+    OPEN_SEARCH_APIS_CALLED(
+            "OpenSearchApisCalled", "count", Collections.singletonList(Statistics.NAMED_COUNTERS)),
 
     /**
      * Metric tracking if RCA is enabled or disabled. We write a 0 if RCA is disabled and 1 if it is

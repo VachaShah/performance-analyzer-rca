@@ -50,30 +50,27 @@ public class MetricsEmitter {
     private static final Logger LOG = LogManager.getLogger(MetricsEmitter.class);
 
     private static final Pattern GC_PATTERN = Pattern.compile(".*(GC|CMS|Parallel).*");
-    private static final Pattern REFRESH_PATTERN =
-            Pattern.compile(".*elasticsearch.*\\[refresh\\].*");
+    private static final Pattern REFRESH_PATTERN = Pattern.compile(".*opensearch.*\\[refresh\\].*");
     private static final Pattern MANAGEMENT_PATTERN =
-            Pattern.compile(".*elasticsearch.*\\[management\\].*");
+            Pattern.compile(".*opensearch.*\\[management\\].*");
     private static final Pattern MERGE_PATTERN =
-            Pattern.compile(".*elasticsearch\\[.*\\]\\[\\[(.*)\\]\\[(.*)\\].*Lucene Merge.*");
-    private static final Pattern SEARCH_PATTERN =
-            Pattern.compile(".*elasticsearch.*\\[search\\].*");
-    private static final Pattern BULK_PATTERN = Pattern.compile(".*elasticsearch.*\\[bulk\\].*");
-    private static final Pattern GENERIC_PATTERN =
-            Pattern.compile(".*elasticsearch.*\\[generic\\].*");
-    private static final Pattern GET_PATTERN = Pattern.compile(".*elasticsearch.*\\[get\\].*");
+            Pattern.compile(".*opensearch\\[.*\\]\\[\\[(.*)\\]\\[(.*)\\].*Lucene Merge.*");
+    private static final Pattern SEARCH_PATTERN = Pattern.compile(".*opensearch.*\\[search\\].*");
+    private static final Pattern BULK_PATTERN = Pattern.compile(".*opensearch.*\\[bulk\\].*");
+    private static final Pattern GENERIC_PATTERN = Pattern.compile(".*opensearch.*\\[generic\\].*");
+    private static final Pattern GET_PATTERN = Pattern.compile(".*opensearch.*\\[get\\].*");
     private static final Pattern SNAPSHOT_PATTERN =
-            Pattern.compile(".*elasticsearch.*\\[(snapshot|snapshot_segments)\\].*");
-    private static final Pattern FLUSH_PATTERN = Pattern.compile(".*elasticsearch.*\\[flush\\].*");
-    // ES 6.4 onwards uses write threadpool.
-    private static final Pattern WRITE_PATTERN = Pattern.compile(".*elasticsearch.*\\[write\\].*");
-    // Pattern otherPattern = Pattern.compile(".*(elasticsearch).*");
+            Pattern.compile(".*opensearch.*\\[(snapshot|snapshot_segments)\\].*");
+    private static final Pattern FLUSH_PATTERN = Pattern.compile(".*opensearch.*\\[flush\\].*");
+    // Version 6.4 onwards uses write threadpool.
+    private static final Pattern WRITE_PATTERN = Pattern.compile(".*opensearch.*\\[write\\].*");
+    // Pattern otherPattern = Pattern.compile(".*(opensearch).*");
     private static final Pattern HTTP_SERVER_PATTERN =
-            Pattern.compile(".*elasticsearch.*\\[http_server_worker\\].*");
+            Pattern.compile(".*opensearch.*\\[http_server_worker\\].*");
     private static final Pattern TRANS_SERVER_PATTERN =
-            Pattern.compile(".*elasticsearch.*\\[transport_server_worker.*");
+            Pattern.compile(".*opensearch.*\\[transport_server_worker.*");
     private static final Pattern TRANS_CLIENT_PATTERN =
-            Pattern.compile(".*elasticsearch.*\\[transport_client_boss\\].*");
+            Pattern.compile(".*opensearch.*\\[transport_client_boss\\].*");
 
     private static final List<String> LATENCY_TABLE_DIMENSIONS =
             new ArrayList<String>() {

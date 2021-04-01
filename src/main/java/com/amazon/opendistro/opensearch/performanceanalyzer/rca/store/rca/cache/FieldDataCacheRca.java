@@ -51,7 +51,7 @@ import org.apache.logging.log4j.Logger;
  * weight(size) and cache max weight(size) configured. Note : For Field Data Cache, Hit and Miss
  * metrics aren't available.
  *
- * <p>Cache eviction within Elasticsearch happens in following scenarios :
+ * <p>Cache eviction within OpenSearch happens in following scenarios :
  *
  * <ol>
  *   <li>Mutation to Cache (Entry Insertion/Promotion and Manual Invalidation)

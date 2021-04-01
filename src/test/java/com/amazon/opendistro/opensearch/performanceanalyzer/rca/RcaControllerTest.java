@@ -69,7 +69,7 @@ public class RcaControllerTest {
     private GRPCConnectionManager connectionManager;
     private Path rcaEnabledFileLoc;
     private Path rcaEnabledFile;
-    private HttpServer dummyEsServer;
+    private HttpServer dummyOpenSearchServer;
     private RcaController rcaController;
     private String masterIP;
     private Thread controllerThread;
@@ -104,11 +104,11 @@ public class RcaControllerTest {
         URI uri = URI.create(RcaController.getCatMasterUrl());
         masterIP = "127.0.0.4";
 
-        dummyEsServer =
+        dummyOpenSearchServer =
                 HttpServer.create(
                         new InetSocketAddress(InetAddress.getByName(uri.getHost()), uri.getPort()),
                         1);
-        dummyEsServer.createContext(
+        dummyOpenSearchServer.createContext(
                 "/",
                 exchange -> {
                     String response = "Only supported endpoint is " + uri.getPath();
@@ -117,7 +117,7 @@ public class RcaControllerTest {
                     os.write(response.getBytes());
                     os.close();
                 });
-        dummyEsServer.createContext(
+        dummyOpenSearchServer.createContext(
                 uri.getPath(),
                 exchange -> {
                     String response = masterIP;
@@ -126,7 +126,7 @@ public class RcaControllerTest {
                     os.write(response.getBytes());
                     os.close();
                 });
-        dummyEsServer.start();
+        dummyOpenSearchServer.start();
         System.out.println("Started dummy endpoint..");
 
         RcaControllerHelper.set(
@@ -182,7 +182,7 @@ public class RcaControllerTest {
         clientServers.getNetServer().stop();
 
         // connectionManager.stop();
-        dummyEsServer.stop(0);
+        dummyOpenSearchServer.stop(0);
         controllerThread.interrupt();
 
         try {

@@ -55,10 +55,10 @@ public class SymptomFlowUnit extends GenericFlowUnit {
     }
 
     public FlowUnitMessage buildFlowUnitMessage(
-            final String graphNode, final InstanceDetails.Id esNode) {
+            final String graphNode, final InstanceDetails.Id node) {
         final FlowUnitMessage.Builder messageBuilder = FlowUnitMessage.newBuilder();
         messageBuilder.setGraphNode(graphNode);
-        messageBuilder.setEsNode(esNode.toString());
+        messageBuilder.setNode(node.toString());
 
         messageBuilder.setTimeStamp(System.currentTimeMillis());
 

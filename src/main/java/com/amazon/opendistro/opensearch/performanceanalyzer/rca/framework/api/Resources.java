@@ -117,7 +117,7 @@ public class Resources {
         }
     }
 
-    public enum ElasticSearch implements ResourceType {
+    public enum OpenSearch implements ResourceType {
         INDEXES(Constants.INDEXES_VALUE),
         SHARDS(Constants.SHARDS_VALUE),
         QUEUES(Constants.QUEUES_VALUE),
@@ -126,7 +126,7 @@ public class Resources {
 
         private final String value;
 
-        ElasticSearch(String value) {
+        OpenSearch(String value) {
             this.value = value;
         }
 

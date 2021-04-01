@@ -111,7 +111,7 @@ public class NodeStatAggregator {
         }
     }
 
-    // shards can be deleted from ES while still remains in this hashtable
+    // shards can be deleted from OpenSearch while still remains in this hashtable
     // or we might disable the Node Stats collector on writer to stop sending node stats to reader
     // in either case, we need to write a function to clean up this hashtable on reader periodically
     // to remove node stats of inactive shards

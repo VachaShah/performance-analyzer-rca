@@ -85,12 +85,12 @@ public class MetricsEmitterTests extends AbstractReaderTests {
         Map<String, Double> metrics = new HashMap<>();
         Map<String, String> osDim = new HashMap<>();
         osDim.put("tid", "1");
-        osDim.put("tName", "elasticsearch[E-C7clp][search][T#1]");
+        osDim.put("tName", "opensearch[E-C7clp][search][T#1]");
         metrics.put(AllMetrics.OSMetrics.CPU_UTILIZATION.toString(), 2.3333d);
         metrics.put(AllMetrics.OSMetrics.PAGING_RSS.toString(), 3.63d);
         osMetricsSnap.putMetric(metrics, osDim, 1L);
         osDim.put("tid", "2");
-        osDim.put("tName", "elasticsearch[E-C7clp][bulk][T#2]");
+        osDim.put("tName", "opensearch[E-C7clp][bulk][T#2]");
         metrics.put(AllMetrics.OSMetrics.CPU_UTILIZATION.toString(), 3.3333d);
         metrics.put(AllMetrics.OSMetrics.PAGING_RSS.toString(), 1.63d);
         osMetricsSnap.putMetric(metrics, osDim, 1L);
@@ -155,7 +155,7 @@ public class MetricsEmitterTests extends AbstractReaderTests {
         Map<String, Double> metrics = new HashMap<>();
         Map<String, String> osDim = new HashMap<>();
         osDim.put("tid", "1");
-        osDim.put("tName", "elasticsearch[E-C7clp][search][T#1]");
+        osDim.put("tName", "opensearch[E-C7clp][search][T#1]");
         metrics.put(AllMetrics.OSMetrics.CPU_UTILIZATION.toString(), 2.3333d);
         metrics.put(AllMetrics.OSMetrics.PAGING_RSS.toString(), 3.63d);
         osMetricsSnap.putMetric(metrics, osDim, 1L);
@@ -329,25 +329,23 @@ public class MetricsEmitterTests extends AbstractReaderTests {
         assertEquals(
                 null,
                 MetricsEmitter.categorizeThreadName(
-                        "elasticsearch[I9AByra][search][T#4]", dimensions));
+                        "opensearch[I9AByra][search][T#4]", dimensions));
         assertEquals(
                 "refresh",
                 MetricsEmitter.categorizeThreadName(
-                        "elasticsearch[I9AByra][refresh][T#1]", dimensions));
+                        "opensearch[I9AByra][refresh][T#1]", dimensions));
         assertEquals(
                 "merge",
                 MetricsEmitter.categorizeThreadName(
-                        "elasticsearch[I9AByra][[nyc_taxis][1]: Lucene Merge", dimensions));
+                        "opensearch[I9AByra][[nyc_taxis][1]: Lucene Merge", dimensions));
         assertEquals(
                 "management",
-                MetricsEmitter.categorizeThreadName(
-                        "elasticsearch[I9AByra][management]", dimensions));
+                MetricsEmitter.categorizeThreadName("opensearch[I9AByra][management]", dimensions));
         assertEquals(
                 null,
-                MetricsEmitter.categorizeThreadName("elasticsearch[I9AByra][search]", dimensions));
+                MetricsEmitter.categorizeThreadName("opensearch[I9AByra][search]", dimensions));
         assertEquals(
-                null,
-                MetricsEmitter.categorizeThreadName("elasticsearch[I9AByra][bulk]", dimensions));
+                null, MetricsEmitter.categorizeThreadName("opensearch[I9AByra][bulk]", dimensions));
         assertEquals("other", MetricsEmitter.categorizeThreadName("Top thread random", dimensions));
     }
 

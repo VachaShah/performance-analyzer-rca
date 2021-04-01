@@ -55,7 +55,7 @@ public class MetricFlowUnit extends GenericFlowUnit {
      */
     @Override
     public FlowUnitMessage buildFlowUnitMessage(
-            final String graphNode, final InstanceDetails.Id esNode) {
+            final String graphNode, final InstanceDetails.Id node) {
         return null;
     }
 

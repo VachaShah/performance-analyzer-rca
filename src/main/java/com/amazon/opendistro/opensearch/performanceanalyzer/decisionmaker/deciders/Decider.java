@@ -36,7 +36,7 @@ import org.apache.logging.log4j.Logger;
  * <p>{@link Decider} implementations should override operate() and return a {@link Decision} based
  * on the decider's evaluations.
  *
- * <p>A Decision can contain multiple actions. Each Action contains details about the Elasticsearch
+ * <p>A Decision can contain multiple actions. Each Action contains details about the OpenSearch
  * nodes it touches and its impact on key resource metrics.
  */
 public abstract class Decider extends NonLeafNode<Decision> {

@@ -13,8 +13,8 @@
 # permissions and limitations under the License.
 
 
-# Description: 
-# Settings for for running elasticsearch in a cluster.
+# Description:
+# Settings for for running opensearch in a cluster.
 #
 version: '2.1'
 services:
@@ -24,11 +24,11 @@ services:
       - discovery.seed_hosts=opensearch2
       - cluster.initial_master_nodes=opensearch1
       - bootstrap.memory_lock=true
-      - "OPEN_SEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
   opensearch2:
     environment:
       - node.name=opensearch2
       - discovery.seed_hosts=opensearch1
       - cluster.initial_master_nodes=opensearch1
       - bootstrap.memory_lock=true
-      - "OPEN_SEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"

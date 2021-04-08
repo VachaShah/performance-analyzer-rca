@@ -55,8 +55,8 @@ do
     # specially
     if [[ "$envvar_key" =~ ^[a-z0-9_]+\.[a-z0-9_]+ || "$envvar_key" == "processors" ]]; then
         if [[ ! -z $envvar_value ]]; then
-          open_search_opts="-E${envvar_key}=${envvar_value}"
-          open_search_opts+=("${open_search_opts}")
+          open_search_opt="-E${envvar_key}=${envvar_value}"
+          open_search_opts+=("${open_search_opt}")
         fi
     fi
 done < <(env)
@@ -73,7 +73,7 @@ done < <(env)
 # opensearch.cgroups.hierarchy.override. Therefore, we set this value here so
 # that cgroup statistics are available for the container this process
 # will run in.
-export OPEN_SEARCH_JAVA_OPTS="-Dopensearch.cgroups.hierarchy.override=/ $OPEN_SEARCH_JAVA_OPTS"
+export OPENSEARCH_JAVA_OPTS="-Dopensearch.cgroups.hierarchy.override=/ $OPENSEARCH_JAVA_OPTS"
 
 if [[ "$(id -u)" == "0" ]]; then
     # If requested and running as root, mutate the ownership of bind-mounts
@@ -83,7 +83,7 @@ if [[ "$(id -u)" == "0" ]]; then
 fi
 
 if [[ -d "/usr/share/opensearch/plugins/opendistro_security" ]]; then
-    # Install Demo certifactes for Security Plugin and update the opensearch.yml
+    # Install Demo certificates for Security Plugin and update the opensearch.yml
     # file to use those certificates.
     /usr/share/opensearch/plugins/opendistro_security/tools/install_demo_configuration.sh -y -i -s
 fi
@@ -91,7 +91,7 @@ fi
 if [[ -d "/usr/share/opensearch/plugins/opendistro-performance-analyzer" ]]; then
     CLK_TCK=`/usr/bin/getconf CLK_TCK`
     DEBUG_OPTS="-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n"
-    OPEN_SEARCH_JAVA_OPTS="-Djava.security.policy=file:///usr/share/opensearch/performance-analyzer-rca/pa_config/opensearch_security.policy -Dclk.tck=$CLK_TCK -Djdk.attach.allowAttachSelf=true $OPEN_SEARCH_JAVA_OPTS"
+    OPENSEARCH_JAVA_OPTS="-Djava.security.policy=file:///usr/share/opensearch/performance-analyzer-rca/pa_config/opensearch_security.policy -Dclk.tck=$CLK_TCK -Djdk.attach.allowAttachSelf=true $OPENSEARCH_JAVA_OPTS"
     /usr/bin/supervisord -c /usr/share/opensearch/performance-analyzer-rca/pa_config/supervisord.conf
 fi
 

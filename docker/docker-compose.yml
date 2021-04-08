@@ -13,7 +13,7 @@
 # permissions and limitations under the License.
 
 
-# Description: 
+# Description:
 # docker-compose.yml for running opensearch in docker.
 #
 # This file was generated from the template at templates/docker-compose.yml.j2
@@ -22,10 +22,10 @@ version: '2.1'
 services:
   opensearch1:
     container_name: opensearch1
-    image: odfe-es/pa-rca:1.0
+    image: odfe-opensearch/pa-rca:1.0
     mem_limit: 4g
     networks:
-      esnet:
+      opensearchnet:
         aliases:
           - opensearch
     # If unset, uses empty string which Docker ignores
@@ -43,10 +43,10 @@ services:
     container_name: opensearch2
     environment:
       - node.master=false
-    image: odfe-es/pa-rca:1.0
+    image: odfe-opensearch/pa-rca:1.0
     mem_limit: 4g
     networks:
-      - esnet
+      - opensearchnet
     user: ${PROCESS_UID}
     ulimits:
       memlock:
@@ -56,11 +56,11 @@ services:
       - ${DATA_VOLUME2}:/usr/share/opensearch/data
 
 volumes:
-  esdata1:
+  opensearchdata1:
     driver: local
-  esdata2:
+  opensearchdata2:
     driver: local
 
 networks:
-  esnet:
+  opensearchnet:
     driver: bridge

@@ -1,4 +1,4 @@
-r# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License").
 # You may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@ r# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # permissions and limitations under the License.
 
 ################################################################################
-# Build stage 0 `prep_es_files`:
+# Build stage 0 `prep_open_search_files`:
 # Extract opensearch artifact
 # Install required plugins
 # Set gid=0 and make group perms==owner perms
 ################################################################################
 
-FROM centos:7 AS prep_es_files
+FROM centos:7 AS prep_open_search_files
 
 ENV PATH /usr/share/opensearch/bin:$PATH
 RUN curl -s https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz | tar -C /opt -zxf -
@@ -39,11 +39,11 @@ ENV BUST_CACHE 1576286189
 
 # Download and extract defined OpenSearch version.
 # TODO: Modify this link to the opensearch artifact link
-RUN curl -fsSL https://artifacts.elastic.co/downloads/opensearch/opensearch-oss-7.10.2-linux-x86_64.tar.gz | \
-    tar zx --strip-components=1
+COPY opensearch-oss-7.10.3-SNAPSHOT-linux-x86_64.tar.gz .
+RUN tar -xf opensearch-oss-7.10.3-SNAPSHOT-linux-x86_64.tar.gz --strip-component=1
 
-RUN set -ex && for esdirs in config data logs; do \
-        mkdir -p "$esdirs"; \
+RUN set -ex && for opensearchdirs in config data logs; do \
+        mkdir -p "$opensearchdirs"; \
     done
 
 COPY --chown=1000:0 opensearch.yml log4j2.properties config/
@@ -74,7 +74,7 @@ RUN chmod -R 755 /dev/shm
 
 FROM centos:7
 
-ENV ELASTIC_CONTAINER true
+ENV OPENSEARCH_CONTAINER true
 
 RUN \
   rpm --rebuilddb && yum clean all && \
@@ -89,15 +89,16 @@ RUN \
                   which \
                   jq \
                   lsof \
+                  python-pip \
                   rsync && \
   yum clean all && \
-  easy_install supervisor
+  pip install supervisor
 
 RUN yum update -y && \
     yum install -y nc unzip wget which && \
     yum clean all
 COPY CENTOS_LICENSING.txt /root
-COPY --from=prep_es_files --chown=1000:0 /opt/jdk-11.0.1 /opt/jdk-11.0.1
+COPY --from=prep_open_search_files --chown=1000:0 /opt/jdk-11.0.1 /opt/jdk-11.0.1
 ENV JAVA_HOME /opt/jdk-11.0.1
 
 # Replace OpenJDK's built-in CA certificate keystore with the one from the OS
@@ -115,13 +116,13 @@ RUN mkdir /usr/share/opensearch && \
 RUN mkdir -p /usr/share/supervisor/performance_analyzer
 
 WORKDIR /usr/share/opensearch
-COPY --from=prep_es_files --chown=1000:0 /usr/share/opensearch /usr/share/opensearch
+COPY --from=prep_open_search_files --chown=1000:0 /usr/share/opensearch /usr/share/opensearch
 ENV PATH /usr/share/opensearch/bin:$PATH
 
 ADD --chown=1000:0 docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # Openshift overrides USER and uses ones with randomly uid>1024 and gid=0
-# Allow ENTRYPOINT (and ES) to run even with a different user
+# Allow ENTRYPOINT (and OpenSearch) to run even with a different user
 RUN chgrp 0 /usr/local/bin/docker-entrypoint.sh && \
     chmod g=u /etc/passwd && \
     chmod 0775 /usr/local/bin/docker-entrypoint.sh
@@ -142,4 +143,4 @@ LABEL org.label-schema.schema-version="1.0" \
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 # Dummy overridable parameter parsed by entrypoint
-CMD ["eswrapper"]
+CMD ["opensearchwrapper"]

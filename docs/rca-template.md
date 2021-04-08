@@ -3,7 +3,7 @@
 
 ## Small 2 line Summary
 
-This RCA is used to detect bottlenect in resource X by ..
+This RCA is used to detect bottleneck in resource X by ..
 
 ## Usecases
 - usecase 1

@@ -83,6 +83,7 @@ ext {
     gitDefaultBranch = 'main'
 }
 
+/*
 spotless {
     java {
         // only apply formatting rules to updated files
@@ -99,6 +100,7 @@ spotless {
         toggleOffOn()
     }
 }
+*/
 
 tasks.withType(Checkstyle) {
     reports {
@@ -235,7 +237,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 compileJava {
-    dependsOn spotlessApply
+    // dependsOn spotlessApply
     JavaVersion targetVersion = JavaVersion.toVersion(targetCompatibility);
     if (targetVersion.isJava9Compatible()) {
         options.compilerArgs += ["--add-exports", "jdk.attach/sun.tools.attach=ALL-UNNAMED"]
@@ -387,11 +389,14 @@ task copyAllArtifacts(type: Copy) {
     def dockerArtifacts = Paths.get(projectPathStr, 'docker').toString()
     def rcaArtifacts = Paths.get(projectPathStr, 'build', 'distributions', 'performance-analyzer-rca.zip')
     def paArtifacts = Paths.get(paDir, 'build', 'distributions', 'opendistro-performance-analyzer-1.13.0.0-SNAPSHOT.zip')
+    // Replace this path to point to opensearch artifact local location
+    def opensearchArtifacts = Paths.get('/Users/partsrut/Desktop/rca-infra/opensearch-oss-7.10.3-SNAPSHOT-linux-x86_64.tar.gz')
 
     dockerArtifactsDir = Paths.get(dockerBuildDir, 'rca-docker')
     from(dockerArtifacts)
     from(rcaArtifacts)
     from(paArtifacts)
+    from(opensearchArtifacts)
     into(dockerArtifactsDir)
 }
 
@@ -408,7 +413,7 @@ task buildDocker(type: Exec) {
     dependsOn(copyAllArtifacts)
 
     workingDir(dockerArtifactsDir)
-    commandLine 'docker', 'build', '-t', 'odfe-es/pa-rca:1.0', '.'
+    commandLine 'docker', 'build', '-t', 'odfe-opensearch/pa-rca:1.0', '.'
 }
 
 task runDocker(type: Exec) {
@@ -425,14 +430,14 @@ task runDocker(type: Exec) {
         docker_compose_location = System.getenv("DOCKER_COMPOSE_LOCATION")
     }
 
-    environment 'DATA_VOLUME1', 'esdata1'
-    environment 'DATA_VOLUME2', 'esdata2'
+    environment 'DATA_VOLUME1', 'opensearchdata1'
+    environment 'DATA_VOLUME2', 'opensearchdata2'
 
     commandLine(docker_compose_location,
             '-f', 'docker-compose.yml',
             '-f', 'docker-compose.hostports.yml',
             '-f', 'docker-compose.cluster.yml',
-            'up', 'elasticsearch1', 'elasticsearch2')
+            'up', 'opensearch1', 'opensearch2')
 
 }
 
@@ -486,9 +491,9 @@ def runDockerCompose = { executionPath ->
                              '-f', 'docker-compose.yml',
                              '-f', 'docker-compose.hostports.yml',
                              '-f', 'docker-compose.cluster.yml',
-                             'up', 'elasticsearch1', 'elasticsearch2']
-    String[] env = ['DATA_VOLUME1=esdata1',
-                    'DATA_VOLUME2=esdata2']
+                             'up', 'opensearch1', 'opensearch2']
+    String[] env = ['DATA_VOLUME1=opensearchdata1',
+                    'DATA_VOLUME2=opensearchdata2']
     runCommand(commandArray, env, file(executionPath), true)
 }
 
@@ -692,14 +697,14 @@ task runRally {
     doLast {
         String rallyTrack='pmc'
 
-        String[] esrally = ['docker', 'run', '--network=host', 'elastic/rally',
+        String[] opensearchrally = ['docker', 'run', '--network=host', 'elastic/rally',
                                 '--track=' + rallyTrack, '--test-mode', '--pipeline=benchmark-only',
                 '--target-hosts=localhost:9200']
 
         String wdir = Paths.get(getProjectDir().getAbsolutePath(), 'src', 'test', 'resources')
                 .toString()
         while (true) {
-            runCommand(esrally, null, wdir, true)
+            runCommand(opensearchrally, null, wdir, true)
             println('Get all RCAs using:')
             println('curl localhost:9600/_opendistro/_performanceanalyzer/rca?all | python -m json.tool')
             Thread.sleep(1000)

@@ -83,6 +83,7 @@ ext {
     gitDefaultBranch = 'main'
 }
 
+// TODO: Add spotless back. Removed due to NPE. Need to investigate and fix it.
 /*
 spotless {
     java {

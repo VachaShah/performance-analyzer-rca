@@ -225,9 +225,6 @@ task rcaTest(type: Test) {
 
 task rcaIt(type: Test) {
     dependsOn spotbugsMain
-    retry {
-        maxRetries = 2
-    }
     useJUnit {
         includeCategories 'com.amazon.opendistro.opensearch.performanceanalyzer.rca.integTests.framework.RcaItMarker'
     }
@@ -595,7 +592,7 @@ def runInThread(cl, input) {
     }
 }
 
-task waitForES {
+task waitForOpenSearch {
     dependsOn(buildDocker)
     doLast {
         esRunnerThread = runInThread(runDockerCompose, dockerArtifactsDir)
@@ -638,7 +635,7 @@ task unzipPerfTop(type: Copy) {
 // Attempts to enable PA for up to 2 minutes. Returns when PA is successfully enabled or
 // throws an Exception if the timeout is exceeded
 task enablePa() {
-    dependsOn(waitForES)
+    dependsOn(waitForOpenSearch)
     doLast {
         paUpChecker()
     }

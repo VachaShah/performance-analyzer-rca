@@ -17,6 +17,7 @@ package com.amazon.opendistro.opensearch.performanceanalyzer.collectors;
 
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -70,11 +71,10 @@ public class ScheduledMetricCollectorsExecutor extends Thread {
     public void run() {
         Thread.currentThread().setName(this.getClass().getSimpleName());
         if (metricsCollectorsTP == null) {
-            ThreadFactory taskThreadFactory =
-                    new ThreadFactoryBuilder()
-                            .setNameFormat(COLLECTOR_THREAD_POOL_NAME)
-                            .setDaemon(true)
-                            .build();
+            ThreadFactory taskThreadFactory = new ThreadFactoryBuilder()
+                                                      .setNameFormat(COLLECTOR_THREAD_POOL_NAME)
+                                                      .setDaemon(true)
+                                                      .build();
             metricsCollectorsTP =
                     new ThreadPoolExecutor(
                             collectorThreadCount,
@@ -107,23 +107,18 @@ public class ScheduledMetricCollectorsExecutor extends Thread {
                         metricsCollectors.entrySet()) {
                     if (entry.getValue() <= currentTime) {
                         PerformanceAnalyzerMetricsCollector collector = entry.getKey();
-                        if (collector.getState()
-                                == PerformanceAnalyzerMetricsCollector.State.MUTED) {
-                            StatsCollector.instance()
-                                    .logException(StatExceptionCode.COLLECTORS_MUTED);
+                        if (collector.getState() == PerformanceAnalyzerMetricsCollector.State.MUTED) {
+                            StatsCollector.instance().logMetric(StatExceptionCode.COLLECTORS_MUTED.toString());
                             continue;
                         }
-                        metricsCollectors.put(
-                                collector, entry.getValue() + collector.getTimeInterval());
+                        metricsCollectors.put(collector, entry.getValue() + collector.getTimeInterval());
                         if (!collector.inProgress()) {
                             collector.setStartTime(currentTime);
                             metricsCollectorsTP.execute(collector);
                         } else {
-                            if (collector.getState()
-                                    == PerformanceAnalyzerMetricsCollector.State.HEALTHY) {
+                            if (collector.getState() == PerformanceAnalyzerMetricsCollector.State.HEALTHY) {
                                 collector.setState(PerformanceAnalyzerMetricsCollector.State.SLOW);
-                            } else if (collector.getState()
-                                    == PerformanceAnalyzerMetricsCollector.State.SLOW) {
+                            } else if (collector.getState() == PerformanceAnalyzerMetricsCollector.State.SLOW) {
                                 collector.setState(PerformanceAnalyzerMetricsCollector.State.MUTED);
                             }
                             LOG.info(

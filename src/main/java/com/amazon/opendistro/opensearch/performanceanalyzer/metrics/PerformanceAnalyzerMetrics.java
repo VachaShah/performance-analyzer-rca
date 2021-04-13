@@ -15,17 +15,18 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.metrics;
 
-
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatExceptionCode;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatsCollector;
 import com.amazon.opendistro.opensearch.performanceanalyzer.config.PluginSettings;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared.Event;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ParameterizedMessage;
@@ -46,6 +47,8 @@ public class PerformanceAnalyzerMetrics {
     public static final String sMasterTaskPath = "master_task";
     public static final String sFaultDetection = "fault_detection";
     public static final String sClusterApplierService = "cluster_applier_service";
+    public static final String sMasterClusterUpdate = "master_cluster_update";
+    public static final String sElectionTermPath = "election_term";
     public static final String sHttpPath = "http";
     public static final String sOSPath = "os_metrics";
     public static final String sHeapPath = "heap_metrics";
@@ -81,7 +84,9 @@ public class PerformanceAnalyzerMetrics {
     private static final int sTimeInterval =
             MetricsConfiguration.CONFIG_MAP.get(PerformanceAnalyzerMetrics.class).rotationInterval;
 
-    /** This method aligns the given time with the ROTATION_INTERVAL */
+    /**
+     * This method aligns the given time with the ROTATION_INTERVAL
+     */
     public static long getTimeInterval(long startTime) {
         return getTimeInterval(startTime, sTimeInterval);
     }
@@ -99,9 +104,7 @@ public class PerformanceAnalyzerMetrics {
                 Paths.get(PluginSettings.instance().getMetricsLocation())
                         .resolve(
                                 Paths.get(
-                                        String.valueOf(
-                                                PerformanceAnalyzerMetrics.getTimeInterval(
-                                                        startTime)),
+                                        String.valueOf(PerformanceAnalyzerMetrics.getTimeInterval(startTime)),
                                         keysPath));
         return sDevShmLocationPath.toString();
     }
@@ -111,14 +114,16 @@ public class PerformanceAnalyzerMetrics {
     }
 
     public static void addMetricEntry(StringBuilder value, String metricKey, String metricValue) {
-        value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
+        value
+                .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
                 .append(metricKey)
                 .append(PerformanceAnalyzerMetrics.sKeyValueDelimitor)
                 .append(metricValue);
     }
 
     public static void addMetricEntry(StringBuilder value, String metricKey, long metricValue) {
-        value.append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
+        value
+                .append(PerformanceAnalyzerMetrics.sMetricNewLineDelimitor)
                 .append(metricKey)
                 .append(PerformanceAnalyzerMetrics.sKeyValueDelimitor)
                 .append(metricValue);
@@ -201,12 +206,12 @@ public class PerformanceAnalyzerMetrics {
 
     public static String getJsonCurrentMilliSeconds() {
         return new StringBuilder()
-                .append("{\"")
-                .append(PerformanceAnalyzerMetrics.METRIC_CURRENT_TIME)
-                .append("\"")
-                .append(PerformanceAnalyzerMetrics.sKeyValueDelimitor)
-                .append(System.currentTimeMillis())
-                .append("}")
-                .toString();
+                       .append("{\"")
+                       .append(PerformanceAnalyzerMetrics.METRIC_CURRENT_TIME)
+                       .append("\"")
+                       .append(PerformanceAnalyzerMetrics.sKeyValueDelimitor)
+                       .append(System.currentTimeMillis())
+                       .append("}")
+                       .toString();
     }
 }

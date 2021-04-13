@@ -15,7 +15,6 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.reader;
 
-
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.AdmissionControlDimension;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.AdmissionControlValue;
@@ -27,6 +26,7 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.D
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.DevicePartitionValue;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.DiskDimension;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.DiskValue;
+import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.ElectionTermValue;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.HeapDimension;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.HeapValue;
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.IPDimension;
@@ -43,6 +43,7 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.AllMetrics.T
 import com.amazon.opendistro.opensearch.performanceanalyzer.metrics.PerformanceAnalyzerMetrics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.reader_writer_shared.Event;
 import com.google.common.annotations.VisibleForTesting;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -141,14 +142,14 @@ public final class MetricPropertiesConfig {
             // getRootLocation() may or may not end with File.separator.  So
             // I put ? next to File.separator.
             return getRootLocation()
-                    + File.separator
-                    + "?\\d+"
-                    + File.separator
-                    + PerformanceAnalyzerMetrics.sIndicesPath
-                    + File.separator
-                    + "(.*)"
-                    + File.separator
-                    + "(\\d+)";
+                           + File.separator
+                           + "?\\d+"
+                           + File.separator
+                           + PerformanceAnalyzerMetrics.sIndicesPath
+                           + File.separator
+                           + "(.*)"
+                           + File.separator
+                           + "(\\d+)";
         }
     }
 
@@ -162,8 +163,7 @@ public final class MetricPropertiesConfig {
     private MetricPropertiesConfig() {
         metricPathMap = new HashMap<>();
         metricPathMap.put(MetricName.CACHE_CONFIG, PerformanceAnalyzerMetrics.sCacheConfigPath);
-        metricPathMap.put(
-                MetricName.CIRCUIT_BREAKER, PerformanceAnalyzerMetrics.sCircuitBreakerPath);
+        metricPathMap.put(MetricName.CIRCUIT_BREAKER, PerformanceAnalyzerMetrics.sCircuitBreakerPath);
         metricPathMap.put(MetricName.HEAP_METRICS, PerformanceAnalyzerMetrics.sHeapPath);
         metricPathMap.put(MetricName.DISK_METRICS, PerformanceAnalyzerMetrics.sDisksPath);
         metricPathMap.put(MetricName.TCP_METRICS, PerformanceAnalyzerMetrics.sTCPPath);
@@ -171,45 +171,31 @@ public final class MetricPropertiesConfig {
         metricPathMap.put(MetricName.THREAD_POOL, PerformanceAnalyzerMetrics.sThreadPoolPath);
         metricPathMap.put(MetricName.SHARD_STATS, PerformanceAnalyzerMetrics.sIndicesPath);
         metricPathMap.put(MetricName.MASTER_PENDING, PerformanceAnalyzerMetrics.sPendingTasksPath);
-        metricPathMap.put(
-                MetricName.MOUNTED_PARTITION_METRICS,
+        metricPathMap.put(MetricName.MOUNTED_PARTITION_METRICS,
                 PerformanceAnalyzerMetrics.sMountedPartitionMetricsPath);
-        metricPathMap.put(
-                MetricName.CLUSTER_APPLIER_SERVICE,
-                PerformanceAnalyzerMetrics.sClusterApplierService);
-        metricPathMap.put(
-                MetricName.ADMISSION_CONTROL_METRICS,
-                PerformanceAnalyzerMetrics.sAdmissionControlMetricsPath);
-        metricPathMap.put(
-                MetricName.SHARD_INDEXING_PRESSURE,
-                PerformanceAnalyzerMetrics.sShardIndexingPressurePath);
+        metricPathMap.put(MetricName.CLUSTER_APPLIER_SERVICE, PerformanceAnalyzerMetrics.sClusterApplierService);
+        metricPathMap.put(MetricName.ELECTION_TERM, PerformanceAnalyzerMetrics.sElectionTermPath);
+        metricPathMap.put(MetricName.ADMISSION_CONTROL_METRICS, PerformanceAnalyzerMetrics.sAdmissionControlMetricsPath);
+        metricPathMap.put(MetricName.SHARD_INDEXING_PRESSURE, PerformanceAnalyzerMetrics.sShardIndexingPressurePath);
+        metricPathMap.put(MetricName.MASTER_CLUSTER_UPDATE_STATS, PerformanceAnalyzerMetrics.sMasterClusterUpdate);
 
         eventKeyToMetricNameMap = new HashMap<>();
-        eventKeyToMetricNameMap.put(
-                PerformanceAnalyzerMetrics.sCacheConfigPath, MetricName.CACHE_CONFIG);
-        eventKeyToMetricNameMap.put(
-                PerformanceAnalyzerMetrics.sCircuitBreakerPath, MetricName.CIRCUIT_BREAKER);
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sCacheConfigPath, MetricName.CACHE_CONFIG);
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sCircuitBreakerPath, MetricName.CIRCUIT_BREAKER);
         eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sHeapPath, MetricName.HEAP_METRICS);
         eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sDisksPath, MetricName.DISK_METRICS);
         eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sTCPPath, MetricName.TCP_METRICS);
         eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sIPPath, MetricName.IP_METRICS);
-        eventKeyToMetricNameMap.put(
-                PerformanceAnalyzerMetrics.sThreadPoolPath, MetricName.THREAD_POOL);
-        eventKeyToMetricNameMap.put(
-                PerformanceAnalyzerMetrics.sIndicesPath, MetricName.SHARD_STATS);
-        eventKeyToMetricNameMap.put(
-                PerformanceAnalyzerMetrics.sPendingTasksPath, MetricName.MASTER_PENDING);
-        eventKeyToMetricNameMap.put(
-                PerformanceAnalyzerMetrics.sMountedPartitionMetricsPath,
-                MetricName.MOUNTED_PARTITION_METRICS);
-        eventKeyToMetricNameMap.put(
-                PerformanceAnalyzerMetrics.sClusterApplierService,
-                MetricName.CLUSTER_APPLIER_SERVICE);
-        eventKeyToMetricNameMap.put(
-                PerformanceAnalyzerMetrics.sAdmissionControlMetricsPath,
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sThreadPoolPath, MetricName.THREAD_POOL);
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sIndicesPath, MetricName.SHARD_STATS);
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sPendingTasksPath, MetricName.MASTER_PENDING);
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sMountedPartitionMetricsPath, MetricName.MOUNTED_PARTITION_METRICS);
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sMasterClusterUpdate, MetricName.MASTER_CLUSTER_UPDATE_STATS);
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sClusterApplierService, MetricName.CLUSTER_APPLIER_SERVICE);
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sElectionTermPath, MetricName.ELECTION_TERM);
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sAdmissionControlMetricsPath,
                 MetricName.ADMISSION_CONTROL_METRICS);
-        eventKeyToMetricNameMap.put(
-                PerformanceAnalyzerMetrics.sShardIndexingPressurePath,
+        eventKeyToMetricNameMap.put(PerformanceAnalyzerMetrics.sShardIndexingPressurePath,
                 MetricName.SHARD_INDEXING_PRESSURE);
 
         metricName2Property = new HashMap<>();
@@ -272,32 +258,44 @@ public final class MetricPropertiesConfig {
                                 metricPathMap.get(MetricName.MASTER_PENDING),
                                 PerformanceAnalyzerMetrics.MASTER_CURRENT,
                                 PerformanceAnalyzerMetrics.MASTER_META_DATA)));
-        metricName2Property.put(
-                MetricName.MOUNTED_PARTITION_METRICS,
+        metricName2Property.put(MetricName.MOUNTED_PARTITION_METRICS,
                 new MetricProperties(
                         DevicePartitionDimension.values(),
                         DevicePartitionValue.values(),
-                        createFileHandler(
-                                metricPathMap.get(MetricName.MOUNTED_PARTITION_METRICS))));
+                        createFileHandler(metricPathMap.get(MetricName.MOUNTED_PARTITION_METRICS))
+                ));
         metricName2Property.put(
                 MetricName.CLUSTER_APPLIER_SERVICE,
                 new MetricProperties(
                         MetricProperties.EMPTY_DIMENSION,
                         AllMetrics.ClusterApplierServiceStatsValue.values(),
-                        createFileHandler(metricPathMap.get(MetricName.CLUSTER_APPLIER_SERVICE))));
+                        createFileHandler(
+                                metricPathMap.get(MetricName.CLUSTER_APPLIER_SERVICE))));
         metricName2Property.put(
-                MetricName.ADMISSION_CONTROL_METRICS,
+                MetricName.ELECTION_TERM,
+                new MetricProperties(
+                        MetricProperties.EMPTY_DIMENSION,
+                        ElectionTermValue.values(),
+                        createFileHandler(metricPathMap.get(MetricName.ELECTION_TERM))));
+        metricName2Property.put(MetricName.ADMISSION_CONTROL_METRICS,
                 new MetricProperties(
                         AdmissionControlDimension.values(),
                         AdmissionControlValue.values(),
-                        createFileHandler(
-                                metricPathMap.get(MetricName.ADMISSION_CONTROL_METRICS))));
+                        createFileHandler(metricPathMap.get(MetricName.ADMISSION_CONTROL_METRICS))
+                ));
         metricName2Property.put(
                 MetricName.SHARD_INDEXING_PRESSURE,
                 new MetricProperties(
                         AllMetrics.ShardIndexingPressureDimension.values(),
                         AllMetrics.ShardIndexingPressureValue.values(),
                         createFileHandler(metricPathMap.get(MetricName.SHARD_INDEXING_PRESSURE))));
+        metricName2Property.put(
+                MetricName.MASTER_CLUSTER_UPDATE_STATS,
+                new MetricProperties(
+                        MetricProperties.EMPTY_DIMENSION,
+                        AllMetrics.MasterClusterUpdateStatsValue.values(),
+                        createFileHandler(
+                                metricPathMap.get(MetricName.MASTER_CLUSTER_UPDATE_STATS))));
     }
 
     public static MetricPropertiesConfig getInstance() {

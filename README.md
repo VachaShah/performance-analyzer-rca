@@ -182,3 +182,7 @@ If you discover a potential security issue in this project we ask that you notif
 ## License
 
 This library is licensed under the Apache 2.0 License.
+
+## Copyright
+
+Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.

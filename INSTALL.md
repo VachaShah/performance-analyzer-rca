@@ -1,6 +1,6 @@
 # Building, Installing, and Running the RCA Framework
 
-This document walks you through the process of building and deploying the RCA framework along with the Performance Analyzer plugin. The RCA framework relies on the metrics provided by the [performance analyzer plugin](https://github.com/opendistro-for-elasticsearch/performance-analyzer). Since this code is still in development, the released versions of performance analyzer plugin do not support the RCA framework yet and you will have to build the plugin from source.
+This document walks you through the process of building and deploying the RCA framework along with the Performance Analyzer plugin. The RCA framework relies on the metrics provided by the [performance analyzer plugin](https://github.com/opensearch-project/performance-analyzer). Since this code is still in development, the released versions of performance analyzer plugin do not support the RCA framework yet and you will have to build the plugin from source.
 
     
  ## Building the Performance Analyzer plugin
@@ -20,7 +20,7 @@ This document walks you through the process of building and deploying the RCA fr
     
  #### 2. Clone the Performance Analyzer RCA repository as follows:
  
-    `git clone https://github.com/opendistro-for-elasticsearch/performance-analyzer-rca.git`
+    `git clone https://github.com/opensearch-project/performance-analyzer-rca.git`
     
     `cd performance-analyzer-rca`
     
@@ -67,7 +67,7 @@ This package uses the [Gradle](https://docs.gradle.org/current/userguide/usergui
 
 2. Clone the Performance Analyzer plugin repository as follows:
  
-    `git clone -b master --single-branch https://github.com/opendistro-for-elasticsearch/performance-analyzer.git`
+    `git clone -b master --single-branch https://github.com/opensearch-project/performance-analyzer.git`
    
 3. `cd performance-analyzer`
     

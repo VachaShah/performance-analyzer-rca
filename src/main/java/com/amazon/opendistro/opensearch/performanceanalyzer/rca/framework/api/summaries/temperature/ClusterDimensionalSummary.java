@@ -303,7 +303,7 @@ public class ClusterDimensionalSummary extends GenericSummary {
         /** The list of nodes that are part of this zone for a given dimension. */
         List<CompactClusterLevelNodeSummary> nodeProfileSummaries;
 
-        /** The EsNode with the minimum temperature value. */
+        /** The OpenSearch node with the minimum temperature value. */
         CompactClusterLevelNodeSummary minNode;
 
         /** The OpenSearch node with the maximum temperature value. */

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# Files created by OpenDistroForElasticsearch should always be group writable too
+# Files created by OpenSearch should always be group writable too
 umask 0002
 
 run_as_other_user_if_needed() {

@@ -399,7 +399,7 @@ task copyAllArtifacts(type: Copy) {
     def rcaArtifacts = Paths.get(projectPathStr, 'build', 'distributions', 'performance-analyzer-rca.zip')
     def paArtifacts = Paths.get(paDir, 'build', 'distributions', 'opendistro-performance-analyzer-1.13.0.0-SNAPSHOT.zip')
     // Replace this path to point to opensearch artifact local location
-    def opensearchArtifacts = Paths.get('/Users/partsrut/Desktop/rca-infra/opensearch-oss-7.10.3-SNAPSHOT-linux-x86_64.tar.gz')
+    def opensearchArtifacts = Paths.get('../opensearch-oss-7.10.3-SNAPSHOT-linux-x86_64.tar.gz')
 
     dockerArtifactsDir = Paths.get(dockerBuildDir, 'rca-docker')
     from(dockerArtifacts)
@@ -570,13 +570,13 @@ def enableComponent(endpoint, desiredState, timeoutSeconds) {
     }
 }
 
-Boolean esIsUp
+Boolean openSearchIsUp
 
-def esUpChecker = {
+def openSearchUpChecker = {
     String server = "http://localhost:9200"
     int timeoutSeconds = 2 * 60
     getHttpResponse(server, timeoutSeconds)
-    esIsUp = true
+    openSearchIsUp = true
 }
 
 // Attempts to enable PA for up to 2 minutes. Returns when PA is successfully enabled or
@@ -595,7 +595,7 @@ def rcaUpChecker = {
     enableComponent(server, 3, timeoutSeconds)
 }
 
-Thread esRunnerThread
+Thread openSearchRunnerThread
 
 def runInThread(cl, input) {
     return Thread.start {
@@ -606,8 +606,8 @@ def runInThread(cl, input) {
 task waitForOpenSearch {
     dependsOn(buildDocker)
     doLast {
-        esRunnerThread = runInThread(runDockerCompose, dockerArtifactsDir)
-        esUpChecker()
+        openSearchRunnerThread = runInThread(runDockerCompose, dockerArtifactsDir)
+        openSearchUpChecker()
     }
 }
 

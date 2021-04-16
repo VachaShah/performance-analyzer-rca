@@ -15,56 +15,128 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.metrics;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.Statistics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.measurements.MeasurementSet;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public enum WriterMetrics implements MeasurementSet {
-    SHARD_STATE_COLLECTOR_EXECUTION_TIME("ShardStateCollectorExecutionTime", "millis", Arrays.asList(
-            Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
+    SHARD_STATE_COLLECTOR_EXECUTION_TIME(
+            "ShardStateCollectorExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    MASTER_THROTTLING_COLLECTOR_EXECUTION_TIME("MasterThrottlingCollectorExecutionTime", "millis", Arrays.asList(
-            Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
+    MASTER_THROTTLING_COLLECTOR_EXECUTION_TIME(
+            "MasterThrottlingCollectorExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    MASTER_THROTTLING_COLLECTOR_NOT_AVAILABLE("MasterThrottlingCollectorNotAvailable", "count", Arrays.asList(
-            Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
+    MASTER_THROTTLING_COLLECTOR_NOT_AVAILABLE(
+            "MasterThrottlingCollectorNotAvailable",
+            "count",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    ADMISSION_CONTROL_COLLECTOR_EXECUTION_TIME("AdmissionControlCollectorExecutionTime", "millis", Arrays.asList(
-            Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
+    ADMISSION_CONTROL_COLLECTOR_EXECUTION_TIME(
+            "AdmissionControlCollectorExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    ADMISSION_CONTROL_COLLECTOR_NOT_AVAILABLE("AdmissionControlCollectorNotAvailable", "count", Arrays.asList(
-            Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
+    ADMISSION_CONTROL_COLLECTOR_NOT_AVAILABLE(
+            "AdmissionControlCollectorNotAvailable",
+            "count",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    FAULT_DETECTION_COLLECTOR_EXECUTION_TIME("FaultDetectionCollectorExecutionTime", "millis", Arrays.asList(
-            Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
+    FAULT_DETECTION_COLLECTOR_EXECUTION_TIME(
+            "FaultDetectionCollectorExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_EXECUTION_TIME("ClusterApplierServiceStatsCollectorExecutionTime",
-            "millis", Arrays.asList(Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT,
-            Statistics.SUM)),
+    CLUSTER_APPLIER_SERVICE_STATS_COLLECTOR_EXECUTION_TIME(
+            "ClusterApplierServiceStatsCollectorExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    MASTER_CLUSTER_UPDATE_STATS_COLLECTOR_DISABLED("MasterClusterUpdateStatsCollectorDisabled", "count", Arrays.asList(
-            Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
+    MASTER_CLUSTER_UPDATE_STATS_COLLECTOR_DISABLED(
+            "MasterClusterUpdateStatsCollectorDisabled",
+            "count",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
+    MASTER_CLUSTER_UPDATE_STATS_COLLECTOR_EXECUTION_TIME(
+            "MasterClusterUpdateStatsCollectorExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    MASTER_CLUSTER_UPDATE_STATS_COLLECTOR_EXECUTION_TIME("MasterClusterUpdateStatsCollectorExecutionTime",
-            "millis", Arrays.asList(Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT,
-            Statistics.SUM)),
+    ELECTION_TERM_COLLECTOR_EXECUTION_TIME(
+            "ElectionTermCollectorExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
-    ELECTION_TERM_COLLECTOR_EXECUTION_TIME("ElectionTermCollectorExecutionTime", "millis", Arrays.asList(
-            Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
-
-    SHARD_INDEXING_PRESSURE_COLLECTOR_EXECUTION_TIME("ShardIndexingPressureCollectorExecutionTime", "millis", Arrays.asList(
-            Statistics.MAX, Statistics.MIN, Statistics.MEAN, Statistics.COUNT, Statistics.SUM)),
+    SHARD_INDEXING_PRESSURE_COLLECTOR_EXECUTION_TIME(
+            "ShardIndexingPressureCollectorExecutionTime",
+            "millis",
+            Arrays.asList(
+                    Statistics.MAX,
+                    Statistics.MIN,
+                    Statistics.MEAN,
+                    Statistics.COUNT,
+                    Statistics.SUM)),
 
     STALE_METRICS("StaleMetrics", "count", Arrays.asList(Statistics.COUNT)),
     ;
 
-    /**
-     * What we want to appear as the metric name.
-     */
+    /** What we want to appear as the metric name. */
     private String name;
 
     /**

@@ -15,9 +15,9 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.metrics;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.eval.Statistics;
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.stats.measurements.MeasurementSet;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -25,29 +25,27 @@ public enum ExceptionsAndErrors implements MeasurementSet {
     RCA_FRAMEWORK_CRASH("RcaFrameworkCrash"),
 
     /**
-     * These are the cases when an exception was throws in the {@code operate()} method, that each RCA
-     * graph node implements.
+     * These are the cases when an exception was throws in the {@code operate()} method, that each
+     * RCA graph node implements.
      */
     EXCEPTION_IN_OPERATE("ExceptionInOperate", "namedCount", Statistics.NAMED_COUNTERS),
 
     /**
-     * These are the cases when an exception was throws in the {@code compute()} method in publisher.
+     * These are the cases when an exception was throws in the {@code compute()} method in
+     * publisher.
      */
     EXCEPTION_IN_COMPUTE("ExceptionInCompute", "namedCount", Statistics.NAMED_COUNTERS),
 
-    /**
-     * When calling the MetricsDB API throws an exception.
-     */
+    /** When calling the MetricsDB API throws an exception. */
     EXCEPTION_IN_GATHER("ExceptionInGather", "namedCount", Statistics.NAMED_COUNTERS),
 
     /**
-     * When persisting action or flowunits, the persistable throws an exception when it is unable to write to DB.
+     * When persisting action or flowunits, the persistable throws an exception when it is unable to
+     * write to DB.
      */
     EXCEPTION_IN_PERSIST("ExceptionInPersist", "namedCount", Statistics.NAMED_COUNTERS),
 
-    /**
-     * When the reader encounters errors accessing metricsdb files.
-     */
+    /** When the reader encounters errors accessing metricsdb files. */
     READER_METRICSDB_ACCESS_ERRORS("ReaderMetricsdbAccessError"),
 
     SHARD_STATE_COLLECTOR_ERROR("ShardStateCollectorError"),
@@ -66,9 +64,7 @@ public enum ExceptionsAndErrors implements MeasurementSet {
 
     SHARD_INDEXING_PRESSURE_COLLECTOR_ERROR("ShardIndexingPressureMetricsCollectorError");
 
-    /**
-     * What we want to appear as the metric name.
-     */
+    /** What we want to appear as the metric name. */
     private String name;
 
     /**

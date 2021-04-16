@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.jvm;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.OSMetricsGeneratorFactory;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.ScheduledMetricCollectorsExecutor;
 import com.amazon.opendistro.opensearch.performanceanalyzer.collectors.StatExceptionCode;
@@ -37,14 +38,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sun.tools.attach.HotSpotVirtualMachine;
 
-/**
- * Traverses and prints the stack traces for all Java threads in the remote VM
- */
+/** Traverses and prints the stack traces for all Java threads in the remote VM */
 public class ThreadList {
     private static final Map<Long, String> jTidNameMap = new ConcurrentHashMap<>();
     private static final Map<Long, ThreadState> nativeTidMap = new ConcurrentHashMap<>();
@@ -92,31 +90,31 @@ public class ThreadList {
         @Override
         public String toString() {
             return new StringBuilder()
-                           .append("javatid:")
-                           .append(javaTid)
-                           .append(" nativetid:")
-                           .append(nativeTid)
-                           .append(" name:")
-                           .append(threadName)
-                           .append(" state:")
-                           .append(tState)
-                           .append("(")
-                           .append(state)
-                           .append(")")
-                           .append(" heaprate: ")
-                           .append(heapAllocRate)
-                           .append(" bTime: ")
-                           .append(avgBlockedTime)
-                           .append(":")
-                           .append(blockedCount)
-                           .toString();
+                    .append("javatid:")
+                    .append(javaTid)
+                    .append(" nativetid:")
+                    .append(nativeTid)
+                    .append(" name:")
+                    .append(threadName)
+                    .append(" state:")
+                    .append(tState)
+                    .append("(")
+                    .append(state)
+                    .append(")")
+                    .append(" heaprate: ")
+                    .append(heapAllocRate)
+                    .append(" bTime: ")
+                    .append(avgBlockedTime)
+                    .append(":")
+                    .append(blockedCount)
+                    .toString();
         }
     }
 
     /**
-     * This is called from OSMetricsCollector#collectMetrics. So this is not called
-     * in the critical path of OpenSearch request handling. Even for the collector thread,
-     * we do a timed wait to acquire this lock and move on if we could not get it.
+     * This is called from OSMetricsCollector#collectMetrics. So this is not called in the critical
+     * path of OpenSearch request handling. Even for the collector thread, we do a timed wait to
+     * acquire this lock and move on if we could not get it.
      *
      * @return A hashmap of threadId to threadState.
      */
@@ -132,7 +130,8 @@ public class ThreadList {
                 vmAttachLock.unlock();
             }
         } else {
-            StatsCollector.instance().logException(StatExceptionCode.JVM_ATTACH_LOCK_ACQUISITION_FAILED);
+            StatsCollector.instance()
+                    .logException(StatExceptionCode.JVM_ATTACH_LOCK_ACQUISITION_FAILED);
         }
 
         // - sending a copy so that if runThreadDump next iteration clears it; caller still has the
@@ -143,14 +142,13 @@ public class ThreadList {
     }
 
     /**
-     * This method is called from the critical bulk and search paths which PA
-     * intercepts. This method used to try to do a thread dump if it could not
-     * find the information about the thread in question. The thread dump is an
-     * expensive operation and can stall see VirtualMachineImpl#VirtualMachineImpl()
-     * for jdk-11 u06. We don't want the OpenSearch threads to pay the price. We skip this
-     * iteration and then hopefully in the next call to getNativeTidMap(), the
-     * OSMetricsCollector#collectMetrics will fill the jTidMap. This transfers the
-     * responsibility from the OpenSearch threads to the PA collector threads.
+     * This method is called from the critical bulk and search paths which PA intercepts. This
+     * method used to try to do a thread dump if it could not find the information about the thread
+     * in question. The thread dump is an expensive operation and can stall see
+     * VirtualMachineImpl#VirtualMachineImpl() for jdk-11 u06. We don't want the OpenSearch threads
+     * to pay the price. We skip this iteration and then hopefully in the next call to
+     * getNativeTidMap(), the OSMetricsCollector#collectMetrics will fill the jTidMap. This
+     * transfers the responsibility from the OpenSearch threads to the PA collector threads.
      *
      * @param threadId The threadId of the current thread.
      * @return If we have successfully captured the ThreadState, then we emit it or Null otherwise.
@@ -170,17 +168,19 @@ public class ThreadList {
             vm = VirtualMachine.attach(pid);
         } catch (Exception ex) {
             if (ex.getMessage().contains("java_pid")) {
-                StatsCollector.instance().logException(StatExceptionCode.JVM_ATTACH_ERROR_JAVA_PID_FILE_MISSING);
+                StatsCollector.instance()
+                        .logException(StatExceptionCode.JVM_ATTACH_ERROR_JAVA_PID_FILE_MISSING);
             } else {
                 StatsCollector.instance().logException(StatExceptionCode.JVM_ATTACH_ERROR);
             }
-            // If the thread dump failed then we clean up the old map. So, next time when the collection
+            // If the thread dump failed then we clean up the old map. So, next time when the
+            // collection
             // happens as it would after a bootup.
             oldNativeTidMap.clear();
             return;
         }
 
-        try (InputStream in = ((HotSpotVirtualMachine) vm).remoteDataDump(args);) {
+        try (InputStream in = ((HotSpotVirtualMachine) vm).remoteDataDump(args); ) {
             createMap(in);
         } catch (Exception ex) {
             StatsCollector.instance().logException(StatExceptionCode.JVM_ATTACH_ERROR);
@@ -189,7 +189,8 @@ public class ThreadList {
 
         try {
             vm.detach();
-            StatsCollector.instance().logMetric(StatExceptionCode.JVM_THREAD_DUMP_SUCCESSFUL.toString());
+            StatsCollector.instance()
+                    .logMetric(StatExceptionCode.JVM_THREAD_DUMP_SUCCESSFUL.toString());
         } catch (Exception ex) {
             StatsCollector.instance().logException(StatExceptionCode.JVM_ATTACH_ERROR);
         }
@@ -200,8 +201,9 @@ public class ThreadList {
             try {
                 parseThreadInfo(info);
             } catch (Exception ex) {
-                // If the ids provided to the getThreadInfo() call are not valid ids or the threads no
-                //longer exists, then the corresponding info object will contain null.
+                // If the ids provided to the getThreadInfo() call are not valid ids or the threads
+                // no
+                // longer exists, then the corresponding info object will contain null.
                 StatsCollector.instance()
                         .logException(StatExceptionCode.JVM_THREAD_ID_NO_LONGER_EXISTS);
             }
@@ -246,7 +248,9 @@ public class ThreadList {
                     Math.max(t.heapUsage - oldt.heapUsage, 0) * 1.0e3 / (curRunTime - lastRunTime);
             if (t.blockedTime != -1 && t.blockedCount > oldt.blockedCount) {
                 t.avgBlockedTime =
-                        1.0e-3 * (t.blockedTime - oldt.blockedTime) / (t.blockedCount - oldt.blockedCount);
+                        1.0e-3
+                                * (t.blockedTime - oldt.blockedTime)
+                                / (t.blockedCount - oldt.blockedCount);
             } else {
                 CircularLongArray arr = ThreadHistory.tidHistoryMap.get(t.nativeTid);
                 // NOTE: this is an upper bound
@@ -260,9 +264,12 @@ public class ThreadList {
 
     static void runThreadDump(String pid, String[] args) {
         String currentThreadName = Thread.currentThread().getName();
-        assert currentThreadName.startsWith(ScheduledMetricCollectorsExecutor.COLLECTOR_THREAD_POOL_NAME)
-                       || currentThreadName.equals(ScheduledMetricCollectorsExecutor.class.getSimpleName()) :
-                String.format("Thread dump called from a non os collector thread: %s", currentThreadName);
+        assert currentThreadName.startsWith(
+                                ScheduledMetricCollectorsExecutor.COLLECTOR_THREAD_POOL_NAME)
+                        || currentThreadName.equals(
+                                ScheduledMetricCollectorsExecutor.class.getSimpleName())
+                : String.format(
+                        "Thread dump called from a non os collector thread: %s", currentThreadName);
         jTidNameMap.clear();
         oldNativeTidMap.putAll(nativeTidMap);
         nativeTidMap.clear();
@@ -346,8 +353,9 @@ public class ThreadList {
 
         public static void cleanup() {
             long curTime = System.currentTimeMillis();
-            for (Iterator<Map.Entry<Long, CircularLongArray>> it = tidHistoryMap.entrySet().iterator();
-                 it.hasNext(); ) {
+            for (Iterator<Map.Entry<Long, CircularLongArray>> it =
+                            tidHistoryMap.entrySet().iterator();
+                    it.hasNext(); ) {
                 Map.Entry<Long, CircularLongArray> me = it.next();
                 CircularLongArray arr = me.getValue();
                 // delete items updated older than 300s

@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.opensearch.performanceanalyzer.metrics;
 
+
 import com.amazon.opendistro.opensearch.performanceanalyzer.rca.framework.api.persist.JooqFieldValue;
 import org.jooq.Field;
 import org.jooq.impl.DSL;
@@ -22,9 +23,9 @@ import org.jooq.impl.DSL;
 /**
  * Contract between reader and writer. Writer write using the same values of these enums as json
  * keys (See all MetricStatus's subclasses in
- * com.amazon.opendistro.opensearch.performanceanalyzer.collectors), while reader creates db
- * tables using these keys as column names and extract values using these keys. You should make sure
- * the the field names in the MetricStatus's subclasses and enum names match. Also, when you change
+ * com.amazon.opendistro.opensearch.performanceanalyzer.collectors), while reader creates db tables
+ * using these keys as column names and extract values using these keys. You should make sure the
+ * the field names in the MetricStatus's subclasses and enum names match. Also, when you change
  * anything, modify JsonKeyTest accordingly. We use camelCase instead of the usual capital case for
  * enum members because they have better readability for the above use cases.
  */
@@ -57,7 +58,6 @@ public class AllMetrics {
         ROLE(Constants.ROLE_VALUE),
         IS_MASTER_NODE(Constants.IS_MASTER_NODE);
 
-
         private final String value;
 
         NodeDetailColumns(String value) {
@@ -77,9 +77,7 @@ public class AllMetrics {
         }
     }
 
-    /**
-     * Enumeration of the roles.
-     */
+    /** Enumeration of the roles. */
     public enum NodeRole {
         MASTER(RoleConstants.MASTER),
         ELECTED_MASTER(RoleConstants.ELECTED_MASTER),
@@ -194,7 +192,7 @@ public class AllMetrics {
         }
     }
 
-    //list of caches
+    // list of caches
     public enum CacheType {
         FIELD_DATA_CACHE(Constants.FIELD_DATA_CACHE_NAME),
         SHARD_REQUEST_CACHE(Constants.SHARD_REQUEST_CACHE_NAME),
@@ -328,7 +326,6 @@ public class AllMetrics {
     }
 
     public enum GCInfoDimension implements MetricDimension, JooqFieldValue {
-
         MEMORY_POOL(Constants.MEMORY_POOL_VALUE),
         COLLECTOR_NAME(Constants.COLLECTOR_NAME_VALUE);
 
@@ -625,7 +622,7 @@ public class AllMetrics {
         }
     }
 
-    //list of threadpools
+    // list of threadpools
     public enum ThreadPoolType {
         ANALYZE(Constants.ANALYZE_NAME),
         FETCH_SHARD_STARTED(Constants.FETCH_SHARD_STARTED_NAME),
@@ -848,8 +845,10 @@ public class AllMetrics {
     }
 
     public enum ClusterApplierServiceStatsValue implements MetricValue {
-        CLUSTER_APPLIER_SERVICE_LATENCY(ClusterApplierServiceStatsValue.Constants.CLUSTER_APPLIER_SERVICE_LATENCY),
-        CLUSTER_APPLIER_SERVICE_FAILURE(ClusterApplierServiceStatsValue.Constants.CLUSTER_APPLIER_SERVICE_FAILURE);
+        CLUSTER_APPLIER_SERVICE_LATENCY(
+                ClusterApplierServiceStatsValue.Constants.CLUSTER_APPLIER_SERVICE_LATENCY),
+        CLUSTER_APPLIER_SERVICE_FAILURE(
+                ClusterApplierServiceStatsValue.Constants.CLUSTER_APPLIER_SERVICE_FAILURE);
 
         private final String value;
 
@@ -863,8 +862,10 @@ public class AllMetrics {
         }
 
         public static class Constants {
-            public static final String CLUSTER_APPLIER_SERVICE_LATENCY = "ClusterApplierService_Latency";
-            public static final String CLUSTER_APPLIER_SERVICE_FAILURE = "ClusterApplierService_Failure";
+            public static final String CLUSTER_APPLIER_SERVICE_LATENCY =
+                    "ClusterApplierService_Latency";
+            public static final String CLUSTER_APPLIER_SERVICE_FAILURE =
+                    "ClusterApplierService_Failure";
         }
     }
 
@@ -884,8 +885,10 @@ public class AllMetrics {
         }
 
         public static class Constants {
-            public static final String PUBLISH_CLUSTER_STATE_LATENCY = "PublishClusterState_Latency";
-            public static final String PUBLISH_CLUSTER_STATE_FAILURE = "PublishClusterState_Failure";
+            public static final String PUBLISH_CLUSTER_STATE_LATENCY =
+                    "PublishClusterState_Latency";
+            public static final String PUBLISH_CLUSTER_STATE_FAILURE =
+                    "PublishClusterState_Failure";
         }
     }
 
@@ -909,13 +912,10 @@ public class AllMetrics {
     }
 
     public enum MasterThrottlingValue implements MetricValue {
-        /**
-         * Sum of total pending tasks throttled by master node.
-         */
-        MASTER_THROTTLED_PENDING_TASK_COUNT(MasterThrottlingValue.Constants.THROTTLED_PENDING_TASK_COUNT),
-        /**
-         * Number of pending tasks on which data nodes are actively performing retries.
-         */
+        /** Sum of total pending tasks throttled by master node. */
+        MASTER_THROTTLED_PENDING_TASK_COUNT(
+                MasterThrottlingValue.Constants.THROTTLED_PENDING_TASK_COUNT),
+        /** Number of pending tasks on which data nodes are actively performing retries. */
         DATA_RETRYING_TASK_COUNT(MasterThrottlingValue.Constants.RETRYING_TASK_COUNT);
 
         private final String value;
@@ -930,7 +930,8 @@ public class AllMetrics {
         }
 
         public static class Constants {
-            public static final String THROTTLED_PENDING_TASK_COUNT = "Master_ThrottledPendingTasksCount";
+            public static final String THROTTLED_PENDING_TASK_COUNT =
+                    "Master_ThrottledPendingTasksCount";
             public static final String RETRYING_TASK_COUNT = "Data_RetryingPendingTasksCount";
         }
     }
@@ -1403,9 +1404,7 @@ public class AllMetrics {
         }
     }
 
-    /**
-     * Enumeration of the indexing stages.
-     */
+    /** Enumeration of the indexing stages. */
     public enum IndexingStage {
         COORDINATING(Constants.COORDINATING_VALUE),
         PRIMARY(Constants.PRIMARY_VALUE),
@@ -1429,9 +1428,7 @@ public class AllMetrics {
         }
     }
 
-    /**
-     * Enumeration of the Shard Indexing Pressure Dimension
-     */
+    /** Enumeration of the Shard Indexing Pressure Dimension */
     public enum ShardIndexingPressureDimension implements MetricDimension {
         INDEXING_STAGE(Constants.INDEXING_STAGE),
         INDEX_NAME(Constants.INDEX_NAME_VALUE),
@@ -1456,20 +1453,14 @@ public class AllMetrics {
     }
 
     /**
-     * Column names of Rejection_Count table
-     * NodeRole | IndexName | ShardID | sum | avg | min |max
-     * Column names of Current_Bytes table
-     * NodeRole | IndexName | ShardID | sum | avg | min |max
-     * Column names of Current_Limits table
-     * NodeRole | IndexName | ShardID | sum | avg | min |max
-     * Column names of Average_Window_Throughput table
-     * NodeRole | IndexName | ShardID | sum | avg | min |max
-     * Column names of Last_Successful_Timestamp table
-     * NodeRole | IndexName | ShardID | sum | avg | min |max
+     * Column names of Rejection_Count table NodeRole | IndexName | ShardID | sum | avg | min |max
+     * Column names of Current_Bytes table NodeRole | IndexName | ShardID | sum | avg | min |max
+     * Column names of Current_Limits table NodeRole | IndexName | ShardID | sum | avg | min |max
+     * Column names of Average_Window_Throughput table NodeRole | IndexName | ShardID | sum | avg |
+     * min |max Column names of Last_Successful_Timestamp table NodeRole | IndexName | ShardID | sum
+     * | avg | min |max
      *
-     * <p>Example:
-     * Coordinating|pmc|4|1.0|1.0|1.0|1.0
-     * Primary|pmc|2|1.0|1.0|1.0|1.0
+     * <p>Example: Coordinating|pmc|4|1.0|1.0|1.0|1.0 Primary|pmc|2|1.0|1.0|1.0|1.0
      */
     public enum ShardIndexingPressureValue implements MetricValue {
         REJECTION_COUNT(Constants.REJECTION_COUNT_VALUE),
@@ -1493,8 +1484,10 @@ public class AllMetrics {
             public static final String REJECTION_COUNT_VALUE = "Indexing_Pressure_Rejection_Count";
             public static final String CURRENT_BYTES = "Indexing_Pressure_Current_Bytes";
             public static final String CURRENT_LIMITS = "Indexing_Pressure_Current_Limits";
-            public static final String AVERAGE_WINDOW_THROUGHPUT = "Indexing_Pressure_Average_Window_Throughput";
-            public static final String LAST_SUCCESSFUL_TIMESTAMP = "Indexing_Pressure_Last_Successful_Timestamp";
+            public static final String AVERAGE_WINDOW_THROUGHPUT =
+                    "Indexing_Pressure_Average_Window_Throughput";
+            public static final String LAST_SUCCESSFUL_TIMESTAMP =
+                    "Indexing_Pressure_Last_Successful_Timestamp";
         }
     }
 

@@ -21,7 +21,8 @@ import com.amazon.opendistro.opensearch.performanceanalyzer.metricsdb.Metric;
 
 public class PublishClusterState_Latency extends Metric {
     public PublishClusterState_Latency(long evaluationIntervalSeconds) {
-        super(AllMetrics.MasterClusterUpdateStatsValue.PUBLISH_CLUSTER_STATE_LATENCY.name(),
+        super(
+                AllMetrics.MasterClusterUpdateStatsValue.PUBLISH_CLUSTER_STATE_LATENCY.name(),
                 evaluationIntervalSeconds);
     }
 }

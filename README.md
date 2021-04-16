@@ -7,10 +7,10 @@
 ## Performance Analyzer RCA
 
 The Performance Analyzer RCA is a framework that builds on the Performance Analyzer engine to
-support Root Cause Analysis (RCA) of performance and reliability problems in Elasticsearch
+support Root Cause Analysis (RCA) of performance and reliability problems in OpenSearch
 clusters. This framework executes real time root cause analyses using Performance Analyzer
 metrics. Root cause analysis can significantly improve operations, administration and
-provisioning of Elasticsearch clusters, and it can enable Elasticsearch client teams to tune
+provisioning of OpenSearch clusters, and it can enable OpenSearch client teams to tune
 their workloads to reduce errors.
 
 ## RCA Overview
@@ -43,7 +43,7 @@ __WireHopper__: Interface between the scheduler and the networking layer to help
 
 __Context__: The context contains a brief summary of the RCA. For example, a High CPU utilization symptom context will contain the average CPU utilization when the symptom was triggered. 
 
-__Thresholds__: Thresholds are static values that must be exceeded to trigger symptoms and RCAs. Thresholds can be dynamically updated and do not require a process restart. Thresholds are user defined and often depend on hardware configuration and Elasticsearch versions. The threshold store supports tags to help associate metadata with a threshold.
+__Thresholds__: Thresholds are static values that must be exceeded to trigger symptoms and RCAs. Thresholds can be dynamically updated and do not require a process restart. Thresholds are user defined and often depend on hardware configuration and OpenSearch versions. The threshold store supports tags to help associate metadata with a threshold.
 
 __Tags__: Tags are key-value pairs that are specified in the configuration file(rca.conf). Tags can be associated with both hosts and RCA nodes.
 * RCA nodes are only executed on hosts with the exact same tags as the RCA node. A common use-case of tags is to restrict certain RCA nodes to only execute on the master node. 

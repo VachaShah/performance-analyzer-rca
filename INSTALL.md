@@ -89,7 +89,7 @@ This package uses the [Gradle](https://docs.gradle.org/current/userguide/usergui
  
 ### Setup
 
-Currently, for the alpha development-only source code release, we support installing and running the RCA framework only on Open Distro for Elasticsearch Docker containers.
+Currently, for the alpha development-only source code release, we support installing and running the RCA framework only on OpenSearch Docker containers.
   
 You can use the packaged Dockerfile and docker-compose.yml files [here](./docker) to spin up a cluster with RCA framework installed.
   
